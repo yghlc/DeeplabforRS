@@ -15,7 +15,7 @@ for id in $(seq 12 23); do
 done
 
 #update list
-./get_list.sh
+${eo_dir}/get_list.sh
 
 #exit 
 #backup 
@@ -38,5 +38,5 @@ mv split_images_temp/* split_images/.
 mv split_labels_temp/* split_labels/.
 
 # update list file
-./get_list.sh
+${eo_dir}/get_list.sh
 
