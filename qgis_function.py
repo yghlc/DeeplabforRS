@@ -12,7 +12,7 @@ import basic_src.basic as basic
 import basic_src.io_function as io_function
 import os,sys
 from optparse import OptionParser
-import parameters
+# import parameters
 
 #qgis  if change interpreter to python3, then pycharm complain it can not find qgis and processing
 from qgis.core import *
