@@ -52,16 +52,16 @@ def calculate_gully_information(gullies_shp):
     :return: True if successful, False Otherwise
     """
     operation_obj = shape_opeation()
-    output_shapeinfo = io_function.get_name_by_adding_tail(gullies_shp, 'shapeInfo')
-    if os.path.isfile(output_shapeinfo) is False:
-        operation_obj.get_polygon_shape_info(gullies_shp, output_shapeinfo)
-    else:
-        basic.outputlogMessage('warning, %s already exist, skip calculate shape feature' % output_shapeinfo)
-    # put all feature to one shapefile
-    # parameter 3 the same as parameter 1 to overwrite the input file
-
-    # note: the area in here, is the area of the oriented minimum bounding box, not the area of polygon
-    operation_obj.add_fields_shape(gullies_shp, output_shapeinfo, gullies_shp)
+    # output_shapeinfo = io_function.get_name_by_adding_tail(gullies_shp, 'shapeInfo')
+    # if os.path.isfile(output_shapeinfo) is False:
+    #     operation_obj.get_polygon_shape_info(gullies_shp, output_shapeinfo)
+    # else:
+    #     basic.outputlogMessage('warning, %s already exist, skip calculate shape feature' % output_shapeinfo)
+    # # put all feature to one shapefile
+    # # parameter 3 the same as parameter 1 to overwrite the input file
+    #
+    # # note: the area in here, is the area of the oriented minimum bounding box, not the area of polygon
+    # operation_obj.add_fields_shape(gullies_shp, output_shapeinfo, gullies_shp)
 
     # add width/height (suppose height greater than width)
     # width_height_list = operation_obj.get_shape_records_value(gullies_shp,attributes=['WIDTH','HEIGHT'])
@@ -201,9 +201,9 @@ def main(options, args):
         return False
     ratio_thr = options.min_ratio
 
-    remove_small_round_polygons(input,output,area_thr,ratio_thr)
+    remove_small_round_polygons(ouput_merged,output,area_thr,ratio_thr)
 
-    # evaluation result
+    # # evaluation result
     # val_path = parameters.get_validation_shape()
     # evaluation_result(output,val_path)
 

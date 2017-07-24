@@ -210,9 +210,6 @@ def copy_file_to_dst(file_path, dst_name, overwrite=False):
         basic.outputlogMessage("%s already exist, skip copy file"%dst_name)
         return True
 
-    if os.path.isfile(dst_name) and overwrite is True:
-        delete_file_or_dir(dst_name)
-
     if file_path==dst_name:
         basic.outputlogMessage('warning: shutil.SameFileError')
         return True
