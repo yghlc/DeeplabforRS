@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 # Filename: vector_features 
 """
 introduction: shapefile operation based on pyshp
