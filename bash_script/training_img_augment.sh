@@ -1,7 +1,7 @@
 #!/bin/bash
 
 root=/home/hlc/Data/eboling/eboling_uav_images/dom
-eo_dir=/home/hlc/codes/DeepNetsForEO/notebooks
+eo_dir=/home/hlc/codes/PycharmProjects/DeeplabforRS
 augscript=${eo_dir}/image_augment.py
 test_dir=EbolingUAV_deeplab_7
 
@@ -15,7 +15,7 @@ for id in $(seq 12 23); do
 done
 
 #update list
-./get_list.sh
+${eo_dir}/get_list.sh
 
 #exit 
 #backup 
@@ -38,5 +38,5 @@ mv split_images_temp/* split_images/.
 mv split_labels_temp/* split_labels/.
 
 # update list file
-./get_list.sh
+${eo_dir}/get_list.sh
 

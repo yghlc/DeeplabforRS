@@ -3,7 +3,7 @@
 rm  post_pro_val_result/*
 mkdir post_pro_val_result
 
-eo_dir=/home/hlc/codes/DeepNetsForEO/notebooks
+eo_dir=/home/hlc/codes/PycharmProjects/DeeplabforRS
 expr=${PWD}
 testid=$(basename $expr)
 
@@ -38,5 +38,8 @@ rm out_*
 
 # convert to shapefile
 gdal_polygonize.py -8 ${testid}_out.tif -b 1 -f "ESRI Shapefile" ${testid}_gully.shp
+
+# post processing of shapefile
+${eo_dir}/polygon_post_process.py -a 20 -r 25 ${testid}_gully.shp ${testid}_gully_post.shp
 
 cd ..
