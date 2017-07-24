@@ -1,7 +1,7 @@
 #!/bin/bash
 
 root=/home/hlc/Data/eboling/eboling_uav_images/dom
-eo_dir=/home/hlc/codes/DeepNetsForEO/notebooks
+eo_dir=/home/hlc/codes/PycharmProjects/DeeplabforRS
 augscript=${eo_dir}/image_augment.py
 test_dir=EbolingUAV_deeplab_7
 

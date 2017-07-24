@@ -2,8 +2,11 @@
 
 root=/home/hlc/Data/eboling/eboling_uav_images/dom
 train_shp=/home/hlc/Data/eboling/training_validation_data/gps_rtk/gps_rtk_polygons_3_fix.shp
-eo_dir=/home/hlc/codes/DeepNetsForEO/notebooks
-test_dir=EbolingUAV_deeplab_7
+eo_dir=/home/hlc/codes/PycharmProjects/DeeplabforRS
+
+# current folder (without path)
+test_dir=${PWD##*/}
+
 
 rm ${root}/${test_dir}/top/*
 rm ${root}/${test_dir}/gts_numpy/*
