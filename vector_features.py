@@ -967,7 +967,7 @@ def merge_touched_polygons_in_shapefile(shape_file,out_shp):
         return False
     merge_result = merge_touched_polygons(polygon_shapely,adjacent_matrix)
 
-    b_keep_holse = parameters.get_b_keep_holes()
+    b_keep_holse = True #parameters.get_b_keep_holes()
     pyshp_polygons = [shape_from_shapely_to_pyshp(shapely_polygon,keep_holes=b_keep_holse) for shapely_polygon in merge_result ]
     # test
     # pyshp_polygons = [shape_from_shapely_to_pyshp(merge_result[0])]
