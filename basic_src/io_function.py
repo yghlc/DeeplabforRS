@@ -212,7 +212,6 @@ def copy_file_to_dst(file_path, dst_name, overwrite=False):
 
     if os.path.isfile(dst_name) and overwrite is True:
         delete_file_or_dir(dst_name)
-        return True
 
     try:
         shutil.copy(file_path,dst_name)
