@@ -15,7 +15,7 @@ import os,sys
 # import  parameters
 import vector_features
 from vector_features import shape_opeation
-import parameters
+# import parameters
 
 
 def remove_nonclass_polygon(input_shp,output_shp, field_name='svmclass'):
@@ -64,18 +64,20 @@ def calculate_gully_information(gullies_shp):
     operation_obj.add_fields_shape(gullies_shp, output_shapeinfo, gullies_shp)
 
     # add width/height (suppose height greater than width)
-    width_height_list = operation_obj.get_shape_records_value(gullies_shp,attributes=['WIDTH','HEIGHT'])
-    ratio = []
-    for width_height in width_height_list:
-        if width_height[0] > width_height[1]:
-            r_value = width_height[1] / width_height[0]
-        else:
-            r_value = width_height[0] / width_height[1]
-        ratio.append(r_value)
-    operation_obj.add_one_field_records_to_shapefile(gullies_shp,ratio,'ratio_w_h')
+    # width_height_list = operation_obj.get_shape_records_value(gullies_shp,attributes=['WIDTH','HEIGHT'])
+    # ratio = []
+    # for width_height in width_height_list:
+    #     if width_height[0] > width_height[1]:
+    #         r_value = width_height[1] / width_height[0]
+    #     else:
+    #         r_value = width_height[0] / width_height[1]
+    #     ratio.append(r_value)
+    # operation_obj.add_one_field_records_to_shapefile(gullies_shp,ratio,'ratio_w_h')
 
     # add perimeter/area
     perimeter_area_list = operation_obj.get_shape_records_value(gullies_shp, attributes=['INperimete','INarea'])
+    if perimeter_area_list is False:
+        return False
     ratio_p_a = []
     for perimeter_area in perimeter_area_list:
         r_value = perimeter_area[0] / perimeter_area[1];
@@ -84,7 +86,7 @@ def calculate_gully_information(gullies_shp):
 
     return True
 
-def remove_fake_gully_polygons(input_shp,output_shp):
+def remove_small_round_polygons(input_shp,output_shp,area_thr,ratio_thr):
     """
     remove the polygons that is not gully, that is the polygon is too small or not narrow.
     # too small or not narrow
@@ -96,7 +98,7 @@ def remove_fake_gully_polygons(input_shp,output_shp):
     #remove the too small polygon
     operation_obj = shape_opeation()
     output_rm_small = io_function.get_name_by_adding_tail(input_shp,'rmSmall')
-    area_thr = parameters.get_minimum_gully_area()
+    # area_thr = parameters.get_minimum_gully_area()
     if operation_obj.remove_shape_baseon_field_value(input_shp,output_rm_small,'INarea',area_thr,smaller=True) is False:
         return False
 
@@ -107,7 +109,7 @@ def remove_fake_gully_polygons(input_shp,output_shp):
     # if operation_obj.remove_shape_baseon_field_value(output_rm_small, output_shp, 'ratio_w_h', ratio_thr, smaller=False) is False:
     #     return False
 
-    ratio_thr = parameters.get_minimum_ratio_perimeter_area()
+    # ratio_thr = parameters.get_minimum_ratio_perimeter_area()
     if operation_obj.remove_shape_baseon_field_value(output_rm_small, output_shp, 'ratio_p_a', ratio_thr, smaller=True) is False:
         return False
 
@@ -174,54 +176,67 @@ def main(options, args):
         return False
 
     ## remove non-gully polygons
-    output_rm_nonclass = io_function.get_name_by_adding_tail(input, 'rm_nonclass')
-    if remove_nonclass_polygon(input,output_rm_nonclass,field_name='svmclass') is False:
-        return False
+    # output_rm_nonclass = io_function.get_name_by_adding_tail(input, 'rm_nonclass')
+    # if remove_nonclass_polygon(input,output_rm_nonclass,field_name='svmclass') is False:
+    #     return False
 
     # merge the touched polygons
-    ouput_merged = io_function.get_name_by_adding_tail(input,'merged')
-    if merge_polygons_in_gully(output_rm_nonclass,ouput_merged) is False:
-        return False
+    # ouput_merged = io_function.get_name_by_adding_tail(input,'merged')
+    # if merge_polygons_in_gully(output_rm_nonclass,ouput_merged) is False:
+    #     return False
 
     # calculate the polygon information
-    if calculate_gully_information(ouput_merged) is False:
+    if calculate_gully_information(input) is False:
         return False
 
     # remove small and not narrow polygons
-    remove_fake_gully_polygons(ouput_merged,output)
+    if options.min_area is None:
+        basic.outputlogMessage('minimum area is required for remove polygons')
+        return False
+    area_thr = options.min_area
+
+    if options.min_ratio is None:
+        basic.outputlogMessage('minimum ratio of perimeter/area is required for remove polygons')
+        return False
+    ratio_thr = options.min_ratio
+
+    remove_small_round_polygons(input,output,area_thr,ratio_thr)
 
     # evaluation result
-    val_path = parameters.get_validation_shape()
-    evaluation_result(output,val_path)
+    # val_path = parameters.get_validation_shape()
+    # evaluation_result(output,val_path)
 
     pass
 
 
 if __name__=='__main__':
     usage = "usage: %prog [options] input_path output_file"
-    parser = OptionParser(usage=usage, version="1.0 2017-3-27")
-    parser.description = 'Introduction: Post process of OBIA, including  ' \
-                         'remove non-gully polygon, merge polygons belong to the same gully,' \
-                         'statistic gully information '
-    parser.add_option("-p", "--para",
-                      action="store", dest="para_file",
-                      help="the parameters file")
-    # parser.add_option("-s", "--used_file", action="store", dest="used_file",
-    #                   help="the selectd used files,only need when you set --action=2")
-    # parser.add_option('-o', "--output", action='store', dest="output",
-    #                   help="the output file,only need when you set --action=2")
+    parser = OptionParser(usage=usage, version="1.0 2017-7-24")
+    parser.description = 'Introduction: Post process of Polygon shape file, including  ' \
+                         'statistic polygon information, remove small area polygon,' \
+                         'remove  '
+    # parser.add_option("-p", "--para",
+    #                   action="store", dest="para_file",
+    #                   help="the parameters file")
+
+    parser.add_option("-a", "--min_area",
+                      action="store", dest="min_area",type=float,
+                      help="the minimum for each polygon")
+    parser.add_option("-r", "--min_ratio",
+                      action="store", dest="min_ratio",type=float,
+                      help="the minimum ratio perimeter over area for each polygon")
 
     (options, args) = parser.parse_args()
     if len(sys.argv) < 2 or len(args) < 2:
         parser.print_help()
         sys.exit(2)
     # set parameters files
-    if options.para_file is None:
-        print('error, no parameters file')
-        parser.print_help()
-        sys.exit(2)
-    else:
-        parameters.set_saved_parafile_path(options.para_file)
+    # if options.para_file is None:
+    #     print('error, no parameters file')
+    #     parser.print_help()
+    #     sys.exit(2)
+    # else:
+    #     parameters.set_saved_parafile_path(options.para_file)
 
 
     main(options, args)
