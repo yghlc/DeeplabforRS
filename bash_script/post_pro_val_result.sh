@@ -24,7 +24,7 @@ do
 	#echo $width $height ${line_id}_blob_0.png ${line_id}_blob_0.tif
 	
 	gdal_translate -srcwin 0 0 $width $height ${line_id}_blob_0.png ${line_id}_blob_0.tif 			
-	../gdalcopyproj.py $line_file ${line_id}_blob_0.tif 
+	${eo_dir}/gdalcopyproj.py $line_file ${line_id}_blob_0.tif
 	cd ..
 
 done 3< "list/val_id.txt" 4< "list/val.txt"
