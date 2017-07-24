@@ -36,6 +36,10 @@ ${eo_dir}/mosaic_patches.py -s ../split_image_info.txt  -o ${testid}_out.tif *.t
 rm *p_c_*.tif
 rm out_*
 
+# set 0 as no data
+gdal_translate -a_nodata 0 ${testid}_out.tif ${testid}_out_nodata.tif
+mv ${testid}_out_nodata.tif ${testid}_out.tif
+
 # convert to shapefile
 gdal_polygonize.py -8 ${testid}_out.tif -b 1 -f "ESRI Shapefile" ${testid}_gully.shp
 
