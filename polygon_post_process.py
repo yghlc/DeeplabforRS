@@ -74,6 +74,7 @@ def calculate_gully_information(gullies_shp):
     #     ratio.append(r_value)
     # operation_obj.add_one_field_records_to_shapefile(gullies_shp,ratio,'ratio_w_h')
 
+
     # add perimeter/area
     perimeter_area_list = operation_obj.get_shape_records_value(gullies_shp, attributes=['INperimete','INarea'])
     if perimeter_area_list is False:
@@ -181,12 +182,12 @@ def main(options, args):
     #     return False
 
     # merge the touched polygons
-    # ouput_merged = io_function.get_name_by_adding_tail(input,'merged')
-    # if merge_polygons_in_gully(output_rm_nonclass,ouput_merged) is False:
-    #     return False
+    ouput_merged = io_function.get_name_by_adding_tail(input,'merged')
+    if merge_polygons_in_gully(input,ouput_merged) is False:
+        return False
 
     # calculate the polygon information
-    if calculate_gully_information(input) is False:
+    if calculate_gully_information(ouput_merged) is False:
         return False
 
     # remove small and not narrow polygons
