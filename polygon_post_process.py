@@ -81,7 +81,7 @@ def calculate_gully_information(gullies_shp):
         return False
     ratio_p_a = []
     for perimeter_area in perimeter_area_list:
-        r_value = perimeter_area[0] / perimeter_area[1];
+        r_value = (perimeter_area[0])**2 / perimeter_area[1];
         ratio_p_a.append(r_value)
     operation_obj.add_one_field_records_to_shapefile(gullies_shp, ratio_p_a, 'ratio_p_a')
 
@@ -225,7 +225,7 @@ if __name__=='__main__':
                       help="the minimum for each polygon")
     parser.add_option("-r", "--min_ratio",
                       action="store", dest="min_ratio",type=float,
-                      help="the minimum ratio perimeter over area for each polygon")
+                      help="the minimum ratio perimeter*perimeter / area for each polygon")
 
     (options, args) = parser.parse_args()
     if len(sys.argv) < 2 or len(args) < 2:
