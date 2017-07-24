@@ -44,6 +44,6 @@ mv ${testid}_out_nodata.tif ${testid}_out.tif
 gdal_polygonize.py -8 ${testid}_out.tif -b 1 -f "ESRI Shapefile" ${testid}_gully.shp
 
 # post processing of shapefile
-${eo_dir}/polygon_post_process.py -a 20 -r 25 ${testid}_gully.shp ${testid}_gully_post.shp
+${eo_dir}/polygon_post_process.py -a 20 -r 35 ${testid}_gully.shp ${testid}_gully_post.shp
 
 cd ..
