@@ -211,9 +211,9 @@ def copy_file_to_dst(file_path, dst_name, overwrite=False):
         return True
     try:
         shutil.copy(file_path,dst_name)
-    except shutil.SameFileError:
-        basic.outputlogMessage('warning: shutil.SameFileError')
-        pass
+    # except shutil.SameFileError:
+    #     basic.outputlogMessage('warning: shutil.SameFileError')
+    #     pass
     except IOError:
         basic.outputlogMessage(str(IOError))
         basic.outputlogMessage('copy file failed: '+ file_path)
