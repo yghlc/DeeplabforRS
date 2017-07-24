@@ -9,6 +9,7 @@ __pycache__/
 *.so
 
 .idea
+processLog.txt
 
 # Distribution / packaging
 .Python
