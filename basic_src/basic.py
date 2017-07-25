@@ -8,7 +8,7 @@ email:huanglingcao@gmail.com
 add time: 04 May, 2016
 """
 
-import time,os,subprocess
+import time,os,subprocess,commands
 
 logfile = 'processLog.txt'
 def setlogfile(file_name):
@@ -118,7 +118,10 @@ def exec_command_string_one_file(command_str,output):
 
     """
     outputlogMessage(command_str)
-    (status, result) = subprocess.getstatusoutput(command_str)
+    # (status, result) = subprocess.getstatusoutput(command_str)  # only available in Python 3.x
+    # (status, result) = subprocess.check_output(command_str, universal_newlines=True, stderr=sys.stdout)  #available in both Python 2.x and 3.x
+    (status, result) = commands.getstatusoutput(command_str)
+
     if os.path.isfile(output):
         return output
     else:
