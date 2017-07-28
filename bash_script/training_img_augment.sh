@@ -3,9 +3,12 @@
 root=/home/hlc/Data/eboling/eboling_uav_images/dom
 eo_dir=/home/hlc/codes/PycharmProjects/DeeplabforRS
 augscript=${eo_dir}/image_augment.py
-test_dir=EbolingUAV_deeplab_7
+#test_dir=EbolingUAV_deeplab_7
 
-# only augmentation on gully images
+# current folder (without path)
+test_dir=${PWD##*/}
+
+# only augmentation on gully images (move non-gully image to temp folder)
 mkdir split_images_temp
 mkdir split_labels_temp 
 for id in $(seq 12 23); do
@@ -27,7 +30,7 @@ ${augscript} list/image_list.txt -o ${root}/${test_dir}/split_images
 
 #augment training lables
 ${augscript} list/label_list.txt -o ${root}/${test_dir}/split_labels
-# force the groud truth only have 0 and 1 after augmentation; could loss some pixel
+# force the groud truth only have 0 and 1 after augmentation; could loss some pixels
 for item in $(ls ${root}/${test_dir}/split_labels/*.tif)
 do
     gdal_calc.py -A $item  --outfile=${item} --calc="A==1"  --debug --type='Byte' --overwrite

@@ -5,9 +5,12 @@ if [ "$#" -ne 1 ]; then
     exit
 fi
 
+eo_dir=/home/hlc/codes/PycharmProjects/DeeplabforRS
+
 #/home/hlc/Data/eboling/eboling_uav_images/dom/EbolingUAV_deeplab_7
 expr=${PWD}
 gpuid=$1
+
 
 
 patch_w=321     # the expected width of patch
@@ -20,10 +23,11 @@ cp ~/codes/rsBuildingSeg/DeepLab-Context/run_train.py .
 cp ~/codes/rsBuildingSeg/DeepLab-Context/run_test_and_evaluate.py .
 
 rm -r features
+rm -r inf_split_images
 mkdir inf_split_images
 
 ###pre-process UAV images
-/home/hlc/codes/DeepNetsForEO/notebooks/split_image.py -W ${patch_w} -H ${patch_h} -e ${overlay} -o ${PWD}/inf_split_images ${RSimg}
+${eo_dir}/split_image.py -W ${patch_w} -H ${patch_h} -e ${overlay} -o ${PWD}/inf_split_images ${RSimg}
 
 find ${PWD}/inf_split_images/*.tif > list/inf_images.txt
 cd list

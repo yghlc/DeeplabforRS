@@ -4,6 +4,11 @@ root=/home/hlc/Data/eboling/eboling_uav_images/dom
 train_shp=/home/hlc/Data/eboling/training_validation_data/gps_rtk/gps_rtk_polygons_3_fix.shp
 eo_dir=/home/hlc/codes/PycharmProjects/DeeplabforRS
 
+
+input_image=${root}/UAV_DOM_Eboling_0.48m.tif
+# input groud truth (raster data with pixel value)
+input_GT=${root}/raster_class_version_gps_rtk_3_fix_add.tif
+
 # current folder (without path)
 test_dir=${PWD##*/}
 
@@ -16,8 +21,8 @@ rm ${root}/${test_dir}/split_labels/*
 mkdir ${root}/${test_dir}/top ${root}/${test_dir}/gts_numpy ${root}/${test_dir}/split_images ${root}/${test_dir}/split_labels
 
 ###pre-process UAV images
-${eo_dir}/extract_target_imgs.py -n 255 -b 100 --rectangle $train_shp  ${root}/UAV_DOM_Eboling_0.48m.tif  -o ${root}/${test_dir}/top
-${eo_dir}/extract_target_imgs.py -n 255 -b 100 --rectangle $train_shp ${root}/raster_class_version_gps_rtk_3_fix_add.tif  -o ${root}/${test_dir}/gts_numpy
+${eo_dir}/extract_target_imgs.py -n 255 -b 20 --rectangle $train_shp ${input_image}   -o ${root}/${test_dir}/top
+${eo_dir}/extract_target_imgs.py -n 255 -b 20 --rectangle $train_shp ${input_GT}  -o ${root}/${test_dir}/gts_numpy
 
 for img in $(ls ${root}/${test_dir}/top/*.tif)
 do
