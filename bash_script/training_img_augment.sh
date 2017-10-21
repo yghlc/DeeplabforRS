@@ -1,9 +1,10 @@
 #!/bin/bash
 
 para_file=para.ini
+para_py=/home/hlc/codes/PycharmProjects/DeeplabforRS/parameters.py
 
-root=$(python2 parameters.py -p ${para_file} working_root)
-eo_dir=$(python2 parameters.py -p ${para_file} codes_dir)
+root=$(python2 ${para_py} -p ${para_file} working_root)
+eo_dir=$(python2 ${para_py} -p ${para_file} codes_dir)
 augscript=${eo_dir}/image_augment.py
 #test_dir=EbolingUAV_deeplab_7
 
