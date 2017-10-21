@@ -1,9 +1,15 @@
 #!/bin/bash
 
-root=/home/hlc/Data/eboling/eboling_uav_images/dom
-eo_dir=/home/hlc/codes/PycharmProjects/DeeplabforRS
+para_file=para.ini
+
+root=$(python2 parameters.py -p ${para_file} working_root)
+eo_dir=$(python2 parameters.py -p ${para_file} codes_dir)
 augscript=${eo_dir}/image_augment.py
 #test_dir=EbolingUAV_deeplab_7
+
+#echo $root
+#echo $eo_dir
+#exit
 
 # current folder (without path)
 test_dir=${PWD##*/}

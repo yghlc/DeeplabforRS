@@ -11,6 +11,7 @@ add time: 06 May, 2016
 import sys,os
 import basic_src.basic as basic
 import basic_src.io_function as io_function
+from optparse import OptionParser
 
 saved_parafile_path ='para_default.ini'
 
@@ -126,28 +127,6 @@ def get_input_image_rescale(parafile=''):
 #endregion
 
 
-#region mean shift parameters
-def get_MS_sigmaS(parafile=''):
-    return get_digit_parameters(parafile, 'MS_sigmaS', None, 'int')
-
-def get_MS_sigmaR(parafile=''):
-    return get_digit_parameters(parafile, 'MS_sigmaR', None, 'float')
-
-def get_MS_minRegion(parafile=''):
-    return get_digit_parameters(parafile, 'MS_minRegion', None, 'int')
-
-def get_MS_kernelSize(parafile=''):
-    return get_digit_parameters(parafile, 'MS_kernelSize', None, 'int')
-
-def get_MS_aij(parafile=''):
-    return get_digit_parameters(parafile, 'MS_aij', None, 'float')
-
-def get_MS_epsilon(parafile=''):
-    return get_digit_parameters(parafile, 'MS_epsilon', None, 'float')
-
-#endregion
-
-
 def get_QGIS_install_folder(parafile=''):
     return get_string_parameters(parafile, 'QGIS_install_folder')
 
@@ -208,6 +187,42 @@ def test_readparamters():
 
     return True
 
+def main():
+    usage = "usage: %prog [options] parameter_name"
+    parser = OptionParser(usage=usage, version="1.0 2017-10-21")
+
+    parser.add_option("-p", "--para",
+                      action="store", dest="para_file",
+                      help="the parameters file")
+    (options, args) = parser.parse_args()
+    if len(sys.argv) < 2 or len(args) < 1:
+        parser.print_help()
+        sys.exit(2)
+
+    # set parameters files
+    if options.para_file is None:
+        print('error, no parameters file')
+        parser.print_help()
+        sys.exit(2)
+    else:
+        set_saved_parafile_path(options.para_file)
+
+    # read any parameter to a string
+    para_name = args[0]
+    value_str = get_string_parameters("", para_name)
+
+    #output result to stdout
+    print(value_str)
+
+    # sys.exit(value_str)
+    return value_str
+
+
+
 if __name__=='__main__':
-    test_readparamters()
+    # test_readparamters()
+    main()
+
+
+
 

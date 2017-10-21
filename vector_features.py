@@ -14,7 +14,7 @@ import basic_src.io_function as io_function
 import os,sys
 import numpy
 
-# import  parameters
+import  parameters
 
 #pyshp library
 import shapefile
@@ -23,6 +23,7 @@ import shapefile
 from rasterstats import zonal_stats
 
 from shapely.geometry import Polygon
+from shapely.geometry import MultiPolygon
 from shapely.ops import cascaded_union
 
 class shape_opeation(object):
@@ -491,6 +492,7 @@ class shape_opeation(object):
         if field_index is False:
             return False
         shapes_list = org_obj.shapes()
+        org_shape_count = len(shapes_list)
         i = 0
         removed_count = 0
         for i in range(0,len(shapes_list)):
@@ -505,6 +507,9 @@ class shape_opeation(object):
 
         basic.outputlogMessage('Remove non-class polygon, total count: %d'%removed_count)
         # w._shapes.extend(org_obj.shapes())
+        if removed_count==org_shape_count:
+            basic.outputlogMessage('error: already remove all the polygons')
+            return False
 
         # copy prj file
         org_prj = os.path.splitext(shape_file)[0] + ".prj"
@@ -733,9 +738,53 @@ def shape_from_pyshp_to_shapely(pyshp_shape):
             for i in range(0, len(parts_index)-1):
                 points = pyshp_shape.points[parts_index[i]:parts_index[i+1]]
                 seperate_parts.append(points)
-            exterior = seperate_parts[0]  # assuming the first part is exterior
-            interiors = [seperate_parts[i] for i in range(1,len(seperate_parts))]
-            record = Polygon(shell=exterior,holes=interiors)
+
+            # if list(parts_index)==[0,121,130,135,140]:
+            #     debug = 1
+
+            # assuming the first part is exterior
+            # exterior = seperate_parts[0]  # assuming the first part is exterior
+            # interiors = [seperate_parts[i] for i in range(1,len(seperate_parts))]
+            # assuming the last part is exterior
+            # exterior = seperate_parts[len(parts_index)-2]
+            # interiors = [seperate_parts[i] for i in range(0,len(seperate_parts)-2)]
+
+            all_polygons = []
+
+            while(len(seperate_parts)>0):
+                if shapefile.signed_area(seperate_parts[0]) < 0: # the area of  ring is clockwise, it's not a hole
+                    exterior = tuple(seperate_parts[0])
+                    seperate_parts.remove(seperate_parts[0])
+
+                    # find all the holes attach to the first exterior
+                    interiors = []
+                    holes_points = []
+                    for points in seperate_parts:
+                        if shapefile.signed_area(points) >= 0: # the value >= 0 means the ring is counter-clockwise,  then they form a hole
+                            interiors.append(tuple(points))
+                            holes_points.append(points)
+                    # remove the parts which are holes
+                    for points in holes_points:
+                        seperate_parts.remove(points)
+                        # else:
+                        #     break
+                    if len(interiors) < 1:
+                        interiors = None
+                    else:
+                        interiors = tuple(interiors)
+                    polygon = Polygon(shell=exterior,holes=interiors)
+                    all_polygons.append(polygon)
+                else:
+                    basic.outputlogMessage('error, holes found in the first ring')
+                    basic.outputlogMessage("parts_index:"+str(parts_index)+'\n'+"len of seperate_parts:"+str(len(seperate_parts)))
+                    return False
+
+            if len(all_polygons) > 1:
+                record = MultiPolygon(polygons=all_polygons)
+            else:
+                record = all_polygons[0]
+
+
     else:
         basic.outputlogMessage('have not complete, other type of shape is not consider!')
         return False
@@ -967,7 +1016,7 @@ def merge_touched_polygons_in_shapefile(shape_file,out_shp):
         return False
     merge_result = merge_touched_polygons(polygon_shapely,adjacent_matrix)
 
-    b_keep_holse = True #parameters.get_b_keep_holes()
+    b_keep_holse = parameters.get_b_keep_holes()
     pyshp_polygons = [shape_from_shapely_to_pyshp(shapely_polygon,keep_holes=b_keep_holse) for shapely_polygon in merge_result ]
     # test
     # pyshp_polygons = [shape_from_shapely_to_pyshp(merge_result[0])]
@@ -1101,7 +1150,7 @@ def calculate_IoU_scores(result_shp,val_shp):
     val_polygon_shapely = []
     for temp in val_polygon_list:
         shaply_obj = shape_from_pyshp_to_shapely(temp)
-        shaply_obj = shaply_obj.buffer(0)  # buffer (0) solve the self-intersection problem
+        shaply_obj = shaply_obj.buffer(0.01)  # buffer (0) solve the self-intersection problem
         val_polygon_shapely.append(shaply_obj)
     #
     # for temp in result_polygon_shapely:

@@ -15,7 +15,7 @@ import os,sys
 # import  parameters
 import vector_features
 from vector_features import shape_opeation
-# import parameters
+import parameters
 
 
 def remove_nonclass_polygon(input_shp,output_shp, field_name='svmclass'):
@@ -52,28 +52,27 @@ def calculate_gully_information(gullies_shp):
     :return: True if successful, False Otherwise
     """
     operation_obj = shape_opeation()
-    # output_shapeinfo = io_function.get_name_by_adding_tail(gullies_shp, 'shapeInfo')
-    # if os.path.isfile(output_shapeinfo) is False:
-    #     operation_obj.get_polygon_shape_info(gullies_shp, output_shapeinfo)
-    # else:
-    #     basic.outputlogMessage('warning, %s already exist, skip calculate shape feature' % output_shapeinfo)
-    # # put all feature to one shapefile
-    # # parameter 3 the same as parameter 1 to overwrite the input file
-    #
-    # # note: the area in here, is the area of the oriented minimum bounding box, not the area of polygon
-    # operation_obj.add_fields_shape(gullies_shp, output_shapeinfo, gullies_shp)
+    output_shapeinfo = io_function.get_name_by_adding_tail(gullies_shp, 'shapeInfo')
+    if os.path.isfile(output_shapeinfo) is False:
+        operation_obj.get_polygon_shape_info(gullies_shp, output_shapeinfo)
+    else:
+        basic.outputlogMessage('warning, %s already exist, skip calculate shape feature' % output_shapeinfo)
+    # put all feature to one shapefile
+    # parameter 3 the same as parameter 1 to overwrite the input file
+
+    # note: the area in here, is the area of the oriented minimum bounding box, not the area of polygon
+    operation_obj.add_fields_shape(gullies_shp, output_shapeinfo, gullies_shp)
 
     # add width/height (suppose height greater than width)
-    # width_height_list = operation_obj.get_shape_records_value(gullies_shp,attributes=['WIDTH','HEIGHT'])
-    # ratio = []
-    # for width_height in width_height_list:
-    #     if width_height[0] > width_height[1]:
-    #         r_value = width_height[1] / width_height[0]
-    #     else:
-    #         r_value = width_height[0] / width_height[1]
-    #     ratio.append(r_value)
-    # operation_obj.add_one_field_records_to_shapefile(gullies_shp,ratio,'ratio_w_h')
-
+    width_height_list = operation_obj.get_shape_records_value(gullies_shp,attributes=['WIDTH','HEIGHT'])
+    ratio = []
+    for width_height in width_height_list:
+        if width_height[0] > width_height[1]:
+            r_value = width_height[1] / width_height[0]
+        else:
+            r_value = width_height[0] / width_height[1]
+        ratio.append(r_value)
+    operation_obj.add_one_field_records_to_shapefile(gullies_shp,ratio,'ratio_w_h')
 
     # add perimeter/area
     perimeter_area_list = operation_obj.get_shape_records_value(gullies_shp, attributes=['INperimete','INarea'])
@@ -105,13 +104,16 @@ def remove_small_round_polygons(input_shp,output_shp,area_thr,ratio_thr):
 
     # remove the not narrow polygon
     # it seems that this can not represent how narrow the polygon is, because they are irregular polygons
+    # whatever, it can remove some flat, and not long polygons. if you want to omit this, just set the maximum_ratio_width_height = 1
 
-    # ratio_thr = parameters.get_maximum_ratio_width_height()
-    # if operation_obj.remove_shape_baseon_field_value(output_rm_small, output_shp, 'ratio_w_h', ratio_thr, smaller=False) is False:
-    #     return False
+    output_rm_Rwh=io_function.get_name_by_adding_tail(input_shp,'rmRwh')
+    ratio_thr = parameters.get_maximum_ratio_width_height()
+    if operation_obj.remove_shape_baseon_field_value(output_rm_small, output_rm_Rwh, 'ratio_w_h', ratio_thr, smaller=False) is False:
+        return False
 
-    # ratio_thr = parameters.get_minimum_ratio_perimeter_area()
-    if operation_obj.remove_shape_baseon_field_value(output_rm_small, output_shp, 'ratio_p_a', ratio_thr, smaller=True) is False:
+    #  remove the not narrow polygon based on ratio_p_a
+    ratio_thr = parameters.get_minimum_ratio_perimeter_area()
+    if operation_obj.remove_shape_baseon_field_value(output_rm_Rwh, output_shp, 'ratio_p_a', ratio_thr, smaller=True) is False:
         return False
 
     return True

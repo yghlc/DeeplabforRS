@@ -1,17 +1,18 @@
 #!/bin/bash
 
-root=/home/hlc/Data/eboling/eboling_uav_images/dom
-train_shp=/home/hlc/Data/eboling/training_validation_data/gps_rtk/gps_rtk_polygons_3_fix.shp
-eo_dir=/home/hlc/codes/PycharmProjects/DeeplabforRS
+para_file=para.ini
+
+root=$(python2 parameters.py -p ${para_file} working_root)
+train_shp=$(python2 parameters.py -p ${para_file} training_polygons)
+eo_dir=$(python2 parameters.py -p ${para_file} codes_dir)
 
 
-input_image=${root}/UAV_DOM_Eboling_0.48m.tif
+input_image=$(python2 parameters.py -p ${para_file} input_image_path)
 # input groud truth (raster data with pixel value)
-input_GT=${root}/raster_class_version_gps_rtk_3_fix_add.tif
+input_GT=$(python2 parameters.py -p ${para_file} input_ground_truth_image)
 
 # current folder (without path)
 test_dir=${PWD##*/}
-
 
 rm ${root}/${test_dir}/top/*
 rm ${root}/${test_dir}/gts_numpy/*
@@ -20,18 +21,26 @@ rm ${root}/${test_dir}/split_labels/*
 
 mkdir ${root}/${test_dir}/top ${root}/${test_dir}/gts_numpy ${root}/${test_dir}/split_images ${root}/${test_dir}/split_labels
 
-###pre-process UAV images
-${eo_dir}/extract_target_imgs.py -n 255 -b 20 --rectangle $train_shp ${input_image}   -o ${root}/${test_dir}/top
-${eo_dir}/extract_target_imgs.py -n 255 -b 20 --rectangle $train_shp ${input_GT}  -o ${root}/${test_dir}/gts_numpy
+###pre-process UAV images, extract the training data from the whole image
+dstnodata=$(python2 parameters.py -p ${para_file} dst_nodata)
+buffersize=$(python2 parameters.py -p ${para_file} buffer_size)
+rectangle_ext=$(python2 parameters.py -p ${para_file} b_use_rectangle)
+
+${eo_dir}/extract_target_imgs.py -n ${dstnodata} -b ${buffersize} ${rectangle_ext} $train_shp ${input_image}  -o ${root}/${test_dir}/top
+${eo_dir}/extract_target_imgs.py -n ${dstnodata} -b ${buffersize} ${rectangle_ext} $train_shp ${input_GT}  -o ${root}/${test_dir}/gts_numpy
+
+### split the training image to many small patch
+patch_w=$(python2 parameters.py -p ${para_file} patch_width)
+patch_h=$(python2 parameters.py -p ${para_file} patch_height)
 
 for img in $(ls ${root}/${test_dir}/top/*.tif)
 do
-${eo_dir}/split_image.py -W 321 -H 321 -o  ${root}/${test_dir}/split_images $img
+${eo_dir}/split_image.py -W ${patch_w} -H ${patch_h} -o  ${root}/${test_dir}/split_images $img
 done
 
 for label in $(ls ${root}/${test_dir}/gts_numpy/*.tif)
 do
-${eo_dir}/split_image.py -W 321 -H 321 -o ${root}/${test_dir}/split_labels $label
+${eo_dir}/split_image.py -W ${patch_w} -H ${patch_h} -o ${root}/${test_dir}/split_labels $label
 done
 
 

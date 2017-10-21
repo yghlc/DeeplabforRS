@@ -1,9 +1,11 @@
 #!/bin/bash
 
+para_file=para.ini
+
 rm  post_pro_val_result/*
 mkdir post_pro_val_result
 
-eo_dir=/home/hlc/codes/PycharmProjects/DeeplabforRS
+eo_dir=$(python2 parameters.py -p ${para_file} codes_dir)
 expr=${PWD}
 testid=$(basename $expr)
 
@@ -44,6 +46,8 @@ mv ${testid}_out_nodata.tif ${testid}_out.tif
 gdal_polygonize.py -8 ${testid}_out.tif -b 1 -f "ESRI Shapefile" ${testid}_gully.shp
 
 # post processing of shapefile
-${eo_dir}/polygon_post_process.py -a 20 -r 35 ${testid}_gully.shp ${testid}_gully_post.shp
+min_area=$(python2 parameters.py -p ${para_file} minimum_gully_area)
+min_p_a_r=$(python2 parameters.py -p ${para_file} minimum_ratio_perimeter_area)
+${eo_dir}/polygon_post_process.py -a ${min_area} -r ${min_p_a_r} ${testid}_gully.shp ${testid}_gully_post.shp
 
 cd ..
