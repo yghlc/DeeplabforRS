@@ -33,15 +33,16 @@ ${eo_dir}/extract_target_imgs.py -n ${dstnodata} -b ${buffersize} ${rectangle_ex
 ### split the training image to many small patch
 patch_w=$(python2 ${para_py} -p ${para_file} patch_width)
 patch_h=$(python2 ${para_py} -p ${para_file} patch_height)
+overlay=$(python2 ${para_py} -p ${para_file} pixel_overlay)     # the overlay of patch in pixel
 
 for img in $(ls ${root}/${test_dir}/top/*.tif)
 do
-${eo_dir}/split_image.py -W ${patch_w} -H ${patch_h} -o  ${root}/${test_dir}/split_images $img
+${eo_dir}/split_image.py -W ${patch_w} -H ${patch_h}  -e ${overlay} -o  ${root}/${test_dir}/split_images $img
 done
 
 for label in $(ls ${root}/${test_dir}/gts_numpy/*.tif)
 do
-${eo_dir}/split_image.py -W ${patch_w} -H ${patch_h} -o ${root}/${test_dir}/split_labels $label
+${eo_dir}/split_image.py -W ${patch_w} -H ${patch_h}  -e ${overlay} -o ${root}/${test_dir}/split_labels $label
 done
 
 
