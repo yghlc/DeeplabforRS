@@ -205,9 +205,9 @@ def main(options, args):
 
     remove_small_round_polygons(ouput_merged,output,area_thr,ratio_thr)
 
-    # # evaluation result
-    # val_path = parameters.get_validation_shape()
-    # evaluation_result(output,val_path)
+    # evaluation result
+    val_path = parameters.get_validation_shape()
+    evaluation_result(output,val_path)
 
     pass
 
