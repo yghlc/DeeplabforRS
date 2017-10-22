@@ -218,9 +218,9 @@ if __name__=='__main__':
     parser.description = 'Introduction: Post process of Polygon shape file, including  ' \
                          'statistic polygon information, remove small area polygon,' \
                          'remove  '
-    # parser.add_option("-p", "--para",
-    #                   action="store", dest="para_file",
-    #                   help="the parameters file")
+    parser.add_option("-p", "--para",
+                      action="store", dest="para_file",
+                      help="the parameters file")
 
     parser.add_option("-a", "--min_area",
                       action="store", dest="min_area",type=float,
@@ -233,13 +233,13 @@ if __name__=='__main__':
     if len(sys.argv) < 2 or len(args) < 2:
         parser.print_help()
         sys.exit(2)
-    # set parameters files
-    # if options.para_file is None:
-    #     print('error, no parameters file')
-    #     parser.print_help()
-    #     sys.exit(2)
-    # else:
-    #     parameters.set_saved_parafile_path(options.para_file)
+    ## set parameters files
+    if options.para_file is None:
+        print('error, no parameters file')
+        parser.print_help()
+        sys.exit(2)
+    else:
+        parameters.set_saved_parafile_path(options.para_file)
 
 
     main(options, args)

@@ -50,6 +50,6 @@ gdal_polygonize.py -8 ${testid}_out.tif -b 1 -f "ESRI Shapefile" ${testid}_gully
 cp ../${para_file}  ${para_file}
 min_area=$(python2 ${para_py} -p ${para_file} minimum_gully_area)
 min_p_a_r=$(python2 ${para_py} -p ${para_file} minimum_ratio_perimeter_area)
-${eo_dir}/polygon_post_process.py -a ${min_area} -r ${min_p_a_r} ${testid}_gully.shp ${testid}_gully_post.shp
+${eo_dir}/polygon_post_process.py -p ${para_file} -a ${min_area} -r ${min_p_a_r} ${testid}_gully.shp ${testid}_gully_post.shp
 
 cd ..
