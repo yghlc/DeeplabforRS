@@ -42,5 +42,3 @@ cd ..
 python ./run_test_and_evaluate.py ${expr} ${gpuid} 
 
 
-# post processing 
-./post_pro_val_result.sh
