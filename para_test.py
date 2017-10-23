@@ -22,7 +22,6 @@ para_file = "para.ini"
 patchSize = 65
 while(patchSize<460):
     basic.outputlogMessage("Test on Patch size: patch_width=%d, patch_height=%d"%(patchSize,patchSize))
-    patchSize = patchSize + 30
 
     # change the para.ini file
     parameters.write_Parameters_file(para_file,"patch_width",patchSize)
@@ -40,6 +39,9 @@ while(patchSize<460):
     os.system("rm post_pro_val_result/*.png")
     os.system("rm post_pro_val_result/*.tif")
     os.system("mv post_pro_val_result post_pro_val_result_patch"+str(patchSize))
+
+    # update for next loop
+    patchSize = patchSize + 30
 
 
 
