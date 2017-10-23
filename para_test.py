@@ -34,12 +34,12 @@ while(patchSize<460):
     if os.path.isfile("./whole_process.sh") is False:
         basic.outputlogMessage("Please copy whole_process.sh file first")
         sys.exit(1)
-    basic.exec_command_string("./whole_process.sh")
+    os.system("./whole_process.sh")
 
     #move results, only the shapefile
-    basic.exec_command_string("rm post_pro_val_result/*.png")
-    basic.exec_command_string("rm post_pro_val_result/*.tif")
-    basic.exec_command_string("mv post_pro_val_result post_pro_val_result_patch"+str(patchSize))
+    os.system("rm post_pro_val_result/*.png")
+    os.system("rm post_pro_val_result/*.tif")
+    os.system("mv post_pro_val_result post_pro_val_result_patch"+str(patchSize))
 
 
 
