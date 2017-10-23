@@ -8,7 +8,7 @@ email:huanglingcao@gmail.com
 add time: 04 May, 2016
 """
 
-import time,os,subprocess,commands
+import time,os,sys,subprocess
 
 logfile = 'processLog.txt'
 def setlogfile(file_name):
@@ -103,9 +103,17 @@ def exec_command_string(command_str):
 
     """
     outputlogMessage(command_str)
-    (status, result) = subprocess.getstatusoutput(command_str)
+    (status, result) = getstatusoutput(command_str)
     return status, result
 
+def getstatusoutput(command_str):
+    if sys.version_info >= (3, 0):
+        (status, result) = subprocess.getstatusoutput(command_str)  # only available in Python 3.x
+    else:
+        import commands
+        (status, result) = commands.getstatusoutput(command_str)
+
+    return (status, result)
 
 def exec_command_string_one_file(command_str,output):
     """
@@ -118,9 +126,9 @@ def exec_command_string_one_file(command_str,output):
 
     """
     outputlogMessage(command_str)
-    # (status, result) = subprocess.getstatusoutput(command_str)  # only available in Python 3.x
     # (status, result) = subprocess.check_output(command_str, universal_newlines=True, stderr=sys.stdout)  #available in both Python 2.x and 3.x
-    (status, result) = commands.getstatusoutput(command_str)
+
+    (status, result) = getstatusoutput(command_str)
 
     if os.path.isfile(output):
         return output

@@ -58,6 +58,38 @@ def read_Parameters_file(parafile,parameter):
     saved_parafile_path = parafile
     return value
 
+
+def write_Parameters_file(parafile,parameter,new_value):
+    try:
+      inputfile = open(parafile, 'r')
+    except IOError:
+      basic.outputlogMessage("Error: Open file failed, path: %s"%os.path.abspath(parafile))
+      return False
+    list_of_all_the_lines = inputfile.readlines()
+    value = False
+    for i in range(0,len(list_of_all_the_lines)):
+        line = list_of_all_the_lines[i]
+        if line[0:1] == '#' or len(line) < 2:
+            continue
+        lineStrs = line.split('=')
+        lineStrleft = lineStrs[0].strip()     #remove ' ' from left and right
+        if lineStrleft.upper() == parameter.upper():
+            list_of_all_the_lines[i] = lineStrleft + " = " +str(new_value) + "\n"
+            break
+    inputfile.close()
+
+    # write the new file and overwrite the old one
+    try:
+      outputfile = open(parafile, 'w')
+    except IOError:
+      basic.outputlogMessage("Error: Open file failed, path: %s"%os.path.abspath(parafile))
+      return False
+    outputfile.writelines(list_of_all_the_lines)
+    outputfile.close()
+    return True
+
+
+
 def get_string_parameters(parafile,name):
     if parafile =='':
         parafile = saved_parafile_path
