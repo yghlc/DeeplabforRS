@@ -19,8 +19,10 @@ import basic_src.basic as basic
 
 para_file = "para.ini"
 
-patchSize = 65
-while(patchSize<460):
+# patchSize = 65
+patchSize = 455
+# while(patchSize<460):
+while(patchSize >= 65):
     basic.outputlogMessage("Test on Patch size: patch_width=%d, patch_height=%d"%(patchSize,patchSize))
 
     # change the para.ini file
@@ -41,7 +43,8 @@ while(patchSize<460):
     os.system("mv post_pro_val_result post_pro_val_result_patch"+str(patchSize))
 
     # update for next loop
-    patchSize = patchSize + 30
+    # patchSize = patchSize + 30
+    patchSize = patchSize - 30
 
 
 
