@@ -36,8 +36,8 @@ done 3< "list/val_id.txt" 4< "list/val.txt"
 cd post_pro_val_result
 #gdal_merge.py -init 0 -a_nodata 0 -o ${testid}_out.tif *.tif
 ${eo_dir}/mosaic_patches.py -s ../split_image_info.txt  -o ${testid}_out.tif *.tif
-rm *p_c_*.tif
-rm out_*
+#rm *p_c_*.tif
+#rm out_*
 
 # set 0 as no data
 gdal_translate -a_nodata 0 ${testid}_out.tif ${testid}_out_nodata.tif
