@@ -3,10 +3,16 @@
 """
 introduction: mosaic the inference results. Since the background is 0, and target is 255, so set the output nodata as 254
 
+Update on 24 October 2017. We can use "-n 0" to told gdal_merge.py the 0 value in the input image is nodata,
+so we don't need to use gdal_calc.py to get the max value between 0 and 255.
+We also don't need to set the nodata as 254 in output for gdal_calc.py
+
 authors: Huang Lingcao
 email:huanglingcao@gmail.com
 add time: 23 July, 2017
 """
+
+
 
 import sys,os,subprocess,datetime,time
 import shutil
@@ -21,6 +27,27 @@ def mosaic_without_overlap(image_list,out_file):
     returncode = ps.wait()
     if os.path.isfile(output_path) is False:
         print('Failed in gdal_translate, return codes: ' + str(returncode))
+        return False
+    return True
+
+def mosaic_with_s_nodata(image_list,out_file,source_no_data):
+    """
+    mosaic the images using gdal_merge.py, and set the value (source_no_data) in input file as no data, then the pixel with the value will be ignored
+    Args:
+        image_list: images files
+        out_file: output file
+        source_no_data: the value (source_no_data) in input file as no data
+
+    Returns: True if successful, False otherwise
+
+    """
+    output_path = out_file
+    args_list = ['gdal_merge.py','-n',str(source_no_data), '-o', output_path]
+    args_list.extend(image_list)
+    ps = subprocess.Popen(args_list)
+    returncode = ps.wait()
+    if os.path.isfile(output_path) is False:
+        print('Failed in gdal_merge.py, return codes: ' + str(returncode))
         return False
     return True
 
@@ -135,22 +162,25 @@ def mosaic_patches(image_list,split_info,out_file):
         print ("Error, input images count less than 1")
         return False
 
-    if os.path.isfile(split_info) is False:
-        print ("Warning, there is no split information, ")
-        return mosaic_without_overlap(image_list,out_file)
-    else:
-        (adj_overlay, pre_file_name, patch_ids) = parse_split_info(split_info)
-        if adj_overlay < 1:
-            print("warning, adj_overlay is Zero, so it will mosaic patches directly")
-            return mosaic_without_overlap(image_list, out_file)
-        if pre_file_name is None:
-            print ("Error, there is no pre file name")
-            return False
-        if len(patch_ids) < 1:
-            print("Error, error, there is no patches")
-            return False
+    # Update on 24 October 2017.
+    mosaic_with_s_nodata(image_list,out_file,0)
 
-        return mosaic_with_overlap(pre_file_name,patch_ids,image_list,out_file)
+    # if os.path.isfile(split_info) is False:
+    #     print ("Warning, there is no split information, ")
+    #     return mosaic_without_overlap(image_list,out_file)
+    # else:
+    #     (adj_overlay, pre_file_name, patch_ids) = parse_split_info(split_info)
+    #     if adj_overlay < 1:
+    #         print("warning, adj_overlay is Zero, so it will mosaic patches directly")
+    #         return mosaic_without_overlap(image_list, out_file)
+    #     if pre_file_name is None:
+    #         print ("Error, there is no pre file name")
+    #         return False
+    #     if len(patch_ids) < 1:
+    #         print("Error, error, there is no patches")
+    #         return False
+    #
+    #     return mosaic_with_overlap(pre_file_name,patch_ids,image_list,out_file)
 
 
 def main(options, args):
