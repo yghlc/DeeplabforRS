@@ -38,8 +38,8 @@ while(patchSize >= 65):
     os.system("./whole_process.sh")
 
     #move results, only the shapefile
-    os.system("rm post_pro_val_result/*.png")
-    os.system("rm post_pro_val_result/*.tif")
+    os.system("rm post_pro_val_result/UAV_DOM_Eboling*.png")
+    os.system("rm post_pro_val_result/UAV_DOM_Eboling*.tif")
     os.system("mv post_pro_val_result post_pro_val_result_patch"+str(patchSize))
 
     # update for next loop
