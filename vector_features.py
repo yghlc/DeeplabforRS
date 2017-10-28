@@ -324,55 +324,66 @@ class shape_opeation(object):
             basic.outputlogMessage('error, no input records')
             return False
 
-        try:
-            org_obj = shapefile.Reader(shape_file)
-        except :
-            basic.outputlogMessage(str(IOError))
-            return False
-        if len(org_obj.shapes()) != records_count:
-            basic.outputlogMessage("error: the input field_name_value do not have the same number of features")
-            return False
+        # try:
+        #     org_obj = shapefile.Reader(shape_file)
+        # except :
+        #     basic.outputlogMessage(str(IOError))
+        #     return False
+        # if len(org_obj.shapes()) != records_count:
+        #     basic.outputlogMessage("error: the input field_name_value do not have the same number of features")
+        #     return False
+        #
+        # # Create a new shapefile in memory
+        # w = shapefile.Writer()
+        # w.shapeType = org_obj.shapeType
+        #
+        # # Copy over the existing fields
+        # w.fields = list(org_obj.fields)
+        # first_record = field_name_value[0]
+        # for t_key in first_record.keys():
+        #     # if isinstance(t_field, tuple):
+        #     #     continue
+        #     attr_list = [prefix +'_'+ t_key, 'N',24,5] #prefix + t_key  #["name", type,max_length, showed_length] only accept digital number now
+        #     w.fields.append(attr_list)
+        #
+        # org_records = org_obj.records()
+        #
+        # for i in range(0, len(org_records)):
+        #     rec = org_records[i]
+        #     dict_in=field_name_value[i]
+        #
+        #     for t_key in dict_in.keys():
+        #         rec.append(dict_in.get(t_key))
+        #
+        #     # Add the modified record to the new shapefile
+        #     w.records.append(rec)
+        #
+        # # Copy over the geometry without any changes
+        # w._shapes.extend(org_obj.shapes())
+        #
+        # # copy prj file
+        # # org_prj = os.path.splitext(ori_shp)[0] + ".prj"
+        # # out_prj = os.path.splitext(output_shp)[0] + ".prj"
+        # # io_function.copy_file_to_dst(org_prj, out_prj,overwrite=True)
+        #
+        # # overwrite original file
+        # w.save(shape_file)
 
-        # Create a new shapefile in memory
-        w = shapefile.Writer()
-        w.shapeType = org_obj.shapeType
 
-        # Copy over the existing fields
-        w.fields = list(org_obj.fields)
         first_record = field_name_value[0]
         for t_key in first_record.keys():
             # if isinstance(t_field, tuple):
             #     continue
-            attr_list = [prefix +'_'+ t_key, 'N',24,5] #prefix + t_key  #["name", type,max_length, showed_length] only accept digital number now
-            w.fields.append(attr_list)
+            new_field_name = prefix +'_'+ t_key
+            new_record_value = [ dict_in.get(t_key) for dict_in in field_name_value]
+            self.add_one_field_records_to_shapefile(shape_file,new_record_value,new_field_name)
 
-        org_records = org_obj.records()
-
-        for i in range(0, len(org_records)):
-            rec = org_records[i]
-            dict_in=field_name_value[i]
-
-            for t_key in dict_in.keys():
-                rec.append(dict_in.get(t_key))
-
-            # Add the modified record to the new shapefile
-            w.records.append(rec)
-
-        # Copy over the geometry without any changes
-        w._shapes.extend(org_obj.shapes())
-
-        # copy prj file
-        # org_prj = os.path.splitext(ori_shp)[0] + ".prj"
-        # out_prj = os.path.splitext(output_shp)[0] + ".prj"
-        # io_function.copy_file_to_dst(org_prj, out_prj,overwrite=True)
-
-        # overwrite original file
-        w.save(shape_file)
+        #
 
         return True
 
 
-    def add_fields_from_raster(self,ori_shp,raster_file,field_name,band=1,stats_list = None):
+    def add_fields_from_raster(self,ori_shp,raster_file,field_name,band=1,stats_list = None,all_touched=False):
         """
         get field value from raster file by using "rasterstats"
 
@@ -384,7 +395,7 @@ class shape_opeation(object):
             stats_list = ['mean', 'std']
 
         # band = 1
-        stats = zonal_stats(ori_shp,raster_file,band = band,stats = stats_list)
+        stats = zonal_stats(ori_shp,raster_file,band = band,stats = stats_list,all_touched=all_touched)
         #test
         # for tp in stats:
         #     print("mean:",tp["mean"],"std:",tp["std"])

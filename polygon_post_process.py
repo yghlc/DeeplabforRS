@@ -57,18 +57,26 @@ def calculate_gully_topography(polygons_shp,dem_file,slope_file,aspect_file=None
     if io_function.is_file_exist(polygons_shp) is False:
         return False
     operation_obj = shape_opeation()
+
+    # all_touched: bool, optional
+    #     Whether to include every raster cell touched by a geometry, or only
+    #     those having a center point within the polygon.
+    #     defaults to `False`
+    #   Since the dem usually is coarser, so we set all_touched = True
+    all_touched = True
+
     # #DEM
     if io_function.is_file_exist(dem_file) is False:
         return False
     stats_list = ['min', 'max','mean', 'std']            #['min', 'max', 'mean', 'count','median','std']
-    if operation_obj.add_fields_from_raster(polygons_shp, dem_file, "dem", band=1,stats_list=stats_list) is False:
+    if operation_obj.add_fields_from_raster(polygons_shp, dem_file, "dem", band=1,stats_list=stats_list,all_touched=all_touched) is False:
         return False
 
     # #slope
     if io_function.is_file_exist(slope_file) is False:
         return False
     stats_list = ['min', 'max','mean', 'std']
-    if operation_obj.add_fields_from_raster(polygons_shp, slope_file, "slo", band=1,stats_list=stats_list) is False:
+    if operation_obj.add_fields_from_raster(polygons_shp, slope_file, "slo", band=1,stats_list=stats_list,all_touched=all_touched) is False:
         return False
 
     # #aspect
@@ -76,7 +84,7 @@ def calculate_gully_topography(polygons_shp,dem_file,slope_file,aspect_file=None
         if io_function.is_file_exist(slope_file) is False:
             return False
         stats_list = ['mean', 'std']
-        if operation_obj.add_fields_from_raster(polygons_shp, aspect_file, "asp", band=1,stats_list=stats_list) is False:
+        if operation_obj.add_fields_from_raster(polygons_shp, aspect_file, "asp", band=1,stats_list=stats_list,all_touched=all_touched) is False:
             return False
 
     # # hillshape
@@ -291,5 +299,13 @@ if __name__=='__main__':
     else:
         parameters.set_saved_parafile_path(options.para_file)
 
+    # test
+    ouput_merged = args[0]
+    dem_file = parameters.get_dem_file()
+    slope_file = parameters.get_slope_file()
+    calculate_gully_topography(ouput_merged,dem_file,slope_file)
 
-    main(options, args)
+
+
+
+    # main(options, args)
