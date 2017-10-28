@@ -300,12 +300,11 @@ if __name__=='__main__':
         parameters.set_saved_parafile_path(options.para_file)
 
     # test
-    ouput_merged = args[0]
-    dem_file = parameters.get_dem_file()
-    slope_file = parameters.get_slope_file()
-    calculate_gully_topography(ouput_merged,dem_file,slope_file)
+    # ouput_merged = args[0]
+    # dem_file = parameters.get_dem_file()
+    # slope_file = parameters.get_slope_file()
+    # calculate_gully_topography(ouput_merged,dem_file,slope_file)
 
 
 
-
-    # main(options, args)
+    main(options, args)
