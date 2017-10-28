@@ -997,7 +997,7 @@ def merge_touched_polygons_in_shapefile(shape_file,out_shp):
         return False
 
     # Copy over the geometry without any changes
-    w.field('id')
+    w.field('id',fieldType = "N", size = "24")
     shapes_list = org_obj.shapes()
 
     # polygon1 = Polygon(shapes_list[5].points)
@@ -1023,12 +1023,11 @@ def merge_touched_polygons_in_shapefile(shape_file,out_shp):
     # test
     # pyshp_polygons = [shape_from_shapely_to_pyshp(merge_result[0])]
 
-    org_records = org_obj.records()
+    # org_records = org_obj.records()
     for i in range(0,len(pyshp_polygons)):
         w._shapes.append(pyshp_polygons[i])
-        rec = org_records[i]
-        rec.append(i)
-        w.records.append(rec)   # add id
+        rec =  [i]     # add id
+        w.records.append(rec)
     #
     # copy prj file
     org_prj = os.path.splitext(shape_file)[0] + ".prj"
@@ -1201,8 +1200,10 @@ def test(input,output):
     #
     # # result_shp = "/Users/huanglingcao/Data/eboling/training_validation_data/gps_rtk/result_iou.shp"
     # # val_shp = "/Users/huanglingcao/Data/eboling/training_validation_data/gps_rtk/val_iou.shp"
-    iou_score = calculate_IoU_scores(result_shp,val_shp)
+    # iou_score = calculate_IoU_scores(result_shp,val_shp)
     # # print (iou_score)
+
+    merge_touched_polygons_in_shapefile(input,output)
 
     operation_obj = None
 
