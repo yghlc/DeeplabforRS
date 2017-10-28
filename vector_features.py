@@ -372,7 +372,7 @@ class shape_opeation(object):
         return True
 
 
-    def add_fields_from_raster(self,ori_shp,raster_file,field_name,band=1):
+    def add_fields_from_raster(self,ori_shp,raster_file,field_name,band=1,stats_list = None):
         """
         get field value from raster file by using "rasterstats"
 
@@ -380,7 +380,9 @@ class shape_opeation(object):
         if io_function.is_file_exist(ori_shp) is False or io_function.is_file_exist(raster_file) is False:
             return False
         # stats_list = ['min', 'max', 'mean', 'count','median','std']
-        stats_list = ['mean', 'std']
+        if stats_list is None:
+            stats_list = ['mean', 'std']
+
         # band = 1
         stats = zonal_stats(ori_shp,raster_file,band = band,stats = stats_list)
         #test

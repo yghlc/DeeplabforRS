@@ -43,6 +43,48 @@ def merge_polygons_in_gully(input_shp, output_shp):
     """
     return vector_features.merge_touched_polygons_in_shapefile(input_shp,output_shp )
 
+def calculate_gully_topography(polygons_shp,dem_file,slope_file,aspect_file=None):
+    """
+    calculate the topography information such elevation and slope of each polygon
+    Args:
+        polygons_shp: input shapfe file
+        dem_file: DEM raster file, should have the same projection of shapefile
+        slope_file: slope raster file (can be drived from dem file by using QGIS or ArcGIS)
+        aspect_file: aspect raster file (can be drived from dem file by using QGIS or ArcGIS)
+
+    Returns: True if successful, False Otherwise
+    """
+    if io_function.is_file_exist(polygons_shp) is False:
+        return False
+    operation_obj = shape_opeation()
+    # #DEM
+    if io_function.is_file_exist(dem_file) is False:
+        return False
+    stats_list = ['min', 'max','mean', 'std']            #['min', 'max', 'mean', 'count','median','std']
+    if operation_obj.add_fields_from_raster(polygons_shp, dem_file, "dem", band=1,stats_list=stats_list) is False:
+        return False
+
+    # #slope
+    if io_function.is_file_exist(slope_file) is False:
+        return False
+    stats_list = ['min', 'max','mean', 'std']
+    if operation_obj.add_fields_from_raster(polygons_shp, slope_file, "slo", band=1,stats_list=stats_list) is False:
+        return False
+
+    # #aspect
+    if aspect_file is not None:
+        if io_function.is_file_exist(slope_file) is False:
+            return False
+        stats_list = ['mean', 'std']
+        if operation_obj.add_fields_from_raster(polygons_shp, aspect_file, "asp", band=1,stats_list=stats_list) is False:
+            return False
+
+    # # hillshape
+
+
+    return True
+
+
 def calculate_gully_information(gullies_shp):
     """
     get Oriented minimum bounding box for the gully polygon shapefile,
@@ -191,6 +233,14 @@ def main(options, args):
     # calculate the polygon information
     if calculate_gully_information(ouput_merged) is False:
         return False
+
+    # add topography of each polygons
+    # calculate_gully_topography(polygons_shp, dem_file, slope_file, aspect_file=None):
+    dem_file = parameters.get_dem_file()
+    slope_file = parameters.get_slope_file()
+    if calculate_gully_topography(ouput_merged,dem_file,slope_file) is False:
+        return False
+
 
     # remove small and not narrow polygons
     if options.min_area is None:

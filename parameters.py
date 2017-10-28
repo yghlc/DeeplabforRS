@@ -156,6 +156,14 @@ def get_segment_project_folder(parafile=''):
 
 def get_input_image_rescale(parafile=''):
     return get_digit_parameters(parafile,'input_image_rescale',None,'float')
+
+def get_dem_file(parafile=''):
+    return get_string_parameters(parafile, 'dem_file')
+
+def get_slope_file(parafile=''):
+    return get_string_parameters(parafile, 'slope_file')
+
+
 #endregion
 
 
@@ -192,6 +200,8 @@ def get_raster_example_file(parafile=''):
     return get_string_parameters(parafile, 'raster_example_file')
 
 #end target extraction  (classification) Parameters Setting
+
+
 
 ### Post processing and evaluation Parameters
 def get_minimum_gully_area(parafile=''):
