@@ -1023,9 +1023,12 @@ def merge_touched_polygons_in_shapefile(shape_file,out_shp):
     # test
     # pyshp_polygons = [shape_from_shapely_to_pyshp(merge_result[0])]
 
+    org_records = org_obj.records()
     for i in range(0,len(pyshp_polygons)):
         w._shapes.append(pyshp_polygons[i])
-        w.record(i)
+        rec = org_records[i]
+        rec.append(i)
+        w.records.append(rec)   # add id
     #
     # copy prj file
     org_prj = os.path.splitext(shape_file)[0] + ".prj"
