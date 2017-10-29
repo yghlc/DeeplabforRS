@@ -254,7 +254,7 @@ class shape_opeation(object):
             #create a new fields at the last
             first_record = record_value[0]
             if isinstance(first_record,float):
-                attr_list = [field_name, 'N',24,10]
+                attr_list = [field_name, 'N',24,6]
             elif isinstance(first_record, int):
                 attr_list = [field_name, 'N', 24, 0]
             elif isinstance(first_record, str):
