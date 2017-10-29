@@ -51,14 +51,14 @@ def draw_one_attribute_histogram(shp_file,attribute_name, output):
     """
     values = read_attribute(shp_file,attribute_name)
 
-    n, bins, patches = plt.hist(values, bins="auto", alpha=0.75)
+    n, bins, patches = plt.hist(values, bins="auto", alpha=0.75,ec="black")  # ec means edgecolor
 
     plt.xlabel(attribute_name)
     plt.ylabel("Frequency")
     plt.title('Histogram of '+attribute_name)
     # plt.text(60, .025, r'$\mu=100,\ \sigma=15$')
     # plt.axis([40, 160, 0, 0.03])
-    # plt.grid(True)
+    plt.grid(True)
     plt.show()
 
 
