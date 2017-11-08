@@ -66,18 +66,20 @@ def calculate_gully_topography(polygons_shp,dem_file,slope_file,aspect_file=None
     all_touched = True
 
     # #DEM
-    if io_function.is_file_exist(dem_file) is False:
-        return False
-    stats_list = ['min', 'max','mean', 'std']            #['min', 'max', 'mean', 'count','median','std']
-    if operation_obj.add_fields_from_raster(polygons_shp, dem_file, "dem", band=1,stats_list=stats_list,all_touched=all_touched) is False:
-        return False
+    if io_function.is_file_exist(dem_file):
+        stats_list = ['min', 'max','mean', 'std']            #['min', 'max', 'mean', 'count','median','std']
+        if operation_obj.add_fields_from_raster(polygons_shp, dem_file, "dem", band=1,stats_list=stats_list,all_touched=all_touched) is False:
+            return False
+    else:
+        basic.outputlogMessage("DEM file not exist, skip the calculation of DEM information")
 
     # #slope
-    if io_function.is_file_exist(slope_file) is False:
-        return False
-    stats_list = ['min', 'max','mean', 'std']
-    if operation_obj.add_fields_from_raster(polygons_shp, slope_file, "slo", band=1,stats_list=stats_list,all_touched=all_touched) is False:
-        return False
+    if io_function.is_file_exist(slope_file):
+        stats_list = ['min', 'max','mean', 'std']
+        if operation_obj.add_fields_from_raster(polygons_shp, slope_file, "slo", band=1,stats_list=stats_list,all_touched=all_touched) is False:
+            return False
+    else:
+        basic.outputlogMessage("slope file not exist, skip the calculation of slope information")
 
     # #aspect
     if aspect_file is not None:
