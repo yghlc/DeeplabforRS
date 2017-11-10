@@ -33,7 +33,10 @@ mkdir inf_split_images
 ###pre-process UAV images
 ${eo_dir}/split_image.py -W ${patch_w} -H ${patch_h} -e ${overlay} -o ${PWD}/inf_split_images ${RSimg}
 
-find ${PWD}/inf_split_images/*.tif > list/inf_images.txt
+# get file list
+#find ${PWD}/inf_split_images/*.tif > list/inf_images.txt
+rm list/inf_images.txt; for img in ${PWD}/inf_split_images/*.tif; do echo $img >> list/inf_images.txt ; done
+
 cd list
 cp inf_images.txt val.txt
 ./extract_fileid.sh val
