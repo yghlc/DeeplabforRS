@@ -16,9 +16,9 @@ gpuid=$1
 
 
 
-patch_w=$(python2 ${para_py} -p ${para_file} patch_width)     # the expected width of patch
-patch_h=$(python2 ${para_py} -p ${para_file} patch_height)     # the expected height of patch
-overlay=$(python2 ${para_py} -p ${para_file} pixel_overlay)     # the overlay of patch in pixel
+patch_w=$(python2 ${para_py} -p ${para_file} inf_patch_width)     # the expected width of patch
+patch_h=$(python2 ${para_py} -p ${para_file} inf_patch_height)     # the expected height of patch
+overlay=$(python2 ${para_py} -p ${para_file} inf_pixel_overlay)     # the overlay of patch in pixel
 
 # inference the same image of input images for training
 RSimg=$(python2 ${para_py} -p ${para_file} input_image_path)
