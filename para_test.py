@@ -23,11 +23,13 @@ para_file = "para.ini"
 patchSize = 455
 # while(patchSize<460):
 while(patchSize >= 65):
-    basic.outputlogMessage("Test on Patch size: patch_width=%d, patch_height=%d"%(patchSize,patchSize))
+    basic.outputlogMessage("Test on Patch size (train): train_patch_width=%d, train_patch_height=%d"%(patchSize,patchSize))
 
     # change the para.ini file
-    parameters.write_Parameters_file(para_file,"patch_width",patchSize)
-    parameters.write_Parameters_file(para_file, "patch_height", patchSize)
+    # parameters.write_Parameters_file(para_file,"patch_width",patchSize)
+    # parameters.write_Parameters_file(para_file, "patch_height", patchSize)
+    parameters.write_Parameters_file(para_file,"train_patch_width",patchSize)
+    parameters.write_Parameters_file(para_file, "train_patch_height", patchSize)
 
 
 

@@ -31,9 +31,9 @@ ${eo_dir}/extract_target_imgs.py -n ${dstnodata} -b ${buffersize} ${rectangle_ex
 ${eo_dir}/extract_target_imgs.py -n ${dstnodata} -b ${buffersize} ${rectangle_ext} $train_shp ${input_GT}  -o ${root}/${test_dir}/gts_numpy
 
 ### split the training image to many small patch
-patch_w=$(python2 ${para_py} -p ${para_file} patch_width)
-patch_h=$(python2 ${para_py} -p ${para_file} patch_height)
-overlay=$(python2 ${para_py} -p ${para_file} pixel_overlay)     # the overlay of patch in pixel
+patch_w=$(python2 ${para_py} -p ${para_file} train_patch_width)
+patch_h=$(python2 ${para_py} -p ${para_file} train_patch_height)
+overlay=$(python2 ${para_py} -p ${para_file} train_pixel_overlay)     # the overlay of patch in pixel
 
 for img in $(ls ${root}/${test_dir}/top/*.tif)
 do
