@@ -157,6 +157,9 @@ def get_segment_project_folder(parafile=''):
 def get_input_image_rescale(parafile=''):
     return get_digit_parameters(parafile,'input_image_rescale',None,'float')
 
+def get_input_ground_truth_image(parafile=''):
+    return get_string_parameters(parafile, 'input_ground_truth_image')
+
 def get_dem_file(parafile=''):
     return get_string_parameters(parafile, 'dem_file')
 
