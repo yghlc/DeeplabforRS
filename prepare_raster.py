@@ -50,6 +50,11 @@ def convert_training_examples_from_shp_to_raster(shp_path,raster_path):
                 class_int_list.append(classLabel.get_class_index(label[0]))
             shp_operation_obj.add_one_field_records_to_shapefile(shp_path,class_int_list,class_int_field)
 
+    # check again whether there is 'class_int'
+    if shp_operation_obj.has_field(shp_path, class_int_field) is False:
+        basic.outputlogMessage("There is not class_int field in the shape file")
+        assert False
+
     # convert training example in shape file to raster
     res = parameters.get_input_image_rescale()
     layername =  os.path.splitext(os.path.basename(shp_path))[0]
