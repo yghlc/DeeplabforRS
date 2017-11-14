@@ -52,7 +52,7 @@ def convert_training_examples_from_shp_to_raster(shp_path,raster_path):
 
     # check again whether there is 'class_int'
     if shp_operation_obj.has_field(shp_path, class_int_field) is False:
-        basic.outputlogMessage("There is not class_int field in the shape file")
+        basic.outputlogMessage("Error: There is not class_int field in the shape file")
         assert False
 
     # convert training example in shape file to raster
