@@ -12,7 +12,7 @@ import basic_src.basic as basic
 from optparse import OptionParser
 import sys
 
-import obia_classify,parameters
+import parameters
 
 # class_label = {'gully': 1, 'unknown': 0,
 #                'Bareland':2, 'road':3}
@@ -73,18 +73,18 @@ def main(options, args):
     class_shp = options.class_shp
     outputshp = args[0]
 
-    if class_raster is not None:
-        basic.outputlogMessage('class raster file exist, ignore class_shp')
-        return obia_classify.add_traning_example_from_raster(outputshp,class_raster)
-    elif class_shp is not None:
-        if options.para_file is None:
-            class_raster = 'raster_class.tif'
-        else:
-            parameters.set_saved_parafile_path(options.para_file)
-            class_raster = parameters.get_raster_example_file()
-
-        if obia_classify.convert_training_examples_from_shp_to_raster(class_shp, class_raster) is True:
-            return obia_classify.add_traning_example_from_raster(outputshp, class_raster)
+    # if class_raster is not None:
+    #     basic.outputlogMessage('class raster file exist, ignore class_shp')
+    #     return obia_classify.add_traning_example_from_raster(outputshp,class_raster)
+    # elif class_shp is not None:
+    #     if options.para_file is None:
+    #         class_raster = 'raster_class.tif'
+    #     else:
+    #         parameters.set_saved_parafile_path(options.para_file)
+    #         class_raster = parameters.get_raster_example_file()
+    #
+    #     if obia_classify.convert_training_examples_from_shp_to_raster(class_shp, class_raster) is True:
+    #         return obia_classify.add_traning_example_from_raster(outputshp, class_raster)
 
     pass
 

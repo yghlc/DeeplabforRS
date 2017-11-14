@@ -67,10 +67,17 @@ def only_keep_one_class(label_raster,output_raster, class_index=1):
 
     # convert training example in shape file to raster
 
+    ### args_list to run the command line of gdal_calc.py result in error, it strange 2017-11-14
     # gdal_calc.py -A raster_class.tif  --outfile=raster_class_version_BLH_0.6m.tif --calc="A==1"  --debug --type='Byte' --overwrite
-    args_list = ['gdal_calc.py', '-A',label_raster, '--outfile='+output_raster, \
-                 '--calc='+"A=="+str(class_index),'--debug','--type=\'Byte\'','--overwrite']
-    result = basic.exec_command_args_list_one_file(args_list,output_raster)
+    # args_list = ['gdal_calc.py', '-A',label_raster, '--outfile='+output_raster, \
+    #              '--calc='+'\"A=='+str(class_index)+'\"','--debug','--type=\'Byte\'','--overwrite']
+    # result = basic.exec_command_args_list_one_file(args_list,output_raster)
+
+    cmd_str= 'gdal_calc.py'+' '+ '-A' +' '+ label_raster+ ' '+  '--outfile='+output_raster +' '+ \
+                 '--calc='+'\"A=='+str(class_index)+'\"' +' '+ '--debug' +' '+ '--type=\'Byte\''+' '+ '--overwrite'
+
+    result = basic.exec_command_string_one_file(cmd_str,output_raster)
+
     if os.path.getsize(result) < 1:
         basic.outputlogMessage("Error in only_keep_one_class")
         assert False
@@ -91,7 +98,7 @@ def main(options, args):
         basic.outputlogMessage("Producing the label images from training polygons is Falild")
         return False
     else:
-        basic.outputlogMessage("Done: Producing the label images from training polygons, output: %s"%output_raster )
+        basic.outputlogMessage("Done: Producing the label images from training polygons, output: %s"%all_class_raster )
 
     #only keep target (gully or others) label
     one_class_raster=io_function.get_name_by_adding_tail(output_raster,'oneClass')

@@ -147,7 +147,7 @@ def exec_command_string_output_string(command_str):
 
     """
     outputlogMessage(command_str)
-    (status, result) = subprocess.getstatusoutput(command_str)
+    (status, result) = getstatusoutput(command_str)
     outputlogMessage(result)
     # if result.find('failed')>=0:
     #     outputlogMessage(result)

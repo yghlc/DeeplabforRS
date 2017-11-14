@@ -172,11 +172,18 @@ def subset_image_baseimage(output_file,input_file,baseimage):
     (ulx,uly,lrx,lry) = RSImage.get_image_proj_extent(baseimage)
     if ulx is False:
         return False
-    if subset_image_projwin(output_file,input_file,ulx,uly,lrx,lry) is False:
+
+    img_obj = RSImageclass()
+    img_obj.open(baseimage)
+    xres = img_obj.GetXresolution()
+    yres = img_obj.GetYresolution()
+    img_obj=None
+
+    if subset_image_projwin(output_file,input_file,ulx,uly,lrx,lry,xres=xres,yres=yres) is False:
         return False
     return True
 
-def subset_image_projwin(output,imagefile,ulx,uly,lrx,lry):
+def subset_image_projwin(output,imagefile,ulx,uly,lrx,lry,xres=None,yres=None):
     #bug fix: the origin (x,y) has a difference between setting one when using gdal_translate to subset image 2016.7.20
     # CommandString = 'gdal_translate  -r bilinear  -eco -projwin ' +' '+str(ulx)+' '+str(uly)+' '+str(lrx)+' '+str(lry)\
     # + ' '+imagefile + ' '+output
@@ -184,8 +191,12 @@ def subset_image_projwin(output,imagefile,ulx,uly,lrx,lry):
     ymin = lry
     xmax = lrx
     ymax = uly
-    CommandString = 'gdalwarp -r bilinear -te  ' +' '+str(xmin)+' '+str(ymin)+' '+str(xmax)+' '+str(ymax)\
-    + ' '+imagefile + ' '+output
+    if xres is None or yres is None:
+        CommandString = 'gdalwarp -r bilinear -te  ' +' '+str(xmin)+' '+str(ymin)+' '+str(xmax)+' '+str(ymax)\
+        + ' '+imagefile + ' '+output
+    else:
+        CommandString = 'gdalwarp -r bilinear -te  ' + ' ' + str(xmin) + ' ' + str(ymin) + ' ' + str(xmax) + ' ' + str(ymax) \
+                        + ' -tr ' +str(xres) + ' ' +str(yres) +' ' + imagefile + ' ' + output
     return basic.exec_command_string_one_file(CommandString,output)
 
 def subset_image_srcwin(output,imagefile,xoff,yoff,xsize,ysize):
