@@ -140,7 +140,7 @@ def calculate_gully_information(gullies_shp):
     # add circularity (4*pi*area/perimeter**2) which is similar to ratio_p_a
     circularity = []
     for perimeter_area in perimeter_area_list:
-        value = (4*math.pi*perimeter_area[1] / perimeter_area[0]) ** 2
+        value = (4*math.pi*perimeter_area[1] / perimeter_area[0] ** 2)
         circularity.append(value)
     operation_obj.add_one_field_records_to_shapefile(gullies_shp, circularity, 'circularity')
 
