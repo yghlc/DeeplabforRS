@@ -59,6 +59,25 @@ def calculate_gully_topography(polygons_shp,dem_file,slope_file,aspect_file=None
         return False
     operation_obj = shape_opeation()
 
+    ## calculate the topography information from the buffer area
+    b_use_buffer_area = True
+    b_buffer_size = 5   # meters (the same as the shape file)
+    if b_use_buffer_area is True:
+        basic.outputlogMessage("info: calculate the topography information from the buffer area")
+        buffer_polygon_shp = io_function.get_name_by_adding_tail(polygons_shp, 'buffer')
+        if os.path.isfile(buffer_polygon_shp) is False:
+            if vector_features.get_buffer_polygons(polygons_shp,buffer_polygon_shp,b_buffer_size) is False:
+                basic.outputlogMessage("error, failed in producing the buffer_polygon_shp")
+                return False
+        else:
+            basic.outputlogMessage("warning, buffer_polygon_shp already exist, skip producing it")
+        # replace the polygon shape file
+        polygons_shp = buffer_polygon_shp
+    else:
+        basic.outputlogMessage("info: calculate the topography information from the inside of each polygon")
+
+
+
     # all_touched: bool, optional
     #     Whether to include every raster cell touched by a geometry, or only
     #     those having a center point within the polygon.
@@ -72,7 +91,7 @@ def calculate_gully_topography(polygons_shp,dem_file,slope_file,aspect_file=None
         if operation_obj.add_fields_from_raster(polygons_shp, dem_file, "dem", band=1,stats_list=stats_list,all_touched=all_touched) is False:
             return False
     else:
-        basic.outputlogMessage("DEM file not exist, skip the calculation of DEM information")
+        basic.outputlogMessage("warning, DEM file not exist, skip the calculation of DEM information")
 
     # #slope
     if io_function.is_file_exist(slope_file):
@@ -80,7 +99,7 @@ def calculate_gully_topography(polygons_shp,dem_file,slope_file,aspect_file=None
         if operation_obj.add_fields_from_raster(polygons_shp, slope_file, "slo", band=1,stats_list=stats_list,all_touched=all_touched) is False:
             return False
     else:
-        basic.outputlogMessage("slope file not exist, skip the calculation of slope information")
+        basic.outputlogMessage("warning, slope file not exist, skip the calculation of slope information")
 
     # #aspect
     if aspect_file is not None:
