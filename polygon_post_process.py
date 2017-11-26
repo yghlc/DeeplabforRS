@@ -11,6 +11,7 @@ from optparse import OptionParser
 import basic_src.basic as basic
 import basic_src.io_function as io_function
 import os,sys
+import math
 
 # import  parameters
 import vector_features
@@ -132,9 +133,16 @@ def calculate_gully_information(gullies_shp):
         return False
     ratio_p_a = []
     for perimeter_area in perimeter_area_list:
-        r_value = (perimeter_area[0])**2 / perimeter_area[1];
+        r_value = (perimeter_area[0])**2 / perimeter_area[1]
         ratio_p_a.append(r_value)
     operation_obj.add_one_field_records_to_shapefile(gullies_shp, ratio_p_a, 'ratio_p_a')
+
+    # add circularity (4*pi*area/perimeter**2) which is similar to ratio_p_a
+    circularity = []
+    for perimeter_area in perimeter_area_list:
+        value = (4*math.pi*perimeter_area[1] / perimeter_area[0]) ** 2
+        circularity.append(value)
+    operation_obj.add_one_field_records_to_shapefile(gullies_shp, circularity, 'circularity')
 
     return True
 

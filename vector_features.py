@@ -1190,6 +1190,74 @@ def calculate_IoU_scores(result_shp,val_shp):
     return IoU_socres
 
 
+def get_buffer_polygons(input_shp,output_shp,buffer_size):
+    """
+    get the buffer area (polygon with hole) of all the polygons. it may not work if the input polygons is complicate,
+    such as the polygon has holes
+    Args:
+        input_shp: input shape file containing polygons
+        output_shp: output shape file containing buffer area
+        buffer_size: the buffer size in meters (or should be the same metric of the input shape file)
+
+    Returns: True if successful, False othewise
+
+    """
+
+    if io_function.is_file_exist(input_shp) is False:
+        return False
+
+    try:
+        org_obj = shapefile.Reader(input_shp)
+    except:
+        basic.outputlogMessage(str(IOError))
+        return False
+
+    # Create a new shapefile in memory
+    w = shapefile.Writer()
+    w.shapeType = org_obj.shapeType
+
+    org_records = org_obj.records()
+    if (len(org_records) < 1):
+        basic.outputlogMessage('error, no record in shape file ')
+        return False
+
+    # Copy over the geometry without any changes
+    w.field('id', fieldType="N", size="24")
+    shapes_list = org_obj.shapes()
+
+    polygon_shapely = []
+    for temp in shapes_list:
+        polygon_shapely.append(shape_from_pyshp_to_shapely(temp))
+
+    # buffer the polygons
+    expansion_polygons = [ item.buffer(buffer_size) for item in  polygon_shapely]
+    buffer_area = []
+    for i in range(0,len(expansion_polygons)):
+        expansion_poly = expansion_polygons[i]
+        org_poly = polygon_shapely[i]
+        buffer_area.append(expansion_poly.difference(org_poly))
+
+    # save the buffer area (polygon)
+    pyshp_polygons = [shape_from_shapely_to_pyshp(shapely_polygon, keep_holes=True) for shapely_polygon in
+                      buffer_area]
+
+    # org_records = org_obj.records()
+    for i in range(0, len(pyshp_polygons)):
+        w._shapes.append(pyshp_polygons[i])
+        rec = [i]  # add id
+        w.records.append(rec)
+    #
+    # copy prj file
+    org_prj = os.path.splitext(input_shp)[0] + ".prj"
+    out_prj = os.path.splitext(output_shp)[0] + ".prj"
+    io_function.copy_file_to_dst(org_prj, out_prj, overwrite=True)
+    #
+    # overwrite original file
+    w.save(output_shp)
+
+
+    return True
+
 def test(input,output):
 
     operation_obj = shape_opeation()
@@ -1233,6 +1301,15 @@ def test_get_attribute_value(input,parameter_file):
     operation_obj = None
 
 
+def test_get_buffer_polygon():
+
+    input_shp = "/Users/huanglingcao/visual_dir/test_polygon_merge/EboDOM_deeplab_12_gully_post.shp"
+    output_shp = "/Users/huanglingcao/visual_dir/test_polygon_merge/EboDOM_deeplab_12_gully_post_buffer.shp"
+    buffer_size = 5 # meters
+
+    return  get_buffer_polygons(input_shp, output_shp,buffer_size)
+
+
 def main(options, args):
     # if len(args) != 2:
     #     basic.outputlogMessage('error, the number of input argument is 2')
@@ -1243,10 +1320,11 @@ def main(options, args):
     else:
         parameters.set_saved_parafile_path(options.para_file)
 
-    input = args[0]
-    output = args[1]
-    test(input,output)
+    # input = args[0]
+    # output = args[1]
+    # test(input,output)
 
+    test_get_buffer_polygon()
 
     pass
 
