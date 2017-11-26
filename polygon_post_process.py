@@ -138,7 +138,7 @@ def calculate_hydrology(polygons_shp,flow_accumulation):
     # #DEM
     if io_function.is_file_exist(flow_accumulation):
         stats_list = ['min', 'max', 'mean', 'std']  # ['min', 'max', 'mean', 'count','median','std']
-        if operation_obj.add_fields_from_raster(polygons_shp, flow_accumulation, "flow_accum", band=1, stats_list=stats_list,
+        if operation_obj.add_fields_from_raster(polygons_shp, flow_accumulation, "F_acc", band=1, stats_list=stats_list,
                                                 all_touched=all_touched) is False:
             return False
     else:
