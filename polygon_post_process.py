@@ -114,6 +114,38 @@ def calculate_gully_topography(polygons_shp,dem_file,slope_file,aspect_file=None
 
     return True
 
+def calculate_hydrology(polygons_shp,flow_accumulation):
+    """
+    calculate the hydrology information of each polygons
+    Args:
+        polygons_shp:  input shapfe file
+        flow_accumulation: the file path of flow accumulation
+
+    Returns: True if successful, False Otherwise
+
+    """
+    if io_function.is_file_exist(polygons_shp) is False:
+        return False
+    operation_obj = shape_opeation()
+
+    # all_touched: bool, optional
+    #     Whether to include every raster cell touched by a geometry, or only
+    #     those having a center point within the polygon.
+    #     defaults to `False`
+    #   Since the dem usually is coarser, so we set all_touched = True
+    all_touched = True
+
+    # #DEM
+    if io_function.is_file_exist(flow_accumulation):
+        stats_list = ['min', 'max', 'mean', 'std']  # ['min', 'max', 'mean', 'count','median','std']
+        if operation_obj.add_fields_from_raster(polygons_shp, flow_accumulation, "flow_accum", band=1, stats_list=stats_list,
+                                                all_touched=all_touched) is False:
+            return False
+    else:
+        basic.outputlogMessage("warning, flow accumulation file not exist, skip the calculation of flow accumulation")
+
+
+    pass
 
 def calculate_gully_information(gullies_shp):
     """
@@ -271,14 +303,6 @@ def main(options, args):
     if calculate_gully_information(ouput_merged) is False:
         return False
 
-    # add topography of each polygons
-    # calculate_gully_topography(polygons_shp, dem_file, slope_file, aspect_file=None):
-    dem_file = parameters.get_dem_file()
-    slope_file = parameters.get_slope_file()
-    if calculate_gully_topography(ouput_merged,dem_file,slope_file) is False:
-        return False
-
-
     # remove small and not narrow polygons
     if options.min_area is None:
         basic.outputlogMessage('minimum area is required for remove polygons')
@@ -291,6 +315,18 @@ def main(options, args):
     ratio_thr = options.min_ratio
 
     remove_small_round_polygons(ouput_merged,output,area_thr,ratio_thr)
+
+
+    # add topography of each polygons
+    dem_file = parameters.get_dem_file()
+    slope_file = parameters.get_slope_file()
+    if calculate_gully_topography(output,dem_file,slope_file) is False:
+        return False
+
+    # add hydrology information
+    flow_accum = parameters.get_flow_accumulation()
+    if calculate_hydrology(output, flow_accum) is False:
+        return False
 
     # evaluation result
     val_path = parameters.get_validation_shape()

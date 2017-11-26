@@ -166,6 +166,9 @@ def get_dem_file(parafile=''):
 def get_slope_file(parafile=''):
     return get_string_parameters(parafile, 'slope_file')
 
+def get_flow_accumulation(parafile=''):
+    return get_string_parameters(parafile, 'flow_accumulation')
+
 
 #endregion
 
