@@ -1245,7 +1245,7 @@ def get_buffer_polygons(input_shp,output_shp,buffer_size):
     for i in range(0, len(pyshp_polygons)):
         w._shapes.append(pyshp_polygons[i])
         # rec = [i]  # add id
-        rec = org_records[i][0]  # copy id
+        rec = [org_records[i][0]] # copy id
         w.records.append(rec)
     #
     # copy prj file
