@@ -72,6 +72,7 @@ def calculate_gully_topography(polygons_shp,dem_file,slope_file,aspect_file=None
         else:
             basic.outputlogMessage("warning, buffer_polygon_shp already exist, skip producing it")
         # replace the polygon shape file
+        polygons_shp_backup = polygons_shp
         polygons_shp = buffer_polygon_shp
     else:
         basic.outputlogMessage("info: calculate the topography information from the inside of each polygon")
@@ -111,6 +112,9 @@ def calculate_gully_topography(polygons_shp,dem_file,slope_file,aspect_file=None
 
     # # hillshape
 
+    # copy the topography information
+    if b_use_buffer_area is True:
+        operation_obj.add_fields_shape(polygons_shp_backup, buffer_polygon_shp, polygons_shp_backup)
 
     return True
 
