@@ -1222,7 +1222,7 @@ def get_buffer_polygons(input_shp,output_shp,buffer_size):
         return False
 
     # Copy over the geometry without any changes
-    w.field('id', fieldType="N", size="24")
+    # w.field('id', fieldType="N", size="24")
     shapes_list = org_obj.shapes()
 
     polygon_shapely = []
@@ -1244,8 +1244,8 @@ def get_buffer_polygons(input_shp,output_shp,buffer_size):
     # org_records = org_obj.records()
     for i in range(0, len(pyshp_polygons)):
         w._shapes.append(pyshp_polygons[i])
-        rec = [i]  # add id
-        w.records.append(rec)
+        # rec = [i]  # add id
+        # w.records.append(rec)
     #
     # copy prj file
     org_prj = os.path.splitext(input_shp)[0] + ".prj"
