@@ -65,12 +65,12 @@ def calculate_gully_topography(polygons_shp,dem_file,slope_file,aspect_file=None
     if b_use_buffer_area is True:
         basic.outputlogMessage("info: calculate the topography information from the buffer area")
         buffer_polygon_shp = io_function.get_name_by_adding_tail(polygons_shp, 'buffer')
-        if os.path.isfile(buffer_polygon_shp) is False:
-            if vector_features.get_buffer_polygons(polygons_shp,buffer_polygon_shp,b_buffer_size) is False:
-                basic.outputlogMessage("error, failed in producing the buffer_polygon_shp")
-                return False
-        else:
-            basic.outputlogMessage("warning, buffer_polygon_shp already exist, skip producing it")
+        # if os.path.isfile(buffer_polygon_shp) is False:
+        if vector_features.get_buffer_polygons(polygons_shp,buffer_polygon_shp,b_buffer_size) is False:
+            basic.outputlogMessage("error, failed in producing the buffer_polygon_shp")
+            return False
+        # else:
+        #     basic.outputlogMessage("warning, buffer_polygon_shp already exist, skip producing it")
         # replace the polygon shape file
         polygons_shp_backup = polygons_shp
         polygons_shp = buffer_polygon_shp
