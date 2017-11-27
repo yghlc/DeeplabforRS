@@ -183,7 +183,7 @@ def subset_image_baseimage(output_file,input_file,baseimage):
         return False
     return True
 
-def subset_image_projwin(output,imagefile,ulx,uly,lrx,lry,xres=None,yres=None):
+def subset_image_projwin(output,imagefile,ulx,uly,lrx,lry,dst_nondata=0,xres=None,yres=None):
     #bug fix: the origin (x,y) has a difference between setting one when using gdal_translate to subset image 2016.7.20
     # CommandString = 'gdal_translate  -r bilinear  -eco -projwin ' +' '+str(ulx)+' '+str(uly)+' '+str(lrx)+' '+str(lry)\
     # + ' '+imagefile + ' '+output
@@ -193,10 +193,10 @@ def subset_image_projwin(output,imagefile,ulx,uly,lrx,lry,xres=None,yres=None):
     ymax = uly
     if xres is None or yres is None:
         CommandString = 'gdalwarp -r bilinear -te  ' +' '+str(xmin)+' '+str(ymin)+' '+str(xmax)+' '+str(ymax)\
-        + ' '+imagefile + ' '+output
+        + ' ' + ' -dstnodata '+ str(dst_nondata) + ' '+imagefile + ' '+output
     else:
         CommandString = 'gdalwarp -r bilinear -te  ' + ' ' + str(xmin) + ' ' + str(ymin) + ' ' + str(xmax) + ' ' + str(ymax) \
-                        + ' -tr ' +str(xres) + ' ' +str(yres) +' ' + imagefile + ' ' + output
+                        + ' -tr ' +str(xres) + ' ' +str(yres) +' ' + ' -dstnodata '+ str(dst_nondata) + ' '+ imagefile + ' ' + output
     return basic.exec_command_string_one_file(CommandString,output)
 
 def subset_image_srcwin(output,imagefile,xoff,yoff,xsize,ysize):
