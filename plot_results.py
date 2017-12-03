@@ -21,6 +21,11 @@ from vector_features import shape_opeation
 import basic_src.io_function as io_function
 import basic_src.basic as basic
 
+
+
+plt.rc('xtick',labelsize=15)
+plt.rc('ytick',labelsize=15)
+
 def read_attribute(shapefile, field_name):
     """
     read one attribute of shapefile
@@ -52,18 +57,25 @@ def draw_one_attribute_histogram(shp_file,field_name,attribute, output):
     """
     values = read_attribute(shp_file,field_name)
 
-    plt.figure()  # create a new figure
+    fig_obj = plt.figure()  # create a new figure
 
     n, bins, patches = plt.hist(values, bins="auto", alpha=0.75,ec="black")  # ec means edge color
+    # print(n,bins,patches)
+    # n_label = [str(i) for i in n]
+    # plt.hist(values, bins="auto", alpha=0.75, ec="black",label=n_label)
 
-    plt.xlabel(attribute)
-    plt.ylabel("Frequency")
+    plt.xlabel(attribute,fontsize=15)
+    # plt.ylabel("Frequency")
+    plt.ylabel("Number",fontsize=15)  #
     plt.title('Histogram of '+attribute)
     # plt.text(60, .025, r'$\mu=100,\ \sigma=15$')
     # plt.axis([40, 160, 0, 0.03])
+
     plt.grid(True)
     plt.savefig(output)
     basic.outputlogMessage("Output figures to %s"%os.path.abspath(output))
+    basic.outputlogMessage("ncount: " + str(n))
+    basic.outputlogMessage("bins: "+ str(bins))
    # plt.show()
 
 
@@ -75,28 +87,30 @@ def main(options, args):
         return False
 
 
-    draw_one_attribute_histogram(shape_file, "INarea", "Area", "area.jpg")
-    draw_one_attribute_histogram(shape_file, "INperimete", "Perimeter", "Perimeter.jpg")
+    draw_one_attribute_histogram(shape_file, "INarea", "Area ($m^2$)", "area.jpg")
+    draw_one_attribute_histogram(shape_file, "INperimete", "Perimeter (m)", "Perimeter.jpg")
     draw_one_attribute_histogram(shape_file, "ratio_w_h", "ratio of HEIGHT over WIDTH (W>H)", "ratio_w_h.jpg")
-    draw_one_attribute_histogram(shape_file, "ratio_p_a", "ratio of perimeter^2 over area", "ratio_p_a.jpg")
+    draw_one_attribute_histogram(shape_file, "ratio_p_a", "ratio of $perimeter^2$ over area", "ratio_p_a.jpg")
     draw_one_attribute_histogram(shape_file, "circularit", "Circularity", "Circularity.jpg")
 
     # topography
     draw_one_attribute_histogram(shape_file, "dem_std", "standard variance of DEM", "dem_std.jpg")
-    draw_one_attribute_histogram(shape_file, "dem_max", "maximum value of DEM", "dem_max.jpg")
-    draw_one_attribute_histogram(shape_file, "dem_mean", "mean value of DEM", "dem_mean.jpg")
-    draw_one_attribute_histogram(shape_file, "dem_min", "minimum value of DEM", "dem_min.jpg")
+    draw_one_attribute_histogram(shape_file, "dem_max", "maximum value of DEM (meter)", "dem_max.jpg")
+    draw_one_attribute_histogram(shape_file, "dem_mean", "mean value of DEM (meter)", "dem_mean.jpg")
+    draw_one_attribute_histogram(shape_file, "dem_min", "minimum value of DEM (meter)", "dem_min.jpg")
 
     draw_one_attribute_histogram(shape_file, "slo_std", "standard variance of Slope", "slo_std.jpg")
-    draw_one_attribute_histogram(shape_file, "slo_max", "maximum value of Slope", "slo_max.jpg")
-    draw_one_attribute_histogram(shape_file, "slo_mean", "mean value of Slope", "slo_mean.jpg")
-    draw_one_attribute_histogram(shape_file, "slo_min", "minimum value of Slope", "slo_min.jpg")
+    draw_one_attribute_histogram(shape_file, "slo_max", "maximum value of Slope ($^\circ$)", "slo_max.jpg")
+    draw_one_attribute_histogram(shape_file, "slo_mean", "mean value of Slope ($^\circ$)", "slo_mean.jpg")
+    draw_one_attribute_histogram(shape_file, "slo_min", "minimum value of Slope ($^\circ$)", "slo_min.jpg")
 
     #hydrology
     draw_one_attribute_histogram(shape_file, "F_acc_std", "standard variance of Flow accumulation", "F_acc_std.jpg")
     draw_one_attribute_histogram(shape_file, "F_acc_max", "maximum value of Flow accumulation", "F_acc_max.jpg")
     draw_one_attribute_histogram(shape_file, "F_acc_mean", "mean value of Flow accumulation", "F_acc_mean.jpg")
     draw_one_attribute_histogram(shape_file, "F_acc_min", "minimum value of Flow accumulation", "F_acc_min.jpg")
+
+    os.system("mv processLog.txt bins.txt")
 
     pass
 
