@@ -152,9 +152,9 @@ def main(options, args):
         Outfilename = os.path.join(out_dir,os.path.splitext(os.path.basename(image_path))[0] + '_'+str(save_id)+'.tif')
         if bSub_rect is True:
             extent = get_layer_extent(polygon)
-            RSImageProcess.subset_image_projwin(Outfilename,image_path,extent[0],extent[3],extent[2],extent[1])
+            RSImageProcess.subset_image_projwin(Outfilename,image_path,extent[0],extent[3],extent[2],extent[1],dst_nondata=dstnodata)
         else:
-            RSImageProcess.subset_image_by_shapefile(image_path,polygon,Outfilename,dstnodata,True)
+            RSImageProcess.subset_image_by_shapefile(image_path,polygon,Outfilename,True)
         save_id += 1
 
     pass
