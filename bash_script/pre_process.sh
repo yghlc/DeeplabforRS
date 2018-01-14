@@ -15,10 +15,9 @@ input_GT=$(python2 ${para_py} -p ${para_file} input_ground_truth_image)
 # current folder (without path)
 test_dir=${PWD##*/}
 
+# remove the previous extracted images
 rm ${root}/${test_dir}/top/*
 rm ${root}/${test_dir}/gts_numpy/*
-rm ${root}/${test_dir}/split_images/*
-rm ${root}/${test_dir}/split_labels/*
 
 mkdir ${root}/${test_dir}/top ${root}/${test_dir}/gts_numpy ${root}/${test_dir}/split_images ${root}/${test_dir}/split_labels
 
@@ -29,6 +28,10 @@ rectangle_ext=$(python2 ${para_py} -p ${para_file} b_use_rectangle)
 
 ${eo_dir}/extract_target_imgs.py -n ${dstnodata} -b ${buffersize} ${rectangle_ext} $train_shp ${input_image}  -o ${root}/${test_dir}/top
 ${eo_dir}/extract_target_imgs.py -n ${dstnodata} -b ${buffersize} ${rectangle_ext} $train_shp ${input_GT}  -o ${root}/${test_dir}/gts_numpy
+
+# remove the previous split images
+rm ${root}/${test_dir}/split_images/*
+rm ${root}/${test_dir}/split_labels/*
 
 ### split the training image to many small patch
 patch_w=$(python2 ${para_py} -p ${para_file} train_patch_width)
