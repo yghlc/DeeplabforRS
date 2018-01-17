@@ -8,8 +8,8 @@ eo_dir=$(python2 ${para_py} -p ${para_file} codes_dir)
 augscript=${eo_dir}/image_augment.py
 #test_dir=EbolingUAV_deeplab_7
 
-image_name_prefix=UAV_DOM_Eboling_0.48m
-label_name_prefix=raster_class_version_gps_rtk_3_fix_add
+image_name_prefix=UAV_DOM_Eboling
+label_name_prefix=raster_class_train_polygons_digitize_gps_0.15m_v5
 
 #echo $root
 #echo $eo_dir
