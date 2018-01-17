@@ -8,6 +8,8 @@ eo_dir=$(python2 ${para_py} -p ${para_file} codes_dir)
 augscript=${eo_dir}/image_augment.py
 #test_dir=EbolingUAV_deeplab_7
 
+SECONDS=0
+
 image_name_prefix=UAV_DOM_Eboling
 label_name_prefix=raster_class_train_polygons_digitize_gps_0.15m_v5
 
@@ -53,3 +55,5 @@ mv split_labels_temp/* split_labels/.
 # update list file
 ${eo_dir}/bash_script/get_list.sh
 
+duration=$SECONDS
+echo "$(date): time cost of preparing training images augmentation: ${duration} seconds">>"time_cost.txt"

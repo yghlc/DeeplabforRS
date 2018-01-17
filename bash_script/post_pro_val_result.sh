@@ -3,6 +3,8 @@
 para_file=para.ini
 para_py=/home/hlc/codes/PycharmProjects/DeeplabforRS/parameters.py
 
+SECONDS=0
+
 rm  post_pro_val_result/*
 mkdir post_pro_val_result
 
@@ -53,3 +55,6 @@ min_p_a_r=$(python2 ${para_py} -p ${para_file} minimum_ratio_perimeter_area)
 ${eo_dir}/polygon_post_process.py -p ${para_file} -a ${min_area} -r ${min_p_a_r} ${testid}.shp ${testid}_post.shp
 
 cd ..
+
+duration=$SECONDS
+echo "$(date): time cost of the post processing: ${duration} seconds">>"time_cost.txt"

@@ -18,7 +18,12 @@ cp ~/codes/rsBuildingSeg/DeepLab-Context/run_test_and_evaluate.py .
 
 ${eo_dir}/bash_script/pre_process.sh
 
+SECONDS=0
+
 python ./run_train.py ${expr} ${gpuid}
+
+duration=$SECONDS
+echo "$(date): time cost of training: ${duration} seconds">>"time_cost.txt"
 
 #Resuming
 #/home/lchuang/codes/rsBuildingSeg/DeepLab-Context/.build_release/tools/caffe.bin train --solver=/home/lchuang/experiment/caffe_deeplab/spacenet_rgb_aoi_2-4/config/deeplab_largeFOV/solver_train_aug.prototxt --snapshot=/home/lchuang/experiment/caffe_deeplab/spacenet_rgb_aoi_2-4/model/deeplab_largeFOV/train_iter_28000.solverstate  --gpu=6

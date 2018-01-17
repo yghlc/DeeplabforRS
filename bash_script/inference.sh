@@ -14,7 +14,7 @@ eo_dir=$(python2 ${para_py} -p ${para_file} codes_dir)
 expr=${PWD}
 gpuid=$1
 
-
+SECONDS=0
 
 patch_w=$(python2 ${para_py} -p ${para_file} inf_patch_width)     # the expected width of patch
 patch_h=$(python2 ${para_py} -p ${para_file} inf_patch_height)     # the expected height of patch
@@ -42,6 +42,14 @@ cp inf_images.txt val.txt
 ./extract_fileid.sh val
 cd ..
 
-python ./run_test_and_evaluate.py ${expr} ${gpuid} 
+duration=$SECONDS
+echo "$(date): time cost of preparing inference images: ${duration} seconds">>"time_cost.txt"
+
+SECONDS=0
+
+python ./run_test_and_evaluate.py ${expr} ${gpuid}
+
+duration=$SECONDS
+echo "$(date): time cost of inference: ${duration} seconds">>"time_cost.txt"
 
 

@@ -8,6 +8,8 @@ train_shp=$(python2 ${para_py} -p ${para_file} training_polygons)
 eo_dir=$(python2 ${para_py} -p ${para_file} codes_dir)
 
 
+SECONDS=0
+
 input_image=$(python2 ${para_py} -p ${para_file} input_image_path)
 # input groud truth (raster data with pixel value)
 input_GT=$(python2 ${para_py} -p ${para_file} input_ground_truth_image)
@@ -57,3 +59,6 @@ paste list/image_list.txt list/label_list.txt | awk ' { print $1 " " $2 }' > lis
 cp list/temp.txt list/train_aug.txt
 cp list/image_list.txt list/val.txt
 list/extract_fileid.sh list/val
+
+duration=$SECONDS
+echo "$(date): time cost of preparing training images: ${duration} seconds">>"time_cost.txt"
