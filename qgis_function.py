@@ -1,7 +1,8 @@
-#!/usr/bin/env python
+#!/usr/bin/python
 # Filename: qgis_function 
 """
-introduction: use the function of QGIS, need python2
+introduction: use the function of QGIS, need python2 (/usr/bin/python) which is default in Ubuntu.
+ Since when we install the QGIS on Ubuntu with sudo, we use /usr/bin/python, so we force this script to use /usr/bin/python
 
 authors: Huang Lingcao
 email:huanglingcao@gmail.com
@@ -13,6 +14,8 @@ import basic_src.io_function as io_function
 import os,sys
 from optparse import OptionParser
 import parameters
+
+sys.path.insert(0, "/usr/share/qgis/python/plugins/")
 
 #qgis  if change interpreter to python3, then pycharm complain it can not find qgis and processing
 from qgis.core import *
