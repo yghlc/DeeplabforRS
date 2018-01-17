@@ -8,6 +8,9 @@ eo_dir=$(python2 ${para_py} -p ${para_file} codes_dir)
 augscript=${eo_dir}/image_augment.py
 #test_dir=EbolingUAV_deeplab_7
 
+image_name_prefix=UAV_DOM_Eboling_0.48m
+label_name_prefix=raster_class_version_gps_rtk_3_fix_add
+
 #echo $root
 #echo $eo_dir
 #exit
@@ -20,8 +23,8 @@ mkdir split_images_temp
 mkdir split_labels_temp 
 for id in $(seq 12 23); do
 	echo $id
-	mv split_images/UAV_DOM_Eboling_0.48m_${id}_*.tif split_images_temp/.
-	mv split_labels/raster_class_version_gps_rtk_3_fix_add_${id}_*.tif  split_labels_temp/.
+	mv split_images/${image_name_prefix}_${id}_*.tif  split_images_temp/.
+	mv split_labels/${label_name_prefix}_${id}_*.tif  split_labels_temp/.
 done
 
 #update list
