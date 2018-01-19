@@ -8,6 +8,8 @@ if [ "$#" -ne 1 ]; then
     exit
 fi
 
+
+
 eo_dir=$(python2 ${para_py} -p ${para_file} codes_dir)
 
 #/home/hlc/Data/eboling/eboling_uav_images/dom/EbolingUAV_deeplab_7
