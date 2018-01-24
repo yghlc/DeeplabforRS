@@ -43,7 +43,7 @@ def Flip(image_np, save_dir, input_filename):
 
     return True
 
-def roate(image_np, save_dir, input_filename,degree=[90,180,270]):
+def rotate(image_np, save_dir, input_filename,degree=[90,180,270]):
     """
     roate image with 90, 180, 270 degree
     Args:
@@ -133,7 +133,7 @@ def image_augment(img_path,save_dir,is_groud_true):
 
     if Flip(img_test, save_dir, basename) is False:
         return False
-    if roate(img_test, save_dir, basename, degree=[45, 90, 135]) is False:
+    if rotate(img_test, save_dir, basename, degree=[90]) is False:   #45, 90, 135
         return False
     # scale(img_test,save_dir,basename)
     # if blurer(img_test, save_dir, basename,is_groud_true, sigma=[1, 2]) is False:
