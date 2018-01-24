@@ -136,8 +136,8 @@ def image_augment(img_path,save_dir,is_groud_true):
     if roate(img_test, save_dir, basename, degree=[45, 90, 135]) is False:
         return False
     # scale(img_test,save_dir,basename)
-    if blurer(img_test, save_dir, basename,is_groud_true, sigma=[1, 2]) is False:
-        return False
+    # if blurer(img_test, save_dir, basename,is_groud_true, sigma=[1, 2]) is False:
+    #     return False
 
     return True
 
