@@ -133,7 +133,7 @@ def image_augment(img_path,save_dir,is_groud_true):
 
     if Flip(img_test, save_dir, basename) is False:
         return False
-    if rotate(img_test, save_dir, basename, degree=[90]) is False:   #45, 90, 135
+    if rotate(img_test, save_dir, basename, degree=[45, 90, 135]) is False:   #45, 90, 135
         return False
     # scale(img_test,save_dir,basename)
     # if blurer(img_test, save_dir, basename,is_groud_true, sigma=[1, 2]) is False:
