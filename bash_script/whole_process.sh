@@ -5,6 +5,8 @@ cd ~/codes/rsBuildingSeg
 git pull
 cd -
 
+
+
 eo_dir=/home/hlc/codes/PycharmProjects/DeeplabforRS
 cd ${eo_dir}
 git pull
@@ -20,6 +22,8 @@ ${eo_dir}/bash_script/pre_process.sh
 
 SECONDS=0
 
+# remove trained model in the previous test
+mv model/deeplab_largeFOV/train_iter_* model/.
 python ./run_train.py ${expr} ${gpuid}
 
 duration=$SECONDS
