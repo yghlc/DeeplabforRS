@@ -41,7 +41,7 @@ cp list/label_list.txt list/label_list_without_augmentation.txt
 ${augscript} list/image_list.txt -o ${root}/${test_dir}/split_images
 
 #augment training lables
-${augscript} list/label_list.txt -o ${root}/${test_dir}/split_labels
+${augscript} --is_ground_truth list/label_list.txt -o ${root}/${test_dir}/split_labels
 # force the groud truth only have 0 and 1 after augmentation; could loss some pixels
 for item in $(ls ${root}/${test_dir}/split_labels/*.tif)
 do
