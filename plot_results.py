@@ -275,7 +275,9 @@ def main(options, args):
     # draw_image_histogram_oneband("/Users/huanglingcao/Data/eboling/DEM/20160728-Large-DSM-NaN_slope.tif","slope_hist.jpg")
     # draw_image_histogram_oneband("/Users/huanglingcao/Data/eboling/DEM/20160728-Large-DSM-NaN.tif","dem_hist.jpg")
 
-    draw_dem_slope_hist("/Users/huanglingcao/Data/eboling/DEM/20160728-Large-DSM-NaN.tif","/Users/huanglingcao/Data/eboling/DEM/20160728-Large-DSM-NaN_slope.tif","dem_slope_histogram.jpg")
+    draw_dem_slope_hist("/Users/huanglingcao/Data/eboling/DEM/20160728-Large-DSM-NaN.tif",
+                        "/Users/huanglingcao/Data/eboling/DEM/20160728-Large-DSM-NaN_slope.tif",
+                        "dem_slope_histogram.jpg")
 
 
     draw_one_attribute_histogram(shape_file, "INarea", "Area ($m^2$)", "area.jpg")
@@ -330,7 +332,7 @@ if __name__ == '__main__':
 
 
 
-    # main(options, args)
+    main(options, args)
 
 
     pass
