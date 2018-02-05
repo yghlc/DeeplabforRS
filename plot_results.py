@@ -22,7 +22,8 @@ from vector_features import shape_opeation
 import basic_src.io_function as io_function
 import basic_src.basic as basic
 
-
+import json
+import numpy as np
 
 plt.rc('xtick',labelsize=15)
 plt.rc('ytick',labelsize=15)
@@ -91,13 +92,190 @@ def draw_one_attribute_histogram(shp_file,field_name,attribute, output):
     basic.outputlogMessage("bins: "+ str(bins))
     # plt.show()
 
+def get_hisogram_of_oneband_raster(image_path):
+    if io_function.is_file_exist(image_path) is False:
+        return False
 
+    CommandString = 'gdalinfo -json -hist -mm ' + image_path
+    imginfo = basic.exec_command_string_output_string(CommandString)
+    if imginfo is False:
+        return False
+    imginfo_obj = json.loads(imginfo)
+
+    try:
+        bands_info = imginfo_obj['bands']
+        band_info = bands_info[0]   # only care band one (suppose only have one band)
+        histogram_info = band_info["histogram"]
+
+        hist_count = histogram_info["count"]
+        hist_min = histogram_info["min"]
+        hist_max = histogram_info["max"]
+        hist_buckets = histogram_info["buckets"]
+        return (hist_count,hist_min,hist_max,hist_buckets)
+
+    except KeyError:
+        basic.outputlogMessage(str(KeyError))
+        pass
+    return (False, False,False,False)
+
+    pass
+
+
+def draw_dem_slope_hist(dem_path,slope_path,output):
+
+    # get histogram of the dem
+    dem_count,dem_min,dem_max,dem_buckets = get_hisogram_of_oneband_raster(dem_path)
+    if dem_count is False:
+        return False
+
+    # get histogram of the slope
+    slope_count,slope_min,slope_max,slope_buckets = get_hisogram_of_oneband_raster(slope_path)
+    if slope_count is False:
+        return False
+
+    fig = plt.figure(figsize=(7,5)) #
+    ax1 = fig.add_subplot(111)
+    ax2 = ax1.twiny()    #have another x-axis
+
+    # plot slope histogram
+    slope_y = np.array(slope_buckets)
+    slope_x = np.linspace(slope_min, slope_max, slope_count)
+
+    slope_per = 100.0 * slope_y / np.sum(slope_y)  # draw the percentage
+
+    line_slope, = ax1.plot(slope_x,slope_per,'k-', label="Slope Histogram", linewidth=0.8)
+
+    # marked the range of gully slope
+    slope_range=[8,17.4]
+    for slope in slope_range:
+        ax1.axvline(x=slope,color='k',linewidth=0.8,linestyle='--')
+        ax1.text(slope, 0.03, '%.1f'%slope, rotation=45,fontsize=12)
+
+
+    # ax1.set_xlabel("Slope ($^\circ$)",fontsize=15)
+    ax1.yaxis.tick_right()
+    # ax1.yaxis.set_label_position("right")
+    # ax1.set_ylabel("Percentage (%)",fontsize=15)
+
+    # plot dem histogram
+    dem_y = np.array(dem_buckets)
+    dem_y = np.delete(dem_y,0)
+    dem_y = np.delete(dem_y, -1)
+    dem_per = 100.0 * dem_y / np.sum(dem_y) # draw the percentage
+
+    dem_x = np.linspace(dem_min, dem_max, dem_count)
+    dem_x = np.delete(dem_x,0)
+    dem_x = np.delete(dem_x, -1)
+
+    line_dem, = ax2.plot(dem_x, dem_per,'r-', label="DEM Histogram", linewidth=0.8)
+    # ax2.set_xlabel("Elevation (m)",color="red",fontsize=15)
+    # ax2.spines['bottom'].set_color('blue')
+    ax2.spines['top'].set_color('red')
+    # ax2.xaxis.label.set_color('blue')
+    ax2.tick_params(axis='x', colors='red')
+
+    # marked the range of gully dem
+    dem_range = [3526, 3667]
+    for dem in dem_range:
+        ax2.axvline(x=dem, color='r', linewidth=0.8, linestyle='--')
+        ax2.text(dem-5, 1.7, str(dem), rotation=45, fontsize=12,color='r')
+
+    print(np.sum(slope_y),np.sum(dem_y))
+
+
+    plt.gcf().subplots_adjust(bottom=0.15)  #add space for the buttom
+    # plt.gcf().subplots_adjust(left=0.15)
+    # plt.gcf().subplots_adjust(right=0.15)
+
+    # ax1.legend(loc="upper right")
+
+    # fig.legend((line_slope,line_dem),('Slope Histogram', 'DEM Histogram'))
+    ax1.legend((line_slope, line_dem), ('Slope', 'DEM'))
+
+    plt.savefig(output,dpi=300)
+    # plt.show()
+    pass
+
+def draw_image_histogram_oneband(image_path,output):
+
+    CommandString = 'gdalinfo -json -hist -mm ' + image_path
+    imginfo = basic.exec_command_string_output_string(CommandString)
+    if imginfo is False:
+        return False
+    imginfo_obj = json.loads(imginfo)
+
+    try:
+        bands_info = imginfo_obj['bands']
+        band_info = bands_info[0]   # only care band one (suppose only have one band)
+        histogram_info = band_info["histogram"]
+
+        hist_count = histogram_info["count"]
+        hist_min = histogram_info["min"]
+        hist_max = histogram_info["max"]
+        hist_buckets = histogram_info["buckets"]
+
+        hist_array = np.array(hist_buckets)
+        hist_x = np.linspace(hist_min,hist_max,hist_count)
+        hist_percent = 100.0*hist_array/np.sum(hist_array)
+
+        print(np.sum(hist_array))
+        # print(hist_percent)
+
+        # matplotlib build-in color
+        # b: blue
+        # g: green
+        # r: red
+        # c: cyan
+        # m: magenta
+        # y: yellow
+        # k: black
+        # w: white
+
+        # plt.figure(figsize=(12, 8))
+        # color_used_count = 5
+        # line_color = ['w', 'k'] #['b', 'g', 'r', 'c', 'm', 'y', 'k']
+        # # linestyle = ['-','--','-.']
+        # # linestyle = ['*', '+', 's', 'h', 'x', 'd', 'p', 'H', 'D']
+        # ncount = hist_count
+        #
+        # # plot line
+        # plt.ylim(0,2)
+        plt.plot(list(hist_x), list(hist_percent), 'b-', label="label", linewidth=1.5)
+
+
+        print(hist_x)
+        print(hist_percent)
+
+
+
+
+
+        # plt.xlabel("Distance (meter)")
+        # plt.ylabel("Average Offset Of One Year (meter)")
+        # plt.title("Offset meters Per Year of Jakobshavn glacier")
+        # plt.ylim(0, 15000)
+        # plt.legend()
+        # plt.show()
+        plt.savefig(output)
+
+
+    except KeyError:
+        basic.outputlogMessage(str(KeyError))
+        pass
+    return (False, False)
+
+    pass
 
 def main(options, args):
 
     shape_file = args[0]
     if io_function.is_file_exist(shape_file) is False:
         return False
+
+    # draw_image_histogram_oneband("/Users/huanglingcao/Data/eboling/DEM/20160728-Large-DSM-NaN_slope.tif","slope_hist.jpg")
+    # draw_image_histogram_oneband("/Users/huanglingcao/Data/eboling/DEM/20160728-Large-DSM-NaN.tif","dem_hist.jpg")
+
+    draw_dem_slope_hist("/Users/huanglingcao/Data/eboling/DEM/20160728-Large-DSM-NaN.tif","/Users/huanglingcao/Data/eboling/DEM/20160728-Large-DSM-NaN_slope.tif","dem_slope_histogram.jpg")
 
 
     draw_one_attribute_histogram(shape_file, "INarea", "Area ($m^2$)", "area.jpg")
@@ -152,7 +330,8 @@ if __name__ == '__main__':
 
 
 
-    main(options, args)
+    # main(options, args)
+
 
     pass
 
