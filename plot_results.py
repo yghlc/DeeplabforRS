@@ -25,8 +25,8 @@ import basic_src.basic as basic
 import json
 import numpy as np
 
-plt.rc('xtick',labelsize=15)
-plt.rc('ytick',labelsize=15)
+plt.rc('xtick',labelsize=20)
+plt.rc('ytick',labelsize=20)
 
 
 
@@ -48,7 +48,7 @@ def read_attribute(shapefile, field_name):
         value_list = [item[0] for item in output_list]
         return value_list
 
-def draw_one_attribute_histogram(shp_file,field_name,attribute, output):
+def draw_one_attribute_histogram(shp_file,field_name,attribute, output,color='grey',hatch="/"):
     """
     draw the figure of one attribute's histograms
     Args:
@@ -67,7 +67,7 @@ def draw_one_attribute_histogram(shp_file,field_name,attribute, output):
     fig_obj.add_subplot(ax)
 
     # n, bins, patches = plt.hist(values, bins="auto", alpha=0.75,ec="black")  # ec means edge color
-    n, bins, patches = ax.hist(values, bins="auto", alpha=0.75, ec="black")
+    n, bins, patches = ax.hist(values, bins="auto", alpha=0.75, ec="black",linewidth='3',color=color,hatch=hatch)
     # print(n,bins,patches)
     # n_label = [str(i) for i in n]
     # plt.hist(values, bins="auto", alpha=0.75, ec="black",label=n_label)
@@ -133,7 +133,7 @@ def draw_dem_slope_hist(dem_path,slope_path,output):
     if slope_count is False:
         return False
 
-    fig = plt.figure(figsize=(7,5)) #
+    fig = plt.figure(figsize=(6,4)) #
     ax1 = fig.add_subplot(111)
     ax2 = ax1.twiny()    #have another x-axis
 
@@ -146,10 +146,10 @@ def draw_dem_slope_hist(dem_path,slope_path,output):
     line_slope, = ax1.plot(slope_x,slope_per,'k-', label="Slope Histogram", linewidth=0.8)
 
     # marked the range of gully slope
-    slope_range=[8,17.4]
+    slope_range = [8.0, 17.4]
     for slope in slope_range:
         ax1.axvline(x=slope,color='k',linewidth=0.8,linestyle='--')
-        ax1.text(slope, 0.03, '%.1f'%slope, rotation=45,fontsize=12)
+        ax1.text(slope, 0.15, '%.1f'%slope, rotation=90,fontsize=16)
 
 
     # ax1.set_xlabel("Slope ($^\circ$)",fontsize=15)
@@ -178,12 +178,13 @@ def draw_dem_slope_hist(dem_path,slope_path,output):
     dem_range = [3526, 3667]
     for dem in dem_range:
         ax2.axvline(x=dem, color='r', linewidth=0.8, linestyle='--')
-        ax2.text(dem-5, 1.7, str(dem), rotation=45, fontsize=12,color='r')
+        ax2.text(dem-5, 1.79, str(dem), rotation=90, fontsize=16,color='r')
 
     print(np.sum(slope_y),np.sum(dem_y))
 
 
-    plt.gcf().subplots_adjust(bottom=0.15)  #add space for the buttom
+    # plt.gcf().subplots_adjust(bottom=0.15)  #add space for the buttom
+    plt.gcf().subplots_adjust(top=0.8)  # the value range from [0,1], 1 is toppest, 0 is bottom
     # plt.gcf().subplots_adjust(left=0.15)
     # plt.gcf().subplots_adjust(right=0.15)
 
@@ -280,21 +281,21 @@ def main(options, args):
                         "dem_slope_histogram.jpg")
 
 
-    draw_one_attribute_histogram(shape_file, "INarea", "Area ($m^2$)", "area.jpg")
-    draw_one_attribute_histogram(shape_file, "INperimete", "Perimeter (m)", "Perimeter.jpg")
+    draw_one_attribute_histogram(shape_file, "INarea", "Area ($m^2$)", "area.jpg",hatch='-')
+    draw_one_attribute_histogram(shape_file, "INperimete", "Perimeter (m)", "Perimeter.jpg",hatch='\\')
     draw_one_attribute_histogram(shape_file, "ratio_w_h", "ratio of HEIGHT over WIDTH (W>H)", "ratio_w_h.jpg")
     draw_one_attribute_histogram(shape_file, "ratio_p_a", "ratio of $perimeter^2$ over area", "ratio_p_a.jpg")
-    draw_one_attribute_histogram(shape_file, "circularit", "Circularity", "Circularity.jpg")
+    draw_one_attribute_histogram(shape_file, "circularit", "Circularity", "Circularity.jpg",hatch='.')
 
     # topography
     draw_one_attribute_histogram(shape_file, "dem_std", "standard variance of DEM", "dem_std.jpg")
     draw_one_attribute_histogram(shape_file, "dem_max", "maximum value of DEM (meter)", "dem_max.jpg")
-    draw_one_attribute_histogram(shape_file, "dem_mean", "Mean Elevation (m)", "dem_mean.jpg")
+    draw_one_attribute_histogram(shape_file, "dem_mean", "Mean Elevation (m)", "dem_mean.jpg",hatch='x')
     draw_one_attribute_histogram(shape_file, "dem_min", "minimum value of DEM (meter)", "dem_min.jpg")
 
     draw_one_attribute_histogram(shape_file, "slo_std", "standard variance of Slope", "slo_std.jpg")
     draw_one_attribute_histogram(shape_file, "slo_max", "maximum value of Slope ($^\circ$)", "slo_max.jpg")
-    draw_one_attribute_histogram(shape_file, "slo_mean", "Mean Slope ($^\circ$)", "slo_mean.jpg")
+    draw_one_attribute_histogram(shape_file, "slo_mean", "Mean Slope ($^\circ$)", "slo_mean.jpg",hatch='/')
     draw_one_attribute_histogram(shape_file, "slo_min", "minimum value of Slope ($^\circ$)", "slo_min.jpg")
 
     #hydrology
