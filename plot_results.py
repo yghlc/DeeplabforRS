@@ -48,7 +48,7 @@ def read_attribute(shapefile, field_name):
         value_list = [item[0] for item in output_list]
         return value_list
 
-def draw_one_attribute_histogram(shp_file,field_name,attribute, output,color='grey',hatch="/"):
+def draw_one_attribute_histogram(shp_file,field_name,attribute, output,color='grey',hatch=""):
     """
     draw the figure of one attribute's histograms
     Args:
@@ -191,7 +191,7 @@ def draw_dem_slope_hist(dem_path,slope_path,output):
     # ax1.legend(loc="upper right")
 
     # fig.legend((line_slope,line_dem),('Slope Histogram', 'DEM Histogram'))
-    ax1.legend((line_slope, line_dem), ('Slope', 'DEM'))
+    ax1.legend((line_slope, line_dem), ('Slope', 'DEM'), fontsize=16,loc='upper center')
 
     plt.savefig(output,dpi=300)
     # plt.show()
@@ -276,26 +276,26 @@ def main(options, args):
     # draw_image_histogram_oneband("/Users/huanglingcao/Data/eboling/DEM/20160728-Large-DSM-NaN_slope.tif","slope_hist.jpg")
     # draw_image_histogram_oneband("/Users/huanglingcao/Data/eboling/DEM/20160728-Large-DSM-NaN.tif","dem_hist.jpg")
 
-    draw_dem_slope_hist("/Users/huanglingcao/Data/eboling/DEM/20160728-Large-DSM-NaN.tif",
-                        "/Users/huanglingcao/Data/eboling/DEM/20160728-Large-DSM-NaN_slope.tif",
-                        "dem_slope_histogram.jpg")
+    # draw_dem_slope_hist("/Users/huanglingcao/Data/eboling/DEM/20160728-Large-DSM-NaN.tif",
+    #                     "/Users/huanglingcao/Data/eboling/DEM/20160728-Large-DSM-NaN_slope.tif",
+    #                     "dem_slope_histogram.jpg")
 
 
-    draw_one_attribute_histogram(shape_file, "INarea", "Area ($m^2$)", "area.jpg",hatch='-')
-    draw_one_attribute_histogram(shape_file, "INperimete", "Perimeter (m)", "Perimeter.jpg",hatch='\\')
+    draw_one_attribute_histogram(shape_file, "INarea", "Area ($m^2$)", "area.jpg")   #,hatch='-'
+    draw_one_attribute_histogram(shape_file, "INperimete", "Perimeter (m)", "Perimeter.jpg")  #,hatch='\\'
     draw_one_attribute_histogram(shape_file, "ratio_w_h", "ratio of HEIGHT over WIDTH (W>H)", "ratio_w_h.jpg")
     draw_one_attribute_histogram(shape_file, "ratio_p_a", "ratio of $perimeter^2$ over area", "ratio_p_a.jpg")
-    draw_one_attribute_histogram(shape_file, "circularit", "Circularity", "Circularity.jpg",hatch='.')
+    draw_one_attribute_histogram(shape_file, "circularit", "Circularity", "Circularity.jpg")  # ,hatch='.'
 
     # topography
     draw_one_attribute_histogram(shape_file, "dem_std", "standard variance of DEM", "dem_std.jpg")
     draw_one_attribute_histogram(shape_file, "dem_max", "maximum value of DEM (meter)", "dem_max.jpg")
-    draw_one_attribute_histogram(shape_file, "dem_mean", "Mean Elevation (m)", "dem_mean.jpg",hatch='x')
+    draw_one_attribute_histogram(shape_file, "dem_mean", "Mean Elevation (m)", "dem_mean.jpg")  # ,hatch='x'
     draw_one_attribute_histogram(shape_file, "dem_min", "minimum value of DEM (meter)", "dem_min.jpg")
 
     draw_one_attribute_histogram(shape_file, "slo_std", "standard variance of Slope", "slo_std.jpg")
     draw_one_attribute_histogram(shape_file, "slo_max", "maximum value of Slope ($^\circ$)", "slo_max.jpg")
-    draw_one_attribute_histogram(shape_file, "slo_mean", "Mean Slope ($^\circ$)", "slo_mean.jpg",hatch='/')
+    draw_one_attribute_histogram(shape_file, "slo_mean", "Mean Slope ($^\circ$)", "slo_mean.jpg") #,hatch='/'
     draw_one_attribute_histogram(shape_file, "slo_min", "minimum value of Slope ($^\circ$)", "slo_min.jpg")
 
     #hydrology
