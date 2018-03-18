@@ -11,6 +11,10 @@ import sys,os,subprocess
 from optparse import OptionParser
 
 def sliding_window(image_width,image_height, patch_w,patch_h,adj_overlay=0):
+    sliding_window(image_width, image_height, patch_w, patch_h, adj_overlay_x=adj_overlay, adj_overlay_y=adj_overlay)
+
+
+def sliding_window(image_width,image_height, patch_w,patch_h,adj_overlay_x=0,adj_overlay_y=0):
     """
     get the subset windows of each patch
     Args:
@@ -18,8 +22,8 @@ def sliding_window(image_width,image_height, patch_w,patch_h,adj_overlay=0):
         image_height: height of input image
         patch_w: the width of the expected patch
         patch_h: the height of the expected patch
-        adj_overlay: the extended distance (in pixel) to adjacent patch, make each patch has overlay with adjacent patch
-
+        adj_overlay_x: the extended distance (in pixel of x direction) to adjacent patch, make each patch has overlay with adjacent patch
+        adj_overlay_y: the extended distance (in pixel of y direction) to adjacent patch, make each patch has overlay with ad
     Returns: The list of boundary of each patch
 
     """
@@ -47,7 +51,8 @@ def sliding_window(image_width,image_height, patch_w,patch_h,adj_overlay=0):
     f_obj.writelines('image_height:%d\n' % image_height)
     f_obj.writelines('expected patch_w:%d\n' % patch_w)
     f_obj.writelines('expected patch_h:%d\n'%patch_h)
-    f_obj.writelines('adj_overlay:%d\n' % adj_overlay)
+    f_obj.writelines('adj_overlay_x:%d\n' % adj_overlay_x)
+    f_obj.writelines('adj_overlay_y:%d\n' % adj_overlay_y)
 
     patch_boundary = []
     for i in range(0,count_x):
@@ -63,10 +68,10 @@ def sliding_window(image_width,image_height, patch_w,patch_h,adj_overlay=0):
             f_obj.write('%d ' % (i*count_y + j))
 
             # extend the patch
-            xoff = max(i*patch_w - adj_overlay,0)  # i*patch_w
-            yoff = max(j*patch_h - adj_overlay, 0) # j*patch_h
-            xsize = min(i*patch_w + w + adj_overlay,image_width) - xoff   #w
-            ysize = min(j*patch_h + h + adj_overlay, image_height) - yoff #h
+            xoff = max(i*patch_w - adj_overlay_x,0)  # i*patch_w
+            yoff = max(j*patch_h - adj_overlay_y, 0) # j*patch_h
+            xsize = min(i*patch_w + w + adj_overlay_x,image_width) - xoff   #w
+            ysize = min(j*patch_h + h + adj_overlay_y, image_height) - yoff #h
 
             new_patch = (xoff,yoff ,xsize, ysize)
             patch_boundary.append(new_patch)
@@ -77,8 +82,10 @@ def sliding_window(image_width,image_height, patch_w,patch_h,adj_overlay=0):
     return patch_boundary
 
 
-
 def split_image(input,output_dir,patch_w=1024,patch_h=1024,adj_overlay=0):
+    split_image(input, output_dir, patch_w=1024, patch_h=1024, adj_overlay_x=adj_overlay, adj_overlay_y=adj_overlay)
+
+def split_image(input,output_dir,patch_w=1024,patch_h=1024,adj_overlay_x=0,adj_overlay_y=0):
     """
     split a large image to many separate patches
     Args:
@@ -104,7 +111,7 @@ def split_image(input,output_dir,patch_w=1024,patch_h=1024,adj_overlay=0):
 
     print('input Width %d  Height %d'%(img_witdh,img_height))
 
-    patch_boundary = sliding_window(img_witdh,img_height,patch_w,patch_h,adj_overlay)
+    patch_boundary = sliding_window(img_witdh,img_height,patch_w,patch_h,adj_overlay_x,adj_overlay_y)
 
     index = 0
     pre_name = os.path.splitext(os.path.basename(input))[0]
