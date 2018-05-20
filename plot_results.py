@@ -133,6 +133,7 @@ def draw_dem_slope_hist(dem_path,slope_path,output):
     if slope_count is False:
         return False
 
+
     fig = plt.figure(figsize=(6,4)) #
     ax1 = fig.add_subplot(111)
     ax2 = ax1.twiny()    #have another x-axis
@@ -142,6 +143,15 @@ def draw_dem_slope_hist(dem_path,slope_path,output):
     slope_x = np.linspace(slope_min, slope_max, slope_count)
 
     slope_per = 100.0 * slope_y / np.sum(slope_y)  # draw the percentage
+
+    #output slope informaton
+    with open("whole_area_slope_hist.txt",'w') as f_obj:
+        f_obj.writelines("slope_count:" + str(slope_count)+'\n')
+        f_obj.writelines("slope_min:" + str(slope_min) + '\n')
+        f_obj.writelines("slope_max:" + str(slope_max) + '\n')
+        f_obj.writelines("slope_buckets:" + str(slope_buckets) + '\n')
+        f_obj.writelines("slope_x:" + str(slope_x) + '\n')
+        f_obj.writelines("slope_per:" + str(slope_per) + '\n')
 
     line_slope, = ax1.plot(slope_x,slope_per,'k-', label="Slope Histogram", linewidth=0.8)
 
@@ -276,35 +286,35 @@ def main(options, args):
     # draw_image_histogram_oneband("/Users/huanglingcao/Data/eboling/DEM/20160728-Large-DSM-NaN_slope.tif","slope_hist.jpg")
     # draw_image_histogram_oneband("/Users/huanglingcao/Data/eboling/DEM/20160728-Large-DSM-NaN.tif","dem_hist.jpg")
 
-    # draw_dem_slope_hist("/Users/huanglingcao/Data/eboling/DEM/20160728-Large-DSM-NaN.tif",
-    #                     "/Users/huanglingcao/Data/eboling/DEM/20160728-Large-DSM-NaN_slope.tif",
-    #                     "dem_slope_histogram.jpg")
+    draw_dem_slope_hist("/Users/huanglingcao/Data/eboling/DEM/20160728-Large-DSM-NaN.tif",
+                        "/Users/huanglingcao/Data/eboling/DEM/20160728-Large-DSM-NaN_slope.tif",
+                        "dem_slope_histogram.jpg")
 
 
-    draw_one_attribute_histogram(shape_file, "INarea", "Area ($m^2$)", "area.jpg")   #,hatch='-'
-    draw_one_attribute_histogram(shape_file, "INperimete", "Perimeter (m)", "Perimeter.jpg")  #,hatch='\\'
-    draw_one_attribute_histogram(shape_file, "ratio_w_h", "ratio of HEIGHT over WIDTH (W>H)", "ratio_w_h.jpg")
-    draw_one_attribute_histogram(shape_file, "ratio_p_a", "ratio of $perimeter^2$ over area", "ratio_p_a.jpg")
-    draw_one_attribute_histogram(shape_file, "circularit", "Circularity", "Circularity.jpg")  # ,hatch='.'
-
-    # topography
-    draw_one_attribute_histogram(shape_file, "dem_std", "standard variance of DEM", "dem_std.jpg")
-    draw_one_attribute_histogram(shape_file, "dem_max", "maximum value of DEM (meter)", "dem_max.jpg")
-    draw_one_attribute_histogram(shape_file, "dem_mean", "Mean Elevation (m)", "dem_mean.jpg")  # ,hatch='x'
-    draw_one_attribute_histogram(shape_file, "dem_min", "minimum value of DEM (meter)", "dem_min.jpg")
-
-    draw_one_attribute_histogram(shape_file, "slo_std", "standard variance of Slope", "slo_std.jpg")
-    draw_one_attribute_histogram(shape_file, "slo_max", "maximum value of Slope ($^\circ$)", "slo_max.jpg")
-    draw_one_attribute_histogram(shape_file, "slo_mean", "Mean Slope ($^\circ$)", "slo_mean.jpg") #,hatch='/'
-    draw_one_attribute_histogram(shape_file, "slo_min", "minimum value of Slope ($^\circ$)", "slo_min.jpg")
-
-    #hydrology
-    draw_one_attribute_histogram(shape_file, "F_acc_std", "standard variance of Flow accumulation", "F_acc_std.jpg")
-    draw_one_attribute_histogram(shape_file, "F_acc_max", "maximum value of Flow accumulation", "F_acc_max.jpg")
-    draw_one_attribute_histogram(shape_file, "F_acc_mean", "mean value of Flow accumulation", "F_acc_mean.jpg")
-    draw_one_attribute_histogram(shape_file, "F_acc_min", "minimum value of Flow accumulation", "F_acc_min.jpg")
-
-    os.system("mv processLog.txt bins.txt")
+    # draw_one_attribute_histogram(shape_file, "INarea", "Area ($m^2$)", "area.jpg")   #,hatch='-'
+    # draw_one_attribute_histogram(shape_file, "INperimete", "Perimeter (m)", "Perimeter.jpg")  #,hatch='\\'
+    # draw_one_attribute_histogram(shape_file, "ratio_w_h", "ratio of HEIGHT over WIDTH (W>H)", "ratio_w_h.jpg")
+    # draw_one_attribute_histogram(shape_file, "ratio_p_a", "ratio of $perimeter^2$ over area", "ratio_p_a.jpg")
+    # draw_one_attribute_histogram(shape_file, "circularit", "Circularity", "Circularity.jpg")  # ,hatch='.'
+    #
+    # # topography
+    # draw_one_attribute_histogram(shape_file, "dem_std", "standard variance of DEM", "dem_std.jpg")
+    # draw_one_attribute_histogram(shape_file, "dem_max", "maximum value of DEM (meter)", "dem_max.jpg")
+    # draw_one_attribute_histogram(shape_file, "dem_mean", "Mean Elevation (m)", "dem_mean.jpg")  # ,hatch='x'
+    # draw_one_attribute_histogram(shape_file, "dem_min", "minimum value of DEM (meter)", "dem_min.jpg")
+    #
+    # draw_one_attribute_histogram(shape_file, "slo_std", "standard variance of Slope", "slo_std.jpg")
+    # draw_one_attribute_histogram(shape_file, "slo_max", "maximum value of Slope ($^\circ$)", "slo_max.jpg")
+    # draw_one_attribute_histogram(shape_file, "slo_mean", "Mean Slope ($^\circ$)", "slo_mean.jpg") #,hatch='/'
+    # draw_one_attribute_histogram(shape_file, "slo_min", "minimum value of Slope ($^\circ$)", "slo_min.jpg")
+    #
+    # #hydrology
+    # draw_one_attribute_histogram(shape_file, "F_acc_std", "standard variance of Flow accumulation", "F_acc_std.jpg")
+    # draw_one_attribute_histogram(shape_file, "F_acc_max", "maximum value of Flow accumulation", "F_acc_max.jpg")
+    # draw_one_attribute_histogram(shape_file, "F_acc_mean", "mean value of Flow accumulation", "F_acc_mean.jpg")
+    # draw_one_attribute_histogram(shape_file, "F_acc_min", "minimum value of Flow accumulation", "F_acc_min.jpg")
+    #
+    # os.system("mv processLog.txt bins.txt")
 
     pass
 
