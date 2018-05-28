@@ -92,6 +92,68 @@ def draw_one_attribute_histogram(shp_file,field_name,attribute, output,color='gr
     basic.outputlogMessage("bins: "+ str(bins))
     # plt.show()
 
+def draw_two_attribute_scatter(shp_file,field_name_1,field_name_2, output,color='grey',hatch=""):
+    """
+    draw a scatter of two attributes
+    Args:
+        shp_file: shape file path
+        field_name_1: x
+        field_name_2: y
+        output: save file path
+        color:
+        hatch:
+
+    Returns:True if successful, False otherwise
+
+    """
+
+    x_values = read_attribute(shp_file,field_name_1)
+    y_values = read_attribute(shp_file,field_name_2)
+
+    fig_obj = plt.figure()  # create a new figure
+
+    ax = Subplot(fig_obj, 111)
+    fig_obj.add_subplot(ax)
+
+    # n, bins, patches = plt.hist(values, bins="auto", alpha=0.75,ec="black")  # ec means edge color
+    # n, bins, patches = ax.hist(values, bins="auto", alpha=0.75, ec="black",linewidth='3',color=color,hatch=hatch)
+    plt.scatter(x_values, y_values,marker='^',color=color)
+
+    # print(n,bins,patches)
+    # n_label = [str(i) for i in n]
+    # plt.hist(values, bins="auto", alpha=0.75, ec="black",label=n_label)
+
+    # plt.gcf().subplots_adjust(bottom=0.15)   # reserve space for label
+    # plt.xlabel(attribute,fontsize=15)
+    # # plt.ylabel("Frequency")
+    # plt.ylabel("Number",fontsize=15)  #
+    # # plt.title('Histogram of '+attribute)
+    # # plt.text(60, .025, r'$\mu=100,\ \sigma=15$')
+    # # plt.axis([40, 160, 0, 0.03])
+
+
+    # marked area values
+    area_range = [1500]
+    for area in area_range:
+        ax.axvline(x=area,color='k',linewidth=0.8,linestyle='--')
+        ax.text(area, 0.50, '%d'%area, rotation=90,fontsize=20)
+
+
+    # hide the right and top boxed axis
+    # ax.axis["right"].set_visible(False)
+    # ax.axis["top"].set_visible(False)
+
+    # plt.grid(True)
+    plt.savefig(output)
+    basic.outputlogMessage("Output figures to %s"%os.path.abspath(output))
+    # basic.outputlogMessage("ncount: " + str(n))
+    # basic.outputlogMessage("bins: "+ str(bins))
+    # plt.show()
+
+
+    pass
+
+
 def get_hisogram_of_oneband_raster(image_path):
     if io_function.is_file_exist(image_path) is False:
         return False
@@ -286,10 +348,12 @@ def main(options, args):
     # draw_image_histogram_oneband("/Users/huanglingcao/Data/eboling/DEM/20160728-Large-DSM-NaN_slope.tif","slope_hist.jpg")
     # draw_image_histogram_oneband("/Users/huanglingcao/Data/eboling/DEM/20160728-Large-DSM-NaN.tif","dem_hist.jpg")
 
-    draw_dem_slope_hist("/Users/huanglingcao/Data/eboling/DEM/20160728-Large-DSM-NaN.tif",
-                        "/Users/huanglingcao/Data/eboling/DEM/20160728-Large-DSM-NaN_slope.tif",
-                        "dem_slope_histogram.jpg")
+    # draw_dem_slope_hist("/Users/huanglingcao/Data/eboling/DEM/20160728-Large-DSM-NaN.tif",
+    #                     "/Users/huanglingcao/Data/eboling/DEM/20160728-Large-DSM-NaN_slope.tif",
+    #                     "dem_slope_histogram.jpg")
 
+    draw_two_attribute_scatter(shape_file, "INarea", "IoU", "IoU_InArea_scatter.jpg",color='k')
+    # draw_one_attribute_histogram(shape_file, "IoU", "IoU (0-1)", "IoU.jpg")  # ,hatch='-'
 
     # draw_one_attribute_histogram(shape_file, "INarea", "Area ($m^2$)", "area.jpg")   #,hatch='-'
     # draw_one_attribute_histogram(shape_file, "INperimete", "Perimeter (m)", "Perimeter.jpg")  #,hatch='\\'
