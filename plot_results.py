@@ -136,7 +136,7 @@ def draw_two_attribute_scatter(shp_file,field_name_1,field_name_2, output,color=
     area_range = [1500]
     for area in area_range:
         ax.axvline(x=area,color='k',linewidth=0.8,linestyle='--')
-        ax.text(area, 0.50, '%d'%area, rotation=90,fontsize=20)
+        ax.text(area+100, 0.55, '%d $\mathrm{m^2}$'%area, rotation=90,fontsize=20)
 
 
     # hide the right and top boxed axis
