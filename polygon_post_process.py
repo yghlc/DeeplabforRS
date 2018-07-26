@@ -307,16 +307,16 @@ def main(options, args):
     #     return False
 
     # merge the touched polygons
-    ouput_merged = io_function.get_name_by_adding_tail(input,'merged')
-    if merge_polygons_in_gully(input,ouput_merged) is False:
-        return False
+    # ouput_merged = io_function.get_name_by_adding_tail(input,'merged')
+    # if merge_polygons_in_gully(input,ouput_merged) is False:
+    #     return False
 
     # calcuate area, perimeter of polygons
-    if cal_add_area_length_of_polygon(ouput_merged) is False:
+    if cal_add_area_length_of_polygon(input) is False:
         return False
 
     # calculate the polygon information
-    if calculate_gully_information(ouput_merged) is False:
+    if calculate_gully_information(input) is False:
         return False
 
     # remove small and not narrow polygons
