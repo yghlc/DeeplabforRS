@@ -1048,17 +1048,57 @@ def merge_touched_polygons_in_shapefile(shape_file,out_shp):
     # overwrite original file
     w.save(out_shp)
 
-    # add area, perimeter to shapefile
 
+    return True
+
+def cal_area_length_of_polygon(shape_file):
+
+    if io_function.is_file_exist(shape_file) is False:
+        return False
+
+    try:
+        org_obj = shapefile.Reader(shape_file)
+    except:
+        basic.outputlogMessage(str(IOError))
+        return False
+
+    # Create a new shapefile in memory
+    # w = shapefile.Writer()
+    # w.shapeType = org_obj.shapeType
+
+    org_records = org_obj.records()
+    if (len(org_records) < 1):
+        basic.outputlogMessage('error, no record in shape file ')
+        return False
+
+    # Copy over the geometry without any changes
+    shapes_list = org_obj.shapes()
+
+    # polygon1 = Polygon(shapes_list[5].points)
+    # polygon2 = Polygon(shapes_list[6].points)
+    # # polygon2 = Polygon([(0, 0), (3, 10), (3, 0)])
+    # polygons = [polygon1, polygon2]
+    # u = cascaded_union(polygons)
+
+    polygon_shapely = []
+    for temp in shapes_list:
+        polygon_shapely.append(shape_from_pyshp_to_shapely(temp))
+
+    # add area, perimeter to shapefile
     # caluclate the area, perimeter
-    merge_polygons = [shape_from_pyshp_to_shapely(temp) for temp in pyshp_polygons ]
-    area, perimeter = get_area_length_geometric_properties(merge_polygons)
+    area, perimeter = get_area_length_geometric_properties(polygon_shapely)
 
     if len(area)>0 and len(perimeter) > 0:
         shp_obj = shape_opeation()
-        shp_obj.add_one_field_records_to_shapefile(out_shp,area,'INarea')
-        shp_obj.add_one_field_records_to_shapefile(out_shp, perimeter, 'INperimete')
+        shp_obj.add_one_field_records_to_shapefile(shape_file,area,'INarea')
+        shp_obj.add_one_field_records_to_shapefile(shape_file, perimeter, 'INperimete')
         shp_obj = None
+
+    # copy prj file
+    # org_prj = os.path.splitext(shape_file)[0] + ".prj"
+    # out_prj = os.path.splitext(out_shp)[0] + ".prj"
+    # io_function.copy_file_to_dst(org_prj, out_prj,overwrite=True)
+    #
 
     return True
 

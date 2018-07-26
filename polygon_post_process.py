@@ -44,6 +44,14 @@ def merge_polygons_in_gully(input_shp, output_shp):
     """
     return vector_features.merge_touched_polygons_in_shapefile(input_shp,output_shp )
 
+def cal_add_area_length_of_polygon(input_shp):
+    """
+    calculate the area, perimeter of polygons, save to the original file
+    :param input_shp: input shapfe file
+    :return: True if successful, False Otherwise
+    """
+    return vector_features.cal_area_length_of_polygon(input_shp )
+
 def calculate_gully_topography(polygons_shp,dem_file,slope_file,aspect_file=None):
     """
     calculate the topography information such elevation and slope of each polygon
@@ -301,6 +309,10 @@ def main(options, args):
     # merge the touched polygons
     ouput_merged = io_function.get_name_by_adding_tail(input,'merged')
     if merge_polygons_in_gully(input,ouput_merged) is False:
+        return False
+
+    # calcuate area, perimeter of polygons
+    if cal_add_area_length_of_polygon(ouput_merged) is False:
         return False
 
     # calculate the polygon information
