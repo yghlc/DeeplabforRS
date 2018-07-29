@@ -1,10 +1,10 @@
 #!/usr/bin/env python
-# Filename: fafa 
+# Filename: read_raster_for_shapefile.py
 """
 introduction:
 
-authors:
-email:
+authors: Yan
+email: yan_hu@hotmail.com
 add time: 29 July, 2018
 """
 
@@ -51,6 +51,7 @@ def read_start_end_point_length_of_a_line(shape_file):
     if len(shapes_list) < 1:
         raise ValueError("No shape")
 
+    # define list
     start_point = []
     end_point = []
     length = []
