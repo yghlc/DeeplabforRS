@@ -13,10 +13,12 @@ from optparse import OptionParser
 import basic_src
 from basic_src import io_function
 from basic_src import basic
+from basic_src import RSImage
 
 import shapefile
+# import vector_features
 
-from vector_features import shape_operation
+# from vector_features import shape_operation
 
 
 def read_start_end_point_length_of_a_line(shape_file):
@@ -77,7 +79,7 @@ def read_start_end_point_length_of_a_line(shape_file):
 
 def read_dem_basedON_location(x, y, dem_raster):
     # return RSImage.get_image_location_value(dem_raster,x,y,'lon_lat_wgs84',1)
-    return basic_src.RSImage.get_image_location_value(dem_raster, x, y, 'prj', 1)
+    return RSImage.get_image_location_value(dem_raster, x, y, 'lon_lat_wgs84', 1)
 
 
 def calculate_polygon_topography(polygons_shp, dem_file):
@@ -132,7 +134,7 @@ def main(options, args):
 
         # calculate
 
-    test = 1
+
 
     pass
 
