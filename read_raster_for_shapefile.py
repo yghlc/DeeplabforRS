@@ -1,22 +1,25 @@
 #!/usr/bin/env python
-# Filename: fafa 
+# Filename: read_raster_for_shapefile.py
 """
 introduction:
 
-authors:
-email:
+authors: Yan
+email: yan_hu@hotmail.com
 add time: 29 July, 2018
 """
 
-import os,sys
+import os, sys
 from optparse import OptionParser
-from basic_src import RSImage
+import basic_src
 from basic_src import io_function
 from basic_src import basic
+from basic_src import RSImage
 
 import shapefile
+# import vector_features
 
-from vector_features import shape_opeation
+# from vector_features import shape_operation
+
 
 def read_start_end_point_length_of_a_line(shape_file):
     """
@@ -51,6 +54,7 @@ def read_start_end_point_length_of_a_line(shape_file):
     if len(shapes_list) < 1:
         raise ValueError("No shape")
 
+    # define list
     start_point = []
     end_point = []
     length = []
@@ -59,29 +63,26 @@ def read_start_end_point_length_of_a_line(shape_file):
     for record in org_records:
         length.append(record[1])
 
-
     for shape in shapes_list:
         # print(shape)
         # print(shape)
         print(shape.points)
         points = shape.points
         if len(points) != 2:
-            raise ValueError( "Not 2 points in a line")
+            raise ValueError("Not 2 points in a line")
 
         start_point.append(points[0])
         end_point.append(points[1])
 
+    return start_point, end_point, length
 
 
-    return start_point,end_point,length
-
-
-def read_dem_basedON_location(x,y,dem_raster):
+def read_dem_basedON_location(x, y, dem_raster):
     # return RSImage.get_image_location_value(dem_raster,x,y,'lon_lat_wgs84',1)
-    return RSImage.get_image_location_value(dem_raster,x,y,'prj',1)
+    return RSImage.get_image_location_value(dem_raster, x, y, 'lon_lat_wgs84', 1)
 
 
-def calculate_polygon_topography(polygons_shp,dem_file):
+def calculate_polygon_topography(polygons_shp, dem_file):
     """
 
     Args:
@@ -111,7 +112,6 @@ def calculate_polygon_topography(polygons_shp,dem_file):
     else:
         basic.outputlogMessage("warning, DEM file not exist, skip the calculation of DEM information")
 
-
     return True
 
 
@@ -119,10 +119,10 @@ def main(options, args):
     shp_file = args[0]
     raster = args[1]
 
-    #read shape file
+    # read shape file
     start_point, end_point, length = read_start_end_point_length_of_a_line(shp_file)
 
-    #get value of points
+    # get value of points
     shape_count = len(start_point)
     for idx in range(shape_count):
         # read value of start point
@@ -130,16 +130,14 @@ def main(options, args):
         # read value of end point
         end_value = read_dem_basedON_location(end_point[idx][0], end_point[idx][1], raster)
 
-        print(start_value,end_value)
+        print(start_value, end_value)
 
         # calculate
 
 
 
-    test = 1
-
-
     pass
+
 
 if __name__ == '__main__':
     usage = "usage: %prog [options] shp raster_file"
