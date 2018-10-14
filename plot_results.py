@@ -352,25 +352,25 @@ def main(options, args):
     #                     "/Users/huanglingcao/Data/eboling/DEM/20160728-Large-DSM-NaN_slope.tif",
     #                     "dem_slope_histogram.jpg")
 
-    draw_two_attribute_scatter(shape_file, "INarea", "IoU", "IoU_InArea_scatter.jpg",color='k')
+    # draw_two_attribute_scatter(shape_file, "INarea", "IoU", "IoU_InArea_scatter.jpg",color='k')
     # draw_one_attribute_histogram(shape_file, "IoU", "IoU (0-1)", "IoU.jpg")  # ,hatch='-'
 
-    # draw_one_attribute_histogram(shape_file, "INarea", "Area ($m^2$)", "area.jpg")   #,hatch='-'
-    # draw_one_attribute_histogram(shape_file, "INperimete", "Perimeter (m)", "Perimeter.jpg")  #,hatch='\\'
-    # draw_one_attribute_histogram(shape_file, "ratio_w_h", "ratio of HEIGHT over WIDTH (W>H)", "ratio_w_h.jpg")
-    # draw_one_attribute_histogram(shape_file, "ratio_p_a", "ratio of $perimeter^2$ over area", "ratio_p_a.jpg")
-    # draw_one_attribute_histogram(shape_file, "circularit", "Circularity", "Circularity.jpg")  # ,hatch='.'
+    draw_one_attribute_histogram(shape_file, "INarea", "Area ($m^2$)", "area.jpg")   #,hatch='-'
+    draw_one_attribute_histogram(shape_file, "INperimete", "Perimeter (m)", "Perimeter.jpg")  #,hatch='\\'
+    draw_one_attribute_histogram(shape_file, "ratio_w_h", "ratio of HEIGHT over WIDTH (W>H)", "ratio_w_h.jpg")
+    draw_one_attribute_histogram(shape_file, "ratio_p_a", "ratio of $perimeter^2$ over area", "ratio_p_a.jpg")
+    draw_one_attribute_histogram(shape_file, "circularit", "Circularity", "Circularity.jpg")  # ,hatch='.'
     #
     # # topography
-    # draw_one_attribute_histogram(shape_file, "dem_std", "standard variance of DEM", "dem_std.jpg")
-    # draw_one_attribute_histogram(shape_file, "dem_max", "maximum value of DEM (meter)", "dem_max.jpg")
-    # draw_one_attribute_histogram(shape_file, "dem_mean", "Mean Elevation (m)", "dem_mean.jpg")  # ,hatch='x'
-    # draw_one_attribute_histogram(shape_file, "dem_min", "minimum value of DEM (meter)", "dem_min.jpg")
+    draw_one_attribute_histogram(shape_file, "dem_std", "standard variance of DEM", "dem_std.jpg")
+    draw_one_attribute_histogram(shape_file, "dem_max", "maximum value of DEM (meter)", "dem_max.jpg")
+    draw_one_attribute_histogram(shape_file, "dem_mean", "Mean Elevation (m)", "dem_mean.jpg")  # ,hatch='x'
+    draw_one_attribute_histogram(shape_file, "dem_min", "minimum value of DEM (meter)", "dem_min.jpg")
     #
-    # draw_one_attribute_histogram(shape_file, "slo_std", "standard variance of Slope", "slo_std.jpg")
-    # draw_one_attribute_histogram(shape_file, "slo_max", "maximum value of Slope ($^\circ$)", "slo_max.jpg")
-    # draw_one_attribute_histogram(shape_file, "slo_mean", "Mean Slope ($^\circ$)", "slo_mean.jpg") #,hatch='/'
-    # draw_one_attribute_histogram(shape_file, "slo_min", "minimum value of Slope ($^\circ$)", "slo_min.jpg")
+    draw_one_attribute_histogram(shape_file, "slo_std", "standard variance of Slope", "slo_std.jpg")
+    draw_one_attribute_histogram(shape_file, "slo_max", "maximum value of Slope ($^\circ$)", "slo_max.jpg")
+    draw_one_attribute_histogram(shape_file, "slo_mean", "Mean Slope ($^\circ$)", "slo_mean.jpg") #,hatch='/'
+    draw_one_attribute_histogram(shape_file, "slo_min", "minimum value of Slope ($^\circ$)", "slo_min.jpg")
     #
     # #hydrology
     # draw_one_attribute_histogram(shape_file, "F_acc_std", "standard variance of Flow accumulation", "F_acc_std.jpg")
@@ -378,7 +378,7 @@ def main(options, args):
     # draw_one_attribute_histogram(shape_file, "F_acc_mean", "mean value of Flow accumulation", "F_acc_mean.jpg")
     # draw_one_attribute_histogram(shape_file, "F_acc_min", "minimum value of Flow accumulation", "F_acc_min.jpg")
     #
-    # os.system("mv processLog.txt bins.txt")
+    os.system("mv processLog.txt bins.txt")
 
     pass
 
@@ -389,8 +389,9 @@ if __name__ == '__main__':
     usage = "usage: %prog [options] shapefile"
     parser = OptionParser(usage=usage, version="1.0 2017-10-28")
     parser.description = 'Introduction: plot some statistic of the results  '
+
     parser.add_option("-p", "--para",
-                      action="store", dest="para_file",
+                      action="store", dest="para_file",default='para.ini',
                       help="the parameters file")
 
     (options, args) = parser.parse_args()
