@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
 
+#MAKE SURE the /usr/bin/python, which is python2
+export PATH=/usr/bin:$PATH
+#CUDA 8.0 for caffe.bin (already built)
+export LD_LIBRARY_PATH=/home/hlc/programs/cuda-8.0/lib64:$LD_LIBRARY_PATH
 
 cd ~/codes/rsBuildingSeg
 git pull
