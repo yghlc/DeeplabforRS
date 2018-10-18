@@ -6,6 +6,7 @@ DOM=~/Data/eboling/eboling_uav_images/dom/UAV_DOM_Eboling.tif
 DOM_tmp=~/Data/eboling/eboling_uav_images/dom/UAV_DOM_Eboling_tmp.tif
 DOM_tmp2=~/Data/eboling/eboling_uav_images/dom/UAV_DOM_Eboling_tmp2.tif
 
+mkdir ~/Data/eboling/eboling_uav_images/dom/dom_extent
 out_shp=~/Data/eboling/eboling_uav_images/dom/dom_extent/dom_extent.shp
 
 # add no-data
