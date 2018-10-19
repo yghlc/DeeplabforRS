@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
 
+# the result turns out have three polygons (two more tiny polygons, so I delete them manually)
+# after manually delete two tiny polygons, the polgyon still have self-ring issues and cannot be used.
+# so I have to manually draw one.
+
 # get the boundary of valid pixel on the DOM, that is, without the no-data pixels.
 
 DOM=~/Data/eboling/eboling_uav_images/dom/UAV_DOM_Eboling.tif
@@ -20,6 +24,9 @@ gdal_calc.py -A ${DOM} --A_band=1 --outfile=${DOM_tmp} --calc="255*(A>0)" --NoDa
 
 # get the boundary based on band 4
 # the result turns out have three polygons (two more tiny polygons, so I delete them manually)
+# after manually delete two tiny polygons, the polgyon still have self-ring issues and cannot be used.
+# so I have to manually draw one.
+
 gdal_polygonize.py ${DOM_tmp} -b 1 -f "ESRI Shapefile" ${out_shp}
 
 #
