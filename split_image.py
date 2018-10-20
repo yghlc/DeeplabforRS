@@ -10,8 +10,8 @@ add time: 15 July, 2017
 import sys,os,subprocess
 from optparse import OptionParser
 
-def sliding_window(image_width,image_height, patch_w,patch_h,adj_overlay=0):
-    sliding_window(image_width, image_height, patch_w, patch_h, adj_overlay_x=adj_overlay, adj_overlay_y=adj_overlay)
+# def sliding_window(image_width,image_height, patch_w,patch_h,adj_overlay=0):
+#     sliding_window(image_width, image_height, patch_w, patch_h, adj_overlay_x=adj_overlay, adj_overlay_y=adj_overlay)
 
 
 def sliding_window(image_width,image_height, patch_w,patch_h,adj_overlay_x=0,adj_overlay_y=0):
@@ -82,8 +82,8 @@ def sliding_window(image_width,image_height, patch_w,patch_h,adj_overlay_x=0,adj
     return patch_boundary
 
 
-def split_image(input,output_dir,patch_w=1024,patch_h=1024,adj_overlay=0):
-    split_image(input, output_dir, patch_w=1024, patch_h=1024, adj_overlay_x=adj_overlay, adj_overlay_y=adj_overlay)
+# def split_image(input,output_dir,patch_w=1024,patch_h=1024,adj_overlay=0):
+#     split_image(input, output_dir, patch_w=1024, patch_h=1024, adj_overlay_x=adj_overlay, adj_overlay_y=adj_overlay)
 
 def split_image(input,output_dir,patch_w=1024,patch_h=1024,adj_overlay_x=0,adj_overlay_y=0):
     """
@@ -157,8 +157,8 @@ def main(options, args):
 
     image_path = args[0]
 
-    split_image(image_path,out_dir,patch_width,patch_height,adj_overlay)
-
+    # split_image(image_path,out_dir,patch_width,patch_height,adj_overlay)
+    split_image(image_path,out_dir,patch_width,patch_height,adj_overlay, adj_overlay)
 
     pass
 
