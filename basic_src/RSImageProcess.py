@@ -191,12 +191,21 @@ def subset_image_projwin(output,imagefile,ulx,uly,lrx,lry,dst_nondata=0,xres=Non
     ymin = lry
     xmax = lrx
     ymax = uly
+    # if xres is None or yres is None:
+    #     CommandString = 'gdalwarp -r bilinear -te  ' +' '+str(xmin)+' '+str(ymin)+' '+str(xmax)+' '+str(ymax)\
+    #     + ' ' + ' -dstnodata '+ str(dst_nondata) + ' '+imagefile + ' '+output
+    # else:
+    #     CommandString = 'gdalwarp -r bilinear -te  ' + ' ' + str(xmin) + ' ' + str(ymin) + ' ' + str(xmax) + ' ' + str(ymax) \
+    #                     + ' -tr ' +str(xres) + ' ' +str(yres) +' ' + ' -dstnodata '+ str(dst_nondata) + ' '+ imagefile + ' ' + output
+
+    # update on 2018 Oct 20, we should not set nodata in subset opertion. It will copy from the source dataset
     if xres is None or yres is None:
         CommandString = 'gdalwarp -r bilinear -te  ' +' '+str(xmin)+' '+str(ymin)+' '+str(xmax)+' '+str(ymax)\
-        + ' ' + ' -dstnodata '+ str(dst_nondata) + ' '+imagefile + ' '+output
+        + ' ' + ' '+imagefile + ' '+output
     else:
         CommandString = 'gdalwarp -r bilinear -te  ' + ' ' + str(xmin) + ' ' + str(ymin) + ' ' + str(xmax) + ' ' + str(ymax) \
-                        + ' -tr ' +str(xres) + ' ' +str(yres) +' ' + ' -dstnodata '+ str(dst_nondata) + ' '+ imagefile + ' ' + output
+                        + ' -tr ' +str(xres) + ' ' +str(yres) +' ' + ' '+ imagefile + ' ' + output
+
     return basic.exec_command_string_one_file(CommandString,output)
 
 def subset_image_srcwin(output,imagefile,xoff,yoff,xsize,ysize):
