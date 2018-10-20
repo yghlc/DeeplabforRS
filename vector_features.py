@@ -19,6 +19,8 @@ import  parameters
 #pyshp library
 import shapefile
 
+import random
+
 #rasterstats
 from rasterstats import zonal_stats
 
@@ -472,6 +474,102 @@ class shape_opeation(object):
 
         w.save(out_shp)
         return True
+
+    def get_portition_of_polygons(self,shape_file,out_shp,percentage,sep_field_name=None):
+        """
+        randomly select polygons from different classes of saved polygons
+        Args:
+            shape_file: intput
+            out_shp: output
+            percentage: percentage
+            sep_field_name: field name for different class
+
+        Returns: True if successful, False Otherwise
+
+        """
+
+        if io_function.is_file_exist(shape_file) is False:
+            return False
+
+        try:
+            org_obj = shapefile.Reader(shape_file)
+        except:
+            basic.outputlogMessage(str(IOError))
+            return False
+
+        # Create a new shapefile in memory
+        w = shapefile.Writer()
+        w.shapeType = org_obj.shapeType
+
+        org_records = org_obj.records()
+        shapes_list = org_obj.shapes()
+        org_shape_count = len(shapes_list)
+
+        if (len(org_records) < 1):
+            basic.outputlogMessage('error, no record in shape file ')
+            return False
+
+        # Copy over the geometry without any changes
+        w.fields = list(org_obj.fields)
+
+        if sep_field_name is not None:
+            field_index = self.__find_field_index(w.fields, sep_field_name)
+            if field_index is False:
+                return False
+
+            all_shape_index = list(range(0, org_shape_count))
+
+            # get class_int from this field
+            class_int_list = [rec[field_index] for rec in org_records]
+            class_unique_list = list(set(class_int_list)) # unique class id
+
+            # for each class, choose a subset of them
+            all_shape_index_per_class = []
+            for class_id in class_unique_list:
+                tmp_class_shp_idx = []
+                for shp_indx in all_shape_index:
+                    if org_records[shp_indx][field_index] == class_id:
+                        tmp_class_shp_idx.append(shp_indx)
+
+                all_shape_index_per_class.append(tmp_class_shp_idx)
+
+            # selection in each class
+            select_shape_index_per_class = []
+            for shape_idx_a_class in all_shape_index_per_class:
+                select_count = int(len(shape_idx_a_class) * percentage)
+                select_shape_idx_a_class = random.sample(shape_idx_a_class, select_count)
+                select_shape_index_per_class.append(select_shape_idx_a_class)
+
+            # convert to 1-d list
+            select_shape_idx = [item for alist in select_shape_index_per_class for item in alist]
+
+            #print
+            basic.outputlogMessage("selected polygons index: "+
+                                    " ".join([str(ii) for ii in select_shape_idx]))
+
+        else:
+            # select from the whole polgyons
+            all_shape_index = list(range(0,org_shape_count))
+            select_count = int(org_shape_count*percentage)
+            select_shape_idx = random.sample(all_shape_index, select_count)
+
+            # for test
+            basic.outputlogMessage("selected polygons index: " +
+                                    " ".join([str(ii) for ii in select_shape_idx]))
+
+        for shape_idx in select_shape_idx:
+            rec = org_records[shape_idx]
+            w._shapes.append(shapes_list[shape_idx])
+            w.records.append(rec)
+
+        # copy prj file
+        org_prj = os.path.splitext(shape_file)[0] + ".prj"
+        out_prj = os.path.splitext(out_shp)[0] + ".prj"
+        io_function.copy_file_to_dst(org_prj, out_prj, overwrite=True)
+
+        w.save(out_shp)
+        return True
+
 
     def remove_nonclass_polygon(self,shape_file,out_shp,class_field_name):
         """

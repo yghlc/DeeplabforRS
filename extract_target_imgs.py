@@ -26,6 +26,8 @@ import basic_src.RSImageProcess as RSImageProcess
 #pyshp library
 import shapefile
 
+from vector_features import shape_opeation
+
 # import shapely
 from shapely.geometry import Polygon
 
@@ -46,6 +48,17 @@ def get_polygons(shp_path):
 
     shapes_list = shp_obj.shapes()
     return shapes_list
+
+def get_polygon_class(shp_path):
+
+    operation_obj = shape_opeation()
+
+    class_int_list = operation_obj.get_shape_records_value(shp_path,['class_int'])
+    if class_int_list is False:
+        return False
+    else:
+        class_int_list_1d = [item for alist in class_int_list for item in alist]
+        return class_int_list_1d
 
 def save_polygons_to_shp(polygon_list, base_shp,folder):
     if len(polygon_list) < 1:
@@ -135,6 +148,8 @@ def main(options, args):
 
     # get polygons
     polygons = get_polygons(shp_path)
+    class_int = get_polygon_class(shp_path)
+    class_str_list = ["class_"+str(item) for item in class_int]  #e.g., class_0 is non-gully, class_1 is gully
 
     # buffer polygons (dilation)
     poly_geos =  [vector_features.shape_from_pyshp_to_shapely(pyshp_polygon) for pyshp_polygon in polygons ]
@@ -148,8 +163,8 @@ def main(options, args):
     # print (polygon_files)
     # subset image based on polygon
     save_id = 0
-    for polygon in polygon_files:
-        Outfilename = os.path.join(out_dir,os.path.splitext(os.path.basename(image_path))[0] + '_'+str(save_id)+'.tif')
+    for polygon,class_str in zip(polygon_files,class_str_list):
+        Outfilename = os.path.join(out_dir,os.path.splitext(os.path.basename(image_path))[0] + '_'+str(save_id)+'_'+class_str+'.tif')
         if bSub_rect is True:
             extent = get_layer_extent(polygon)
             RSImageProcess.subset_image_projwin(Outfilename,image_path,extent[0],extent[3],extent[2],extent[1],dst_nondata=dstnodata)
