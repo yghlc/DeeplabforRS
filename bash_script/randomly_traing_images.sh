@@ -23,7 +23,10 @@ git pull
 cd -
 
 gt_shp=~/Data/eboling/training_validation_data/manually_identify/train_polygons_digitize_gps_v6.shp
-out_dir=~/Data/eboling/training_validation_data/manually_identify/randomly_select_training_polygons
+#out_dir=~/Data/eboling/training_validation_data/manually_identify/randomly_select_training_polygons
+
+#
+out_dir=~/Data/eboling/training_validation_data/manually_identify/randomly_select_training_polygons_gully_only
 
 mkdir ${out_dir}
 
