@@ -10,10 +10,10 @@ echo ${time_str}
 # backup previous results
 
 mv result_backup result_backup_${time_str}
-mkdir file_back_${time_str}
-mv raster_class_train_polygon*.tif file_back_${time_str}/.
-mv processLog.txt file_back_${time_str}/.
-mv time_cost.txt file_back_${time_str}/.
+mkdir files_backup_${time_str}
+mv raster_class_train_polygon*.tif files_backup_${time_str}/.
+mv processLog.txt files_backup_${time_str}/.
+mv time_cost.txt files_backup_${time_str}/.
 
 # new tests
 mkdir result_backup
@@ -23,9 +23,9 @@ do
 
 # change para.ini and pre_para.ini
 cp pre_para.ini.template pre_para.ini
-sed -i '.bak' -e  's/random_x/random_${ii}/g' pre_para.ini
-cp para.ini.template
-sed -i '.bak' -e  's/random_x/random_${ii}/g' para.ini
+sed -i -e  s/random_x/random_${ii}/g pre_para.ini
+cp para.ini.template para.ini
+sed -i -e  s/random_x/random_${ii}/g para.ini
 
 #exit
 
