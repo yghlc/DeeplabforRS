@@ -538,7 +538,7 @@ class shape_opeation(object):
             for class_id,shape_idx_a_class in enumerate(all_shape_index_per_class):
                 select_count = int(len(shape_idx_a_class) * percentage)
 
-                # don't subsample the non-gully polygons, hlc 2018-oct 21
+                # don't subsample the non-gully polygons, hlc 2018-oct 21, as eboling case, class_id=0 is non-gully
                 if class_id==0:
                     select_count = len(shape_idx_a_class)
 
