@@ -535,8 +535,13 @@ class shape_opeation(object):
 
             # selection in each class
             select_shape_index_per_class = []
-            for shape_idx_a_class in all_shape_index_per_class:
+            for class_id,shape_idx_a_class in enumerate(all_shape_index_per_class):
                 select_count = int(len(shape_idx_a_class) * percentage)
+
+                # don't subsample the non-gully polygons, hlc 2018-oct 21
+                if class_id==0:
+                    select_count = len(shape_idx_a_class)
+
                 select_shape_idx_a_class = random.sample(shape_idx_a_class, select_count)
                 select_shape_index_per_class.append(select_shape_idx_a_class)
 
