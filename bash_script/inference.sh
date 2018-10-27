@@ -30,7 +30,7 @@ cp ~/codes/rsBuildingSeg/DeepLab-Context/run_test_and_evaluate.py .
 
 rm -r features
 rm -r inf_split_images
-mkdir inf_split_images
+mkdir -p inf_split_images
 
 ###pre-process UAV images
 ${eo_dir}/split_image.py -W ${patch_w} -H ${patch_h} -e ${overlay} -o ${PWD}/inf_split_images ${RSimg}

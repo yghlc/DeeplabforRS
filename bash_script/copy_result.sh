@@ -4,7 +4,7 @@ for expr in $(ls -d ${PWD}/../EbolingUAV_deeplab* ); do
 	folder=$(basename $expr)
 	echo $folder 
 
-	mkdir $folder
+	mkdir -p $folder
 	cd $folder
 	cp -r ${expr}/config .
 	cp -r ${expr}/log .

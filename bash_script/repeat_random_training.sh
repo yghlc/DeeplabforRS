@@ -10,13 +10,13 @@ echo ${time_str}
 # backup previous results
 
 mv result_backup result_backup_${time_str}
-mkdir files_backup_${time_str}
+mkdir -p files_backup_${time_str}
 mv raster_class_train_polygon*.tif files_backup_${time_str}/.
 mv processLog.txt files_backup_${time_str}/.
 mv time_cost.txt files_backup_${time_str}/.
 
 # new tests
-mkdir result_backup
+mkdir -p result_backup
 
 for ii in {1..5};
 do

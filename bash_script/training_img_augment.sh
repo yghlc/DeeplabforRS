@@ -21,8 +21,8 @@ label_name_prefix=raster_class_train_polygons_digitize_gps_0.15m_v5
 test_dir=${PWD##*/}
 
 # only augmentation on gully images (move non-gully image to temp folder)
-mkdir split_images_temp
-mkdir split_labels_temp 
+mkdir -p split_images_temp
+mkdir -p split_labels_temp
 for id in $(seq 10 24); do
 	echo $id
 	mv split_images/${image_name_prefix}_${id}_*.tif  split_images_temp/.

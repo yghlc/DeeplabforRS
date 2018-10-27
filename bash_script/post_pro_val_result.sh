@@ -6,7 +6,7 @@ para_py=/home/hlc/codes/PycharmProjects/DeeplabforRS/parameters.py
 SECONDS=0
 
 rm  post_pro_val_result/*
-mkdir post_pro_val_result
+mkdir -p post_pro_val_result
 
 eo_dir=$(python2 ${para_py} -p ${para_file} codes_dir)
 expr=${PWD}
