@@ -338,12 +338,15 @@ def main(options, args):
     dem_file = parameters.get_dem_file()
     slope_file = parameters.get_slope_file()
     if calculate_gully_topography(output,dem_file,slope_file) is False:
-        return False
+        basic.outputlogMessage('Warning: calculate information of topography failed')
+        # return False   #  don't return
+
 
     # add hydrology information
     flow_accum = parameters.get_flow_accumulation()
     if calculate_hydrology(output, flow_accum) is False:
-        return False
+        basic.outputlogMessage('Warning: calculate information of hydrology failed')
+        # return False  #  don't return
 
     # evaluation result
     val_path = parameters.get_validation_shape()
