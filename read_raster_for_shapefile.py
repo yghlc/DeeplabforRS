@@ -134,7 +134,8 @@ def main(options, args):
         print(start_value, end_value)
 
         # calculate
-        slope_angle = math.atan((start_value-end_value)/length)
+
+        slope_angle = math.atan((start_value-end_value) / length)
         print(slope_angle)
 
 
