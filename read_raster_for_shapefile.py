@@ -137,6 +137,7 @@ def main(options, args):
         print(start_value, end_value)
 
         file.write(start_value, end_value)
+        file.close()
 
         # calculate
 
