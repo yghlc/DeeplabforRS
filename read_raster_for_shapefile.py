@@ -8,7 +8,7 @@ email: yan_hu@hotmail.com
 add time: 29 July, 2018
 """
 
-import os, sys
+import os, sys, math
 from optparse import OptionParser
 import basic_src
 from basic_src import io_function
@@ -134,7 +134,8 @@ def main(options, args):
         print(start_value, end_value)
 
         # calculate
-
+        slope_angle = math.atan((start_value-end_value)/length)
+        print(slope_angle)
 
 
     pass
