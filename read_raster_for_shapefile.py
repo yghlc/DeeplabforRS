@@ -130,7 +130,6 @@ def main(options, args):
         start_value = read_dem_basedON_location(start_point[idx][0], start_point[idx][1], raster)
         # read value of end point
         end_value = read_dem_basedON_location(end_point[idx][0], end_point[idx][1], raster)
-        # read value of length
 
 
         print(start_value, end_value)
