@@ -131,10 +131,11 @@ def main(options, args):
         # read value of end point
         end_value = read_dem_basedON_location(end_point[idx][0], end_point[idx][1], raster)
         # read value of length
-        length_value = length[idx]
+        #length_value = length[idx]
 
         print(start_value, end_value)
-        print(length_value)
+        print (length)
+        #print(length_value)
         # calculate
 
        # slope_angle = math.atan((start_value-end_value) / length)
