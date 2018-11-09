@@ -77,7 +77,7 @@ def read_start_end_point_length_of_a_line(shape_file):
     return start_point, end_point, length
 
 
-def read_dem_basedON_location(x: object, y: object, dem_raster: object) -> object:
+def read_dem_basedON_location(x, y, dem_raster):
     # return RSImage.get_image_location_value(dem_raster,x,y,'lon_lat_wgs84',1)
     return RSImage.get_image_location_value(dem_raster, x, y, 'lon_lat_wgs84', 1)
 
