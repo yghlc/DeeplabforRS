@@ -125,9 +125,6 @@ def main(options, args):
     # get value of points
     shape_count = len(start_point)
 
-    # create a file recording the altitudes
-    f = open("altitude", "w+")
-
     for idx in range(shape_count):
         # read value of start point
         start_value = read_dem_basedON_location(start_point[idx][0], start_point[idx][1], raster)
@@ -135,10 +132,6 @@ def main(options, args):
         end_value = read_dem_basedON_location(end_point[idx][0], end_point[idx][1], raster)
 
         print(start_value, end_value)
-        content = (start_value, end_value)
-
-        f.write(content)
-        f.close()
 
         # calculate
 
