@@ -77,7 +77,7 @@ def read_start_end_point_length_of_a_line(shape_file):
     return start_point, end_point, length
 
 
-def read_dem_basedON_location(x, y, dem_raster):
+def read_dem_basedON_location(x: object, y: object, dem_raster: object) -> object:
     # return RSImage.get_image_location_value(dem_raster,x,y,'lon_lat_wgs84',1)
     return RSImage.get_image_location_value(dem_raster, x, y, 'lon_lat_wgs84', 1)
 
@@ -126,7 +126,7 @@ def main(options, args):
     shape_count = len(start_point)
 
     # create a file recording the altitudes
-    file = open("altitude", "w+")
+    f = open("altitude", "w+")
 
     for idx in range(shape_count):
         # read value of start point
@@ -135,9 +135,10 @@ def main(options, args):
         end_value = read_dem_basedON_location(end_point[idx][0], end_point[idx][1], raster)
 
         print(start_value, end_value)
+        content = (start_value, end_value)
 
-        file.write(start_value, end_value)
-        file.close()
+        f.write(content)
+        f.close()
 
         # calculate
 
