@@ -134,11 +134,16 @@ def main(options, args):
 
         print(start_value, end_value)
 
-        #calculate
-        dh = start_value - end_value
-        print(dh)
-
-
+        #calculate bearing of line/aspect of RGs
+        lat1 = math.radians(start_point[idx][1])
+        lat2 = math.radians(end_point[idx][1])
+        diffLong = math.radians(end_point[idx][0] - start_point[idx][0])
+        x = math.sin(diffLong) * math.cos(lat2)
+        y = math.cos(lat1) * math.sin(lat2) - (math.sin(lat1) * math.cos(lat2) * math.cos(diffLong))
+        initial_bearing = math.atan2(x, y)
+        initial_bearing = math.degrees(initial_bearing)
+        compass_bearing = (initial_bearing + 360) % 360
+        print(idx+1, compass_bearing)
 
     pass
 
