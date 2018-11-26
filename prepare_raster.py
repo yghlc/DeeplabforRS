@@ -106,7 +106,7 @@ def main(options, args):
     else:
         basic.outputlogMessage("Done: Producing the label images from training polygons, output: %s"%all_class_raster )
 
-    if num_class > 1:
+    if num_class == 1:
         #only keep target (gully or others) label
         one_class_raster=io_function.get_name_by_adding_tail(output_raster,'oneClass')
         if only_keep_one_class(all_class_raster,one_class_raster,class_index=1) is False:
