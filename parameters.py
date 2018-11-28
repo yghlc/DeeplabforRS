@@ -19,7 +19,7 @@ saved_parafile_path ='para_default.ini'
 def set_saved_parafile_path(path):
     if os.path.isfile(path) is False:
         print ("File not exist: "+os.path.abspath(path))
-        assert False
+        raise IOError("File not exist: "+os.path.abspath(path))
         # sys.exit(1)
     global saved_parafile_path
     saved_parafile_path = path
@@ -96,7 +96,7 @@ def get_string_parameters(parafile,name):
     result = read_Parameters_file(parafile,name)
     if result is False:
         basic.outputlogMessage('get %s parameter failed'%name)
-        assert False
+        raise ValueError('get %s parameter failed'%name)
     else:
         return result
 def get_bool_parameters(parafile,name,default):
@@ -106,7 +106,7 @@ def get_bool_parameters(parafile,name,default):
     if result is False:
         if default is None:
             basic.outputlogMessage('get %s parameter failed'%name)
-            assert False
+            raise ValueError('get %s parameter failed'%name)
             # sys.exit(-1);
         else:
             basic.outputlogMessage('get %s parameter failed, the  %s will be set as %s'%(name,name,default))
@@ -127,7 +127,7 @@ def get_digit_parameters(parafile,name,default,datatype):
             return default
         else:
             basic.outputlogMessage('get %s parameter failed, exit'%(name))
-            assert False
+            raise ValueError('get %s parameter failed, exit'%(name))
             # return False
     try:
         if datatype == 'int':
@@ -141,7 +141,7 @@ def get_digit_parameters(parafile,name,default,datatype):
             return default
         else:
             basic.outputlogMessage('convert %s to digit failed , exit'%(name))
-            assert False
+            raise ValueError('convert %s to digit failed , exit'%(name))
 
     return digit_value
 
