@@ -148,13 +148,11 @@ def calculate_hydrology(polygons_shp,flow_accumulation):
     all_touched = True
 
     # #DEM
-    if io_function.is_file_exist(flow_accumulation):
-        stats_list = ['min', 'max', 'mean', 'std']  # ['min', 'max', 'mean', 'count','median','std']
-        if operation_obj.add_fields_from_raster(polygons_shp, flow_accumulation, "F_acc", band=1, stats_list=stats_list,
+
+    stats_list = ['min', 'max', 'mean', 'std']  # ['min', 'max', 'mean', 'count','median','std']
+    if operation_obj.add_fields_from_raster(polygons_shp, flow_accumulation, "F_acc", band=1, stats_list=stats_list,
                                                 all_touched=all_touched) is False:
-            return False
-    else:
-        basic.outputlogMessage("warning, flow accumulation file not exist, skip the calculation of flow accumulation")
+        return False
 
 
     pass
@@ -344,13 +342,19 @@ def main(options, args):
 
     # add hydrology information
     flow_accum = parameters.get_flow_accumulation()
-    if calculate_hydrology(output, flow_accum) is False:
-        basic.outputlogMessage('Warning: calculate information of hydrology failed')
-        # return False  #  don't return
+    if os.path.isfile(flow_accum):
+        if calculate_hydrology(output, flow_accum) is False:
+            basic.outputlogMessage('Warning: calculate information of hydrology failed')
+            # return False  #  don't return
+    else:
+        basic.outputlogMessage("warning, flow accumulation file not exist, skip the calculation of flow accumulation")
 
     # evaluation result
     val_path = parameters.get_validation_shape()
-    evaluation_result(output,val_path)
+    if os.path.isfile(val_path):
+        evaluation_result(output,val_path)
+    else:
+        basic.outputlogMessage("warning, validation polygon not exist, skip evaluation")
 
     pass
 

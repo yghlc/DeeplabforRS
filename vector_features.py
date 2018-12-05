@@ -220,6 +220,8 @@ class shape_opeation(object):
             return False
         if isinstance(record_value,list) is False:
             basic.outputlogMessage('record_value must be list')
+        if None in record_value:
+            raise ValueError("None in record_value, please check the projection of shapefile and raster file, they should be the same")
 
         records_count = len(record_value)
         if(records_count<1):
