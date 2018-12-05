@@ -16,6 +16,7 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid.axislines import Subplot
 
 import plotly.plotly as py
+import plotly.graph_objs as go
 
 # import vector_features
 from vector_features import shape_opeation
@@ -91,6 +92,42 @@ def draw_one_attribute_histogram(shp_file,field_name,attribute, output,color='gr
     basic.outputlogMessage("ncount: " + str(n))
     basic.outputlogMessage("bins: "+ str(bins))
     # plt.show()
+
+def draw_one_attribute_windrose(shp_file,field_name,attribute, output,color='grey',hatch=""):
+    """
+    draw the figure of one attribute's wind rose
+    Args:
+        shp_file:  shape file path
+        attribute_name: name of attribute
+        output: output the figure
+
+    Returns: True if successful, False otherwise
+
+    """
+    values = read_attribute(shp_file,field_name)
+
+    from windrose import WindroseAxes
+
+    wind_dir = np.array(values)
+    wind_sd = np.ones(wind_dir.shape[0]) #np.ones(wind_dir.shape[0])  #np.arange(1, wind_dir.shape[0] + 1)
+    bins_range = np.arange(1, 2, 1)  # this sets the legend scale
+
+    ax = WindroseAxes.from_ax()
+    ax.bar(wind_dir, wind_sd, normed=True, bins=bins_range,colors=color)
+    ax.set_yticks(np.arange(5, 16, step=5))
+    ax.set_yticklabels(np.arange(5, 16, step=5))
+    # plt.show()
+    plt.savefig(output)
+
+
+
+    # plt.grid(True)
+    # plt.savefig(output)
+    # basic.outputlogMessage("Output figures to %s"%os.path.abspath(output))
+    # basic.outputlogMessage("ncount: " + str(n))
+    # basic.outputlogMessage("bins: "+ str(bins))
+    return True
+
 
 def draw_two_attribute_scatter(shp_file,field_name_1,field_name_2, output,color='grey',hatch=""):
     """
@@ -355,22 +392,34 @@ def main(options, args):
     # draw_two_attribute_scatter(shape_file, "INarea", "IoU", "IoU_InArea_scatter.jpg",color='k')
     # draw_one_attribute_histogram(shape_file, "IoU", "IoU (0-1)", "IoU.jpg")  # ,hatch='-'
 
-    draw_one_attribute_histogram(shape_file, "INarea", "Area ($m^2$)", "area.jpg")   #,hatch='-'
-    draw_one_attribute_histogram(shape_file, "INperimete", "Perimeter (m)", "Perimeter.jpg")  #,hatch='\\'
-    draw_one_attribute_histogram(shape_file, "ratio_w_h", "ratio of HEIGHT over WIDTH (W>H)", "ratio_w_h.jpg")
-    draw_one_attribute_histogram(shape_file, "ratio_p_a", "ratio of $perimeter^2$ over area", "ratio_p_a.jpg")
-    draw_one_attribute_histogram(shape_file, "circularit", "Circularity", "Circularity.jpg")  # ,hatch='.'
-    #
-    # # topography
-    draw_one_attribute_histogram(shape_file, "dem_std", "standard variance of DEM", "dem_std.jpg")
-    draw_one_attribute_histogram(shape_file, "dem_max", "maximum value of DEM (meter)", "dem_max.jpg")
-    draw_one_attribute_histogram(shape_file, "dem_mean", "Mean Elevation (m)", "dem_mean.jpg")  # ,hatch='x'
-    draw_one_attribute_histogram(shape_file, "dem_min", "minimum value of DEM (meter)", "dem_min.jpg")
-    #
-    draw_one_attribute_histogram(shape_file, "slo_std", "standard variance of Slope", "slo_std.jpg")
-    draw_one_attribute_histogram(shape_file, "slo_max", "maximum value of Slope ($^\circ$)", "slo_max.jpg")
-    draw_one_attribute_histogram(shape_file, "slo_mean", "Mean Slope ($^\circ$)", "slo_mean.jpg") #,hatch='/'
-    draw_one_attribute_histogram(shape_file, "slo_min", "minimum value of Slope ($^\circ$)", "slo_min.jpg")
+    # draw_one_attribute_histogram(shape_file, "INarea", "Area ($m^2$)", "area.jpg")   #,hatch='-'
+    # draw_one_attribute_histogram(shape_file, "INperimete", "Perimeter (m)", "Perimeter.jpg")  #,hatch='\\'
+    # draw_one_attribute_histogram(shape_file, "ratio_w_h", "ratio of HEIGHT over WIDTH (W>H)", "ratio_w_h.jpg")
+    # draw_one_attribute_histogram(shape_file, "ratio_p_a", "ratio of $perimeter^2$ over area", "ratio_p_a.jpg")
+    # draw_one_attribute_histogram(shape_file, "circularit", "Circularity", "Circularity.jpg")  # ,hatch='.'
+    # #
+    # # # topography
+    # draw_one_attribute_histogram(shape_file, "dem_std", "standard variance of DEM", "dem_std.jpg")
+    # draw_one_attribute_histogram(shape_file, "dem_max", "maximum value of DEM (meter)", "dem_max.jpg")
+    # draw_one_attribute_histogram(shape_file, "dem_mean", "Mean Elevation (m)", "dem_mean.jpg")  # ,hatch='x'
+    # draw_one_attribute_histogram(shape_file, "dem_min", "minimum value of DEM (meter)", "dem_min.jpg")
+    # #
+    # draw_one_attribute_histogram(shape_file, "slo_std", "standard variance of Slope", "slo_std.jpg")
+    # draw_one_attribute_histogram(shape_file, "slo_max", "maximum value of Slope ($^\circ$)", "slo_max.jpg")
+    # draw_one_attribute_histogram(shape_file, "slo_mean", "Mean Slope ($^\circ$)", "slo_mean.jpg") #,hatch='/'
+    # draw_one_attribute_histogram(shape_file, "slo_min", "minimum value of Slope ($^\circ$)", "slo_min.jpg")
+
+    # draw wind rose of aspect
+    # draw_one_attribute_windrose(shape_file, "asp_std", "standard variance of Aspect", "asp_std.jpg")
+    # draw_one_attribute_windrose(shape_file, "asp_max", "maximum value of Aspect ($^\circ$)", "asp_max.jpg")
+    # draw_one_attribute_windrose(shape_file, "asp_mean", "Mean Aspect ($^\circ$)", "asp_mean.jpg") #,hatch='/'
+    # draw_one_attribute_windrose(shape_file, "asp_min", "minimum value of Aspect ($^\circ$)", "asp_min.jpg")
+
+    # draw wind rose of azimuth from manually draw lines
+    draw_one_attribute_windrose(shape_file, "aspectLine", "Mean Aspect ($^\circ$)", "aspectLine.jpg")  # ,hatch='/'
+
+
+
     #
     # #hydrology
     # draw_one_attribute_histogram(shape_file, "F_acc_std", "standard variance of Flow accumulation", "F_acc_std.jpg")
