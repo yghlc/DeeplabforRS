@@ -111,10 +111,10 @@ def calculate_gully_topography(polygons_shp,dem_file,slope_file,aspect_file=None
         basic.outputlogMessage("warning, slope file not exist, skip the calculation of slope information")
 
     # #aspect
-    if aspect_file is not None:
-        if io_function.is_file_exist(slope_file) is False:
+    if  aspect_file is not None:
+        if io_function.is_file_exist(aspect_file) is False:
             return False
-        stats_list = ['mean', 'std']
+        stats_list = ['min', 'max','mean', 'std']
         if operation_obj.add_fields_from_raster(polygons_shp, aspect_file, "asp", band=1,stats_list=stats_list,all_touched=all_touched) is False:
             return False
 
@@ -335,7 +335,8 @@ def main(options, args):
     # add topography of each polygons
     dem_file = parameters.get_dem_file()
     slope_file = parameters.get_slope_file()
-    if calculate_gully_topography(output,dem_file,slope_file) is False:
+    aspect_file=parameters.get_aspect_file()
+    if calculate_gully_topography(output,dem_file,slope_file,aspect_file) is False:
         basic.outputlogMessage('Warning: calculate information of topography failed')
         # return False   #  don't return
 
