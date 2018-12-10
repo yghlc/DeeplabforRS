@@ -111,12 +111,14 @@ def calculate_gully_topography(polygons_shp,dem_file,slope_file,aspect_file=None
         basic.outputlogMessage("warning, slope file not exist, skip the calculation of slope information")
 
     # #aspect
-    if  aspect_file is not None:
+    if aspect_file is not None and os.path.isfile(aspect_file):
         if io_function.is_file_exist(aspect_file) is False:
             return False
         stats_list = ['min', 'max','mean', 'std']
         if operation_obj.add_fields_from_raster(polygons_shp, aspect_file, "asp", band=1,stats_list=stats_list,all_touched=all_touched) is False:
             return False
+    else:
+        basic.outputlogMessage('warning, aspect file not exist, ignore adding aspect information')
 
     # # hillshape
 
