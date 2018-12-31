@@ -299,9 +299,11 @@ def evaluation_result(result_shp,val_shp):
 
     # if the IoU of a validation polygon smaller than threshold, then it's false negative
     false_neg_count = 0
-    for iou in IoUs:
+    idx_of_false_neg = []
+    for idx,iou in enumerate(IoUs):
         if iou < iou_threshold:
             false_neg_count +=  1
+            idx_of_false_neg.append(idx)
 
     precision = float(true_pos_count) / (float(true_pos_count) + float(false_pos_count))
     recall = float(true_pos_count) / (float(true_pos_count) + float(false_neg_count))
@@ -319,6 +321,8 @@ def evaluation_result(result_shp,val_shp):
     f_obj.writelines('precision: %.6f\n' % precision)
     f_obj.writelines('recall: %.6f\n' % recall)
     f_obj.writelines('F1score: %.6f\n' % F1score)
+    # output the index of false negative
+    f_obj.writelines('\n index of false negatives: %s\n' % ','.join([str(item) for item in idx_of_false_neg]))
     f_obj.close()
 
     pass
