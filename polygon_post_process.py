@@ -290,6 +290,36 @@ def evaluation_result(result_shp,val_shp):
     f_obj.writelines('F1score: %.6f\n'%F1score)
     f_obj.close()
 
+    ##########################################################################################
+    ## another method for calculating false_neg_count base on IoU value
+    # calculate the IoU for validation polygons (ground truths)
+    IoUs = vector_features.calculate_IoU_scores(val_shp, result_shp)
+    if IoUs is False:
+        return False
+
+    # if the IoU of a validation polygon smaller than threshold, then it's false negative
+    false_neg_count = 0
+    for iou in IoUs:
+        if iou < iou_threshold:
+            false_neg_count +=  1
+
+    precision = float(true_pos_count) / (float(true_pos_count) + float(false_pos_count))
+    recall = float(true_pos_count) / (float(true_pos_count) + float(false_neg_count))
+    if (true_pos_count > 0):
+        F1score = 2.0 * precision * recall / (precision + recall)
+    else:
+        F1score = 0
+    # output evaluation reslult
+    evaluation_txt = "evaluation_report.txt"
+    f_obj = open(evaluation_txt, 'a')  # add to "evaluation_report.txt"
+    f_obj.writelines('\n\n** Count false negative by IoU**\n')
+    f_obj.writelines('true_pos_count: %d\n' % true_pos_count)
+    f_obj.writelines('false_pos_count: %d\n' % false_pos_count)
+    f_obj.writelines('false_neg_count_byIoU: %d\n' % false_neg_count)
+    f_obj.writelines('precision: %.6f\n' % precision)
+    f_obj.writelines('recall: %.6f\n' % recall)
+    f_obj.writelines('F1score: %.6f\n' % F1score)
+    f_obj.close()
 
     pass
 
