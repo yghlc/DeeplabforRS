@@ -126,8 +126,7 @@ if __name__ == '__main__':
     else:
         parameters.set_saved_parafile_path(options.para_file)
 
-    parameters.set_saved_parafile_path('get_trueFN_log.txt')
-
+    basic.setlogfile('get_trueFN_log.txt')
     main(options, args)
 
 
