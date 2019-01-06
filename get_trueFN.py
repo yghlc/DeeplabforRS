@@ -64,6 +64,8 @@ def calculate_precision_recall_iou(IoU_prediction,IoU_ground_truth,iou_threshold
     if false_neg_count < 0:
         basic.outputlogMessage('warning, false negative count is smaller than 0, recall can not be trusted')
 
+    basic.outputlogMessage('TP, FP, FN: %d, %d, %d'%(true_pos_count,false_pos_count,false_neg_count))
+
     precision = float(true_pos_count) / (float(true_pos_count) + float(false_pos_count))
     recall = float(true_pos_count) / (float(true_pos_count) + float(false_neg_count))
     if (true_pos_count > 0):
@@ -94,7 +96,8 @@ def main(options, args):
 
     iou_thr = 0.01
     precision, recall, f1score = calculate_precision_recall_iou(iou_pre, iou_GT, iou_thr)
-    print(precision, recall, f1score)
+    basic.outputlogMessage("precision, recall, f1score: %f,%f,%f"%(precision, recall, f1score))
+
 
 
 if __name__ == '__main__':
