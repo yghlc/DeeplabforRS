@@ -98,7 +98,8 @@ def main(options, args):
     # calculate the IoU of each ground truth, for false negative
     iou_GT = np.array(get_iou_scores(groud_truth_shp, input_shp))
 
-    iou_thr = 0.01
+    iou_thr = options.iou_threshold
+    basic.outputlogMessage('iou_threshold: %f' % iou_thr)
     precision, recall, f1score = calculate_precision_recall_iou(iou_pre, iou_GT, iou_thr)
     basic.outputlogMessage("precision, recall, f1score: %f,%f,%f"%(precision, recall, f1score))
 
@@ -113,6 +114,10 @@ if __name__ == '__main__':
     parser.add_option("-p", "--para",
                       action="store", dest="para_file",default='para.ini',
                       help="the parameters file")
+
+    parser.add_option("-i", "--iou_threshold",
+                      action="store", dest="iou_threshold",type=float,default=0.01,
+                      help="the iou threshold")
 
 
     (options, args) = parser.parse_args()
