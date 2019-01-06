@@ -60,7 +60,8 @@ def calculate_precision_recall_iou(IoU_prediction,IoU_ground_truth,iou_threshold
     # false_neg_count = val_polygon_count - true_pos_count
     false_neg_count = len(IoU_ground_truth[np.where(IoU_ground_truth < iou_threshold)])
     basic.outputlogMessage('the number of true false negatives: %d'%false_neg_count)
-    basic.outputlogMessage('the index of rue false negatives'+str(1+np.where(IoU_ground_truth < iou_threshold)))
+    basic.outputlogMessage('the index of rue false negatives'+
+                           str(1+np.asarray(np.where(IoU_ground_truth < iou_threshold))))
 
     if false_neg_count < 0:
         basic.outputlogMessage('warning, false negative count is smaller than 0, recall can not be trusted')
