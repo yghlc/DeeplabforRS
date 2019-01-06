@@ -88,6 +88,8 @@ def main(options, args):
 
     input_shp = shape_file
     groud_truth_shp = val_path
+    basic.outputlogMessage('result shape: %s'%input_shp)
+    basic.outputlogMessage('ground truth shape: %s'%groud_truth_shp)
     # calculate the IoU of each predicted polygons
     iou_pre = np.array(get_iou_scores(input_shp, groud_truth_shp))
 
