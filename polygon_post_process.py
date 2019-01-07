@@ -111,12 +111,14 @@ def calculate_gully_topography(polygons_shp,dem_file,slope_file,aspect_file=None
         basic.outputlogMessage("warning, slope file not exist, skip the calculation of slope information")
 
     # #aspect
-    if aspect_file is not None:
-        if io_function.is_file_exist(slope_file) is False:
+    if aspect_file is not None and os.path.isfile(aspect_file):
+        if io_function.is_file_exist(aspect_file) is False:
             return False
-        stats_list = ['mean', 'std']
+        stats_list = ['min', 'max','mean', 'std']
         if operation_obj.add_fields_from_raster(polygons_shp, aspect_file, "asp", band=1,stats_list=stats_list,all_touched=all_touched) is False:
             return False
+    else:
+        basic.outputlogMessage('warning, aspect file not exist, ignore adding aspect information')
 
     # # hillshape
 
@@ -148,13 +150,11 @@ def calculate_hydrology(polygons_shp,flow_accumulation):
     all_touched = True
 
     # #DEM
-    if io_function.is_file_exist(flow_accumulation):
-        stats_list = ['min', 'max', 'mean', 'std']  # ['min', 'max', 'mean', 'count','median','std']
-        if operation_obj.add_fields_from_raster(polygons_shp, flow_accumulation, "F_acc", band=1, stats_list=stats_list,
+
+    stats_list = ['min', 'max', 'mean', 'std']  # ['min', 'max', 'mean', 'count','median','std']
+    if operation_obj.add_fields_from_raster(polygons_shp, flow_accumulation, "F_acc", band=1, stats_list=stats_list,
                                                 all_touched=all_touched) is False:
-            return False
-    else:
-        basic.outputlogMessage("warning, flow accumulation file not exist, skip the calculation of flow accumulation")
+        return False
 
 
     pass
@@ -290,6 +290,40 @@ def evaluation_result(result_shp,val_shp):
     f_obj.writelines('F1score: %.6f\n'%F1score)
     f_obj.close()
 
+    ##########################################################################################
+    ## another method for calculating false_neg_count base on IoU value
+    # calculate the IoU for validation polygons (ground truths)
+    IoUs = vector_features.calculate_IoU_scores(val_shp, result_shp)
+    if IoUs is False:
+        return False
+
+    # if the IoU of a validation polygon smaller than threshold, then it's false negative
+    false_neg_count = 0
+    idx_of_false_neg = []
+    for idx,iou in enumerate(IoUs):
+        if iou < iou_threshold:
+            false_neg_count +=  1
+            idx_of_false_neg.append(idx+1) # index start from 1
+
+    precision = float(true_pos_count) / (float(true_pos_count) + float(false_pos_count))
+    recall = float(true_pos_count) / (float(true_pos_count) + float(false_neg_count))
+    if (true_pos_count > 0):
+        F1score = 2.0 * precision * recall / (precision + recall)
+    else:
+        F1score = 0
+    # output evaluation reslult
+    evaluation_txt = "evaluation_report.txt"
+    f_obj = open(evaluation_txt, 'a')  # add to "evaluation_report.txt"
+    f_obj.writelines('\n\n** Count false negative by IoU**\n')
+    f_obj.writelines('true_pos_count: %d\n' % true_pos_count)
+    f_obj.writelines('false_pos_count: %d\n' % false_pos_count)
+    f_obj.writelines('false_neg_count_byIoU: %d\n' % false_neg_count)
+    f_obj.writelines('precision: %.6f\n' % precision)
+    f_obj.writelines('recall: %.6f\n' % recall)
+    f_obj.writelines('F1score: %.6f\n' % F1score)
+    # output the index of false negative
+    f_obj.writelines('\nindex (start from 1) of false negatives: %s\n' % ','.join([str(item) for item in idx_of_false_neg]))
+    f_obj.close()
 
     pass
 
@@ -337,20 +371,27 @@ def main(options, args):
     # add topography of each polygons
     dem_file = parameters.get_dem_file()
     slope_file = parameters.get_slope_file()
-    if calculate_gully_topography(output,dem_file,slope_file) is False:
+    aspect_file=parameters.get_aspect_file()
+    if calculate_gully_topography(output,dem_file,slope_file,aspect_file) is False:
         basic.outputlogMessage('Warning: calculate information of topography failed')
         # return False   #  don't return
 
 
     # add hydrology information
     flow_accum = parameters.get_flow_accumulation()
-    if calculate_hydrology(output, flow_accum) is False:
-        basic.outputlogMessage('Warning: calculate information of hydrology failed')
-        # return False  #  don't return
+    if os.path.isfile(flow_accum):
+        if calculate_hydrology(output, flow_accum) is False:
+            basic.outputlogMessage('Warning: calculate information of hydrology failed')
+            # return False  #  don't return
+    else:
+        basic.outputlogMessage("warning, flow accumulation file not exist, skip the calculation of flow accumulation")
 
     # evaluation result
     val_path = parameters.get_validation_shape()
-    evaluation_result(output,val_path)
+    if os.path.isfile(val_path):
+        evaluation_result(output,val_path)
+    else:
+        basic.outputlogMessage("warning, validation polygon not exist, skip evaluation")
 
     pass
 

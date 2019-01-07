@@ -72,7 +72,8 @@ def is_file_exist(file_path):
         return True
     else:
         basic.outputlogMessage("File : %s not exist"%os.path.abspath(file_path))
-        return False
+        raise IOError("File : %s not exist"%os.path.abspath(file_path))
+        # return False
 
 def is_folder_exist(folder_path):
     """

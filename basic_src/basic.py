@@ -60,6 +60,31 @@ def output_commandString_from_args_list(args_list):
                 commands_str += args_str + ' ';
     return commands_str
 
+
+def exec_command_args_list_one_string(args_list):
+    """
+    execute a command string
+    Args:
+        args_list: a list contains args
+
+    Returns: a string
+
+    """
+    outputlogMessage(output_commandString_from_args_list(args_list))
+    ps = subprocess.Popen(args_list,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+    # returncode = ps.wait()
+    out, err = ps.communicate()
+    returncode = ps.returncode
+    if returncode is 1:
+        outputlogMessage(err)
+        return False
+
+    if len(out) > 0:
+        return out
+    else:
+        outputlogMessage('return codes: ' + str(returncode))
+        return False
+
 def exec_command_args_list_one_file(args_list,output):
         """
         execute a command string

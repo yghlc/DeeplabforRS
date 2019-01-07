@@ -220,6 +220,8 @@ class shape_opeation(object):
             return False
         if isinstance(record_value,list) is False:
             basic.outputlogMessage('record_value must be list')
+        if None in record_value:
+            raise ValueError("None in record_value, please check the projection of shapefile and raster file, they should be the same")
 
         records_count = len(record_value)
         if(records_count<1):
@@ -474,6 +476,139 @@ class shape_opeation(object):
 
         w.save(out_shp)
         return True
+
+    def get_k_fold_of_polygons(self,shape_file,out_shp,k_value,sep_field_name=None,shuffle=False):
+        """
+        split polygons to k-fold,
+        Each fold is then used once as a validation while the k - 1 remaining folds form the training set.
+        similar to sklearn.model_selection.KFold, but apply to polygons in a shapefile
+        Args:
+        Args:
+            shape_file: input
+            out_shp: output, will output k shapefiles in the same directory with the basename of "out_shp"
+            k_value: e.g., 5, 10 or others
+            sep_field_name: field name storing different class
+            shuffle: shuffle before splitting, usually it is true
+
+        Returns: True if successful, False Otherwise
+
+        """
+        if io_function.is_file_exist(shape_file) is False:
+            return False
+
+        try:
+            org_obj = shapefile.Reader(shape_file)
+        except:
+            basic.outputlogMessage(str(IOError))
+            return False
+
+        org_records = org_obj.records()
+        if (len(org_records) < 1):
+            basic.outputlogMessage('error, no record in shape file ')
+            return False
+
+        shapes_list = org_obj.shapes()
+        org_shape_count = len(shapes_list)
+
+        # get index of polygons
+        if sep_field_name is not None:
+            field_index = self.__find_field_index(org_obj.fields, sep_field_name)
+            if field_index is False:
+                return False
+
+            all_shape_index = list(range(0, org_shape_count))
+
+            # get class_int from this field
+            class_int_list = [rec[field_index] for rec in org_records]
+            class_unique_list = list(set(class_int_list)) # unique class id
+
+            # for each class, choose a subset of them
+            all_shape_index_per_class = []
+            for class_id in class_unique_list:
+                tmp_class_shp_idx = []
+                for shp_indx in all_shape_index:
+                    if org_records[shp_indx][field_index] == class_id:
+                        tmp_class_shp_idx.append(shp_indx)
+
+                all_shape_index_per_class.append(tmp_class_shp_idx)
+
+        else:
+            # select from the whole polgyons
+            all_shape_index = list(range(0,org_shape_count))
+
+
+        # shuffle samples
+        if shuffle:
+            from random import shuffle
+            if sep_field_name is not None:
+                for shape_index_a_class in all_shape_index_per_class:
+                    shuffle(shape_index_a_class)
+            else:
+                shuffle(all_shape_index)
+
+        # k-folder subsample
+        for k_idx in range(0,k_value):
+            # Create a new shapefile in memory
+            w = shapefile.Writer()
+            w.shapeType = org_obj.shapeType
+
+            # Copy over the geometry without any changes
+            w.fields = list(org_obj.fields)
+
+            if sep_field_name is not None:
+                # selection in each class
+                select_shape_index_per_class = []
+                for class_id, shape_idx_a_class in enumerate(all_shape_index_per_class):
+
+                    # # don't subsample the polygons of class_id=0, hlc 2019-Jan 3
+                    # if class_id == 0:
+                    #     select_shape_index_per_class.append(shape_idx_a_class)
+                    #     continue
+
+                    split_arrays = numpy.array_split(shape_idx_a_class,k_value)
+                    tmp_selected_index = []
+                    for arr_idx, tmp_array in enumerate(split_arrays):
+                        if arr_idx != k_idx:                    # remove the k(th) portion
+                            tmp_selected_index.extend(tmp_array)
+                    select_shape_index_per_class.append(tmp_selected_index)
+
+                # convert to 1-d list
+                select_shape_idx = [item for alist in select_shape_index_per_class for item in alist]
+
+                # print, for test
+                basic.outputlogMessage("selected polygons index: " +
+                                       " ".join([str(ii) for ii in select_shape_idx]))
+
+                pass
+            else:
+                select_shape_idx = []
+                split_arrays = numpy.array_split(all_shape_index, k_value)
+                for arr_idx, tmp_array in enumerate(split_arrays):
+                    if arr_idx != k_idx:
+                        select_shape_idx.extend(tmp_array)
+
+                # for test
+                basic.outputlogMessage("selected polygons index: " +
+                                        " ".join([str(ii) for ii in select_shape_idx]))
+
+            for shape_idx in select_shape_idx:
+                rec = org_records[shape_idx]
+                w._shapes.append(shapes_list[shape_idx])
+                w.records.append(rec)
+
+            # save the shape file
+            save_path = io_function.get_name_by_adding_tail(out_shp,'%dfold_%d'%(k_value,k_idx+1))
+
+            # copy prj file
+            org_prj = os.path.splitext(shape_file)[0] + ".prj"
+            out_prj = os.path.splitext(save_path)[0] + ".prj"
+            io_function.copy_file_to_dst(org_prj, out_prj, overwrite=True)
+
+            w.save(save_path)
+
+        return True
+
+
 
     def get_portition_of_polygons(self,shape_file,out_shp,percentage,sep_field_name=None):
         """
