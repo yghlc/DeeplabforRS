@@ -82,7 +82,7 @@ def read_dem_basedON_location(x, y, dem_raster):
     return RSImage.get_image_location_value(dem_raster, x, y, 'lon_lat_wgs84', 1)
 
 
-def calculate_polygon_topography(polygons_shp, dem_file):
+def calculate_polygon_velocity(polygons_shp, los_file):
     """
 
     Args:
@@ -104,20 +104,23 @@ def calculate_polygon_topography(polygons_shp, dem_file):
     all_touched = True
 
     # #DEM
-    if io_function.is_file_exist(dem_file):
-        stats_list = ['min', 'max', 'mean', 'std']  # ['min', 'max', 'mean', 'count','median','std']
-        if operation_obj.add_fields_from_raster(polygons_shp, dem_file, "dem", band=1, stats_list=stats_list,
+    if io_function.is_file_exist(los_file):
+        stats_list = ['mean', 'std']  # ['min', 'max', 'mean', 'count','median','std']
+        if operation_obj.add_fields_from_raster(polygons_shp, los_file, "los", band=1, stats_list=stats_list,
                                                 all_touched=all_touched) is False:
             return False
     else:
-        basic.outputlogMessage("warning, DEM file not exist, skip the calculation of DEM information")
+        basic.outputlogMessage("warning, LOS file not exist, skip the calculation of LOS information")
 
     return True
 
 
 def main(options, args):
     shp_file = args[0]
-    raster = args[1]
+    dem_file = args[1]
+
+    polygon_file = args[2]
+    los_file = args[3]
 
     # read shape file
     start_point, end_point, length = read_start_end_point_length_of_a_line(shp_file)
@@ -127,9 +130,9 @@ def main(options, args):
 
     for idx in range(shape_count):
         # read value of start point
-        start_value = read_dem_basedON_location(start_point[idx][0], start_point[idx][1], raster)
+        start_value = read_dem_basedON_location(start_point[idx][0], start_point[idx][1], dem_file)
         # read value of end point
-        end_value = read_dem_basedON_location(end_point[idx][0], end_point[idx][1], raster)
+        end_value = read_dem_basedON_location(end_point[idx][0], end_point[idx][1], dem_file)
 
 
         print(start_value, end_value)
@@ -147,6 +150,7 @@ def main(options, args):
 
     pass
 
+    calculate_polygon_velocity(polygon_file, los_file)
 
 if __name__ == '__main__':
     usage = "usage: %prog [options] shp raster_file"
