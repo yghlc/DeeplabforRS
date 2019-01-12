@@ -23,10 +23,15 @@ import random
 
 #rasterstats
 from rasterstats import zonal_stats
-
+import shapely
 from shapely.geometry import Polygon
 from shapely.geometry import MultiPolygon
+from shapely.geometry import Point
 from shapely.ops import cascaded_union
+
+# minimum_rotated_rectangle need shapely >= 1.6
+if shapely.__version__ < '1.6.0':
+    raise ImportError('Please upgrade your shapely installation to v1.6.0 or newer!')
 
 class shape_opeation(object):
 
@@ -106,17 +111,88 @@ class shape_opeation(object):
         """
         if io_function.is_file_exist(input_shp) is False:
             return False
-        args_list = ['qgis_function.py',input_shp,out_box]
-        if basic.exec_command_args_list_one_file(args_list, out_box) is False:
-            basic.outputlogMessage('get polygon shape information of %s failed' % input_shp)
-            return False
-        else:
-            basic.outputlogMessage('get polygon shape information of %s completed, output file is %s' % (input_shp, out_box))
-            return True
 
-        # update shape info to input shape file
-        # if bupdate is True:
-        #     pass
+        # using QGIS causes troubles in many places, such as in the Singularity container, through tmate connection
+        # so use minimum_rotated_rectangle in shapely instead
+        # hlc Jan 11 2019
+
+        # args_list = ['qgis_function.py',input_shp,out_box]
+        # if basic.exec_command_args_list_one_file(args_list, out_box) is False:
+        #     basic.outputlogMessage('get polygon shape information of %s failed' % input_shp)
+        #     return False
+        # else:
+        #     basic.outputlogMessage('get polygon shape information of %s completed, output file is %s' % (input_shp, out_box))
+        #     return True
+
+        try:
+            org_obj = shapefile.Reader(input_shp)
+        except:
+            basic.outputlogMessage(str(IOError))
+            return False
+
+        # Create a new shapefile in memory
+        w = shapefile.Writer()
+        w.shapeType = org_obj.shapeType
+
+        org_records = org_obj.records()
+        if (len(org_records) < 1):
+            basic.outputlogMessage('error, no record in shape file ')
+            return False
+
+        # Copy over the geometry without any changes
+        shapes_list = org_obj.shapes()
+
+        polygon_shapely = []
+        for temp in shapes_list:
+            polygon_shapely.append(shape_from_pyshp_to_shapely(temp))
+
+        # minimum_rotated_rectangle of the polygons (i.e., orientedminimumboundingbox in QGIS)
+        polygon_min_r_rectangles = [item.minimum_rotated_rectangle for item in polygon_shapely]
+
+        # rectangle info:
+        AREA_list = []
+        PERIMETER_list =[]
+        WIDTH_list = []
+        HEIGHT_list = []
+        for rectangle in polygon_min_r_rectangles:
+            AREA_list.append(rectangle.area)
+            PERIMETER_list.append(rectangle.length)
+            points = list(rectangle.boundary.coords)
+            point1 = Point(points[0])
+            point2 = Point(points[1])
+            point3 = Point(points[2])
+            width = point1.distance(point2)
+            height = point2.distance(point3)
+            WIDTH_list.append(width)
+            HEIGHT_list.append(height)
+
+        # add the info to shapefile
+        # attr_list = [field_name, 'N', 24, 6]
+        # w.fields.append(attr_list)
+        w.field('AREA', fieldType="N", size="24",decimal=6)
+        w.field('PERIMETER', fieldType="N", size="24", decimal=6)
+        w.field('WIDTH', fieldType="N", size="24", decimal=6)
+        w.field('HEIGHT', fieldType="N", size="24", decimal=6)
+
+        # save the buffer area (polygon)
+        pyshp_polygons = [shape_from_shapely_to_pyshp(shapely_polygon, keep_holes=True) for shapely_polygon in
+                          polygon_min_r_rectangles]
+
+        # org_records = org_obj.records()
+        for i in range(0, len(pyshp_polygons)):
+            w._shapes.append(pyshp_polygons[i])
+            rec = [AREA_list[i],PERIMETER_list[i],WIDTH_list[i],HEIGHT_list[i]]
+            w.records.append(rec)
+        #
+        # copy prj file
+        org_prj = os.path.splitext(input_shp)[0] + ".prj"
+        out_prj = os.path.splitext(out_box)[0] + ".prj"
+        io_function.copy_file_to_dst(org_prj, out_prj, overwrite=True)
+        #
+        # overwrite original file
+        w.save(out_box)
+
+        return True
 
     def get_shapes_count(self,input_shp):
         """
@@ -1540,7 +1616,7 @@ def get_buffer_polygons(input_shp,output_shp,buffer_size):
 def test(input,output):
 
     operation_obj = shape_opeation()
-    # operation_obj.get_polygon_shape_info(input,output)
+    operation_obj.get_polygon_shape_info(input,output)
 
     # save_shp = "saved.shp"
     # operation_obj.add_fields_shape(input,output,save_shp)
@@ -1551,8 +1627,8 @@ def test(input,output):
     # operation_obj.remove_nonclass_polygon(input, output,'svmclass')
     # merge_touched_polygons_in_shapefile(input,output)
 
-    result_shp = '/Users/huanglingcao/Data/eboling/eboling_uav_images/dom/output.shp'
-    val_shp = '/Users/huanglingcao/Data/eboling/training_validation_data/gps_rtk/gps_rtk_polygons_2.shp'
+    # result_shp = '/Users/huanglingcao/Data/eboling/eboling_uav_images/dom/output.shp'
+    # val_shp = '/Users/huanglingcao/Data/eboling/training_validation_data/gps_rtk/gps_rtk_polygons_2.shp'
     # result_shp = "/Users/huanglingcao/Data/eboling/training_validation_data/gps_rtk/result_iou_test2.shp"
     # val_shp = "/Users/huanglingcao/Data/eboling/training_validation_data/gps_rtk/val_iou_test2.shp"
     #
@@ -1561,7 +1637,7 @@ def test(input,output):
     # iou_score = calculate_IoU_scores(result_shp,val_shp)
     # # print (iou_score)
 
-    merge_touched_polygons_in_shapefile(input,output)
+    # merge_touched_polygons_in_shapefile(input,output)
 
     operation_obj = None
 
@@ -1599,11 +1675,11 @@ def main(options, args):
     else:
         parameters.set_saved_parafile_path(options.para_file)
 
-    # input = args[0]
-    # output = args[1]
-    # test(input,output)
+    input = args[0]
+    output = args[1]
+    test(input,output)
 
-    test_get_buffer_polygon()
+    # test_get_buffer_polygon()
 
     pass
 
