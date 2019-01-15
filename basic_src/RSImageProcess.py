@@ -10,7 +10,8 @@ add time: 05 May, 2016
 
 # support for python3: import the script in the same dir. hlc 2019-Jan-15
 import sys,os
-py_dir=os.path.basename(os.path.dirname(os.path.realpath(__file__)))
+py_dir=os.path.dirname(os.path.realpath(__file__))
+print(py_dir)
 sys.path.append(py_dir)
 
 from RSImage import RSImageclass
