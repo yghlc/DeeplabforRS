@@ -8,6 +8,11 @@ email:huanglingcao@gmail.com
 add time: 05 May, 2016
 """
 
+# support for python3: import the script in the same dir. hlc 2019-Jan-15
+import sys,os
+py_dir=os.path.basename(os.path.dirname(os.path.realpath(__file__)))
+sys.path.append(py_dir)
+
 from RSImage import RSImageclass
 import numpy,basic,io_function,RSImage,geometryProcess
 from numpy import *
