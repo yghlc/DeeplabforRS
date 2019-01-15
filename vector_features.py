@@ -968,7 +968,10 @@ def shape_from_shapely_to_pyshp(shapely_shape,keep_holes=True):
         shapelytogeojson = shapely.geometry.mapping
     geoj = shapelytogeojson(shapely_shape)
     # create empty pyshp shape
-    record = shapefile._Shape()
+    if shapefile.__version__ < '2.0.0': # different verion of pyshp,  Jan 15, 2019 hlc
+        record = shapefile._Shape()
+    else:
+        record = shapefile.Shape()
     # set shapetype
     if geoj["type"] == "Null":
         pyshptype = 0
