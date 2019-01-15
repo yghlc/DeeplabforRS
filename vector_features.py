@@ -18,6 +18,8 @@ import  parameters
 
 #pyshp library
 import shapefile
+if shapefile.__version__ >= '2.0.0':
+    raise ValueError('Current do not support pyshp version 2 or above, please use pyshp version 1.2.12')
 
 import random
 
