@@ -150,6 +150,7 @@ def calculate_precision_recall_iou(IoU_prediction,IoU_ground_truth,iou_threshold
         else:
             false_pos_count += 1
 
+    # val_polygon_count = len(IoU_ground_truth)
     # false_neg_count = val_polygon_count - true_pos_count
     false_neg_count = len(IoU_ground_truth[np.where(IoU_ground_truth < iou_threshold)])
 
@@ -162,7 +163,8 @@ def calculate_precision_recall_iou(IoU_prediction,IoU_ground_truth,iou_threshold
         F1score = 2.0 * precision * recall / (precision + recall)
     else:
         F1score = 0
-
+    print("TP:%3d, FP:%3d, FN:%3d, TP+FP:%3d, TP+FN:%3d"%(true_pos_count,false_pos_count,false_neg_count,
+                                                          true_pos_count+false_pos_count,true_pos_count+false_neg_count))
     return precision, recall, F1score
 
 def calculate_average_precision(precision_list,recall_list):
@@ -182,7 +184,7 @@ def calculate_average_precision(precision_list,recall_list):
 
     ap = 0
     for idx in range(1,count):
-        ap += precision_list[idx]*(recall_list[idx] - recall_list[idx-1])
+        ap += precision_list[idx]*(recall_list[idx] - recall_list[idx-1]) #abs
 
     return ap
 
@@ -208,10 +210,12 @@ def precision_recall_curve_iou(input_shp,groud_truth_shp):
     recall_list = []
     iou_thr_list = []
     f1score_list = []
-    # for iou_thr in np.arange(0, 1, 0.05):
-    for iou_thr in np.arange(1, -0.01, -0.05):
-        precision, recall, f1score = calculate_precision_recall_iou(iou_pre, iou_GT, iou_thr)
-        print(precision, recall, f1score)
+    # for iou_thr in np.arange(-0.01, 1.01, 0.05):
+    for iou_thr in np.arange(1, -0.01, -0.04): #-0.05
+        # abs(iou_thr) >=0, it is strange (0 > -0.000 return true), Jan 16 2019. hlc
+        # but it turns our that precision cannot be 1, so just keep it.
+        precision, recall, f1score = calculate_precision_recall_iou(iou_pre, iou_GT, iou_thr) #abs(iou_thr)
+        print("iou: %.3f, precision: %.4f, recall: %.4f, f1score: %.4f"%(iou_thr,precision, recall, f1score))
         precision_list.append(precision)
         recall_list.append(recall)
         f1score_list.append(f1score)
@@ -230,17 +234,19 @@ def plot_precision_recall_curve(input_shp,groud_truth_shp,save_path):
     average_precision = calculate_average_precision(precision,recall)
 
     # In matplotlib < 1.5, plt.fill_between does not have a 'step' argument
-    step_kwargs = ({'step': 'post'}
+    step_pos = 'mid' # post
+    step_kwargs = ({'step': step_pos}
                    if 'step' in signature(plt.fill_between).parameters
                    else {})
     plt.step(recall, precision, color='b', alpha=0.2,
-             where='post')
+             where=step_pos)
+    plt.plot(recall, precision, 'r--')
     plt.fill_between(recall, precision, alpha=0.2, color='b', **step_kwargs)
 
     plt.xlabel('Recall')
     plt.ylabel('Precision')
-    plt.ylim([0.0, 1.05])
-    plt.xlim([0.0, 1.0])
+    plt.ylim([-0.01, 1.05])
+    plt.xlim([-0.01, 1.01])
     plt.title('2-class Precision-Recall curve: AP={0:0.2f}'.format(
         average_precision))
 
@@ -248,12 +254,88 @@ def plot_precision_recall_curve(input_shp,groud_truth_shp,save_path):
     plt.savefig(save_path,dpi=300)
     basic.outputlogMessage("Output figures to %s" % os.path.abspath(save_path))
 
+def plot_precision_recall_curve_multi(input_shp_list,groud_truth_shp,save_path):
+    """
+    plot precision_recall of multi shapefiles to a figure
+    Args:
+        input_shp_list: a list of shapefiles
+        groud_truth_shp: the ground truth fiel
+        save_path: output figure path
+
+    Returns:
+
+    """
+
+    precision_list = []
+    recall_list = []
+    average_precision_list = []
+    line_labels = []
+    for idx,input_shp in enumerate(input_shp_list):
+        precision, recall, _ = precision_recall_curve_iou(input_shp, groud_truth_shp)
+        precision_list.append(precision)
+        recall_list.append(recall)
+
+        average_precision = calculate_average_precision(precision, recall)
+        average_precision_list.append(average_precision)
+
+        file_name = os.path.splitext(os.path.basename(input_shp))[0]
+        if 'fold' in file_name:     # k-fold cross-validation
+            tmp = file_name.split('_')
+            label = '_'.join(tmp[-3:])
+        elif 'imgAug' in file_name: # image augmentation test
+            tmp = file_name.split('_')
+            label = tmp[-1]
+        else:
+            label = str(idx)
+
+        line_labels.append('%s: AP=%.2f'%(label,average_precision))
+
+
+    # matplotlib build-in color
+    # b: blue
+    # g: green
+    # r: red
+    # c: cyan
+    # m: magenta
+    # y: yellow
+    # k: black
+    # w: white
+
+    line_color = ['b', 'g', 'r', 'c', 'y', 'k','m'] #
+    linestyle = ['-','--','-.',":",'+-','x-']
+    # linestyle = [ '+','x' ,'*','s', 'h',  'd', 'p', 'H', 'D'] #,
+    color_used_count = len(line_color)
+    line_used_count = len(linestyle)
+
+    for x in range(0,len(input_shp_list)):
+        recall = recall_list[x]
+        precision = precision_list[x]
+
+        outlook = line_color[x % color_used_count] + linestyle[x // color_used_count]
+        step_pos = 'mid'
+        plt.step(recall, precision, outlook, where=step_pos,label=line_labels[x])
+        # plt.plot(recall, precision, 'r--')
+
+    plt.xlabel('Recall')
+    plt.ylabel('Precision')
+    plt.ylim([-0.01, 1.05])
+    plt.xlim([-0.01, 1.01])
+    plt.title('Precision-Recall curve')
+    plt.legend(loc='best', bbox_to_anchor=(1, 0.5), title="Average Precision", fontsize=9)
+
+    # plt.show()
+    plt.savefig(save_path, dpi=300)
+    basic.outputlogMessage("Output figures to %s" % os.path.abspath(save_path))
+
+    return True
 
 def main(options, args):
 
     shape_file = args[0]
     if io_function.is_file_exist(shape_file) is False:
         return False
+
+    out_fig_path = options.output
 
     # get ground truth polygons
     val_path = parameters.get_validation_shape()    # ground truth
@@ -262,20 +344,24 @@ def main(options, args):
     # calculate_f1_score(shape_file,val_path,0.5)
 
     # precision_recall_curve_iou(shape_file, val_path)
-    plot_precision_recall_curve(shape_file, val_path,'P_R.jpg')
-
-
+    if len(args) == 1:
+        plot_precision_recall_curve(shape_file, val_path,out_fig_path)
+    else:
+        plot_precision_recall_curve_multi(args, val_path, out_fig_path)
 
 
 
 if __name__ == '__main__':
 
-    usage = "usage: %prog [options] shapefile"
+    usage = "usage: %prog [options] shapefile or shapefiles"
     parser = OptionParser(usage=usage, version="1.0 2017-10-28")
     parser.description = 'Introduction: plot accuracies of the results  '
 
     parser.add_option("-p", "--para",
                       action="store", dest="para_file",default='para.ini',
+                      help="the parameters file")
+    parser.add_option("-o", "--output",
+                      action="store", dest="output",default='P_R.jpg',
                       help="the parameters file")
 
     (options, args) = parser.parse_args()
