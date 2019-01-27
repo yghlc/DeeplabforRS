@@ -178,6 +178,12 @@ def subset_image_baseimage(output_file,input_file,baseimage):
     (ulx,uly,lrx,lry) = RSImage.get_image_proj_extent(baseimage)
     if ulx is False:
         return False
+    # check the save folder is valid or not
+    save_dir = os.path.dirname(output_file)
+    if len(save_dir) < 1:
+        basic.outputlogMessage('output save to current folder')
+    else:
+        basic.outputlogMessage('result save to %s'%save_dir)
 
     img_obj = RSImageclass()
     img_obj.open(baseimage)
