@@ -164,13 +164,14 @@ def mosaics_images(raster_files,outputfile,nodata):
     CommandString = 'gdal_merge.py ' + inputfile +  ' -o '+ outputfile + ' -n ' + str(nodata)
     return basic.exec_command_string_one_file(CommandString,outputfile)
 
-def subset_image_baseimage(output_file,input_file,baseimage):
+def subset_image_baseimage(output_file,input_file,baseimage,same_res=False):
     """
     subset a image base on the extent of another image
     Args:
         output_file:the result file
         input_file:the image need to subset
         baseimage:the base image which provide the extend for subset
+        same_res: if true, then will resample the output to the resolution of baseimage, otherwise, keep the resolution
 
     Returns:True is successful, False otherwise
 
@@ -186,7 +187,10 @@ def subset_image_baseimage(output_file,input_file,baseimage):
         basic.outputlogMessage('result save to %s'%save_dir)
 
     img_obj = RSImageclass()
-    img_obj.open(input_file)    # the resolution should keep the same
+    if same_res:
+        img_obj.open(baseimage)
+    else:
+        img_obj.open(input_file)    # the resolution should keep the same
     xres = img_obj.GetXresolution()
     yres = img_obj.GetYresolution()
     img_obj=None
