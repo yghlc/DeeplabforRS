@@ -186,7 +186,7 @@ def subset_image_baseimage(output_file,input_file,baseimage):
         basic.outputlogMessage('result save to %s'%save_dir)
 
     img_obj = RSImageclass()
-    img_obj.open(baseimage)
+    img_obj.open(input_file)    # the resolution should keep the same
     xres = img_obj.GetXresolution()
     yres = img_obj.GetYresolution()
     img_obj=None
