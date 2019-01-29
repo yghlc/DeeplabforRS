@@ -80,9 +80,10 @@ def get_tie_points_by_ZY3ImageMatch(basefile,warpfile,bkeepmidfile):
         return False
     exepath = os.path.join(exe_dir,'ImageMatchsiftGPU')
     CommandString = exepath + ' ' + taskfile + ' ' + resultpath + ' '+ str(2)
-    basic.outputlogMessage(CommandString)
+    # basic.outputlogMessage(CommandString)
 
-    (status, result) = commands.getstatusoutput(CommandString)
+    # (status, result) = commands.getstatusoutput(CommandString)
+    basic.exec_command_string(CommandString)
     #syslog.outputlogMessage(result)
 
     if os.path.isfile('system.log'):

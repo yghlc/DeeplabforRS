@@ -243,6 +243,9 @@ def get_acceptable_maximum_RMS(parafile=''):
 def get_gdalwarp_polynomial_order(parafile=''):
     return get_digit_parameters(parafile, 'gdalwarp_polynomial_order', None, 'int')
 
+def get_exec_dir(parafile=''):
+    return get_string_parameters(parafile,'exec_dir')
+
 #end Post processing and evaluation Parameters
 
 def test_readparamters():
