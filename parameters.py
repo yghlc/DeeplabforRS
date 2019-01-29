@@ -232,6 +232,19 @@ def get_IOU_threshold(parafile=''):
 
 #end Post processing and evaluation Parameters
 
+
+### Parameters for image co-registration
+def get_required_minimum_tiepoint_number(parafile=''):
+    return get_digit_parameters(parafile, 'required_minimum_tiepoint_number', None, 'int')
+
+def get_acceptable_maximum_RMS(parafile=''):
+    return get_digit_parameters(parafile, 'acceptable_maximum_RMS', None, 'float')
+
+def get_gdalwarp_polynomial_order(parafile=''):
+    return get_digit_parameters(parafile, 'gdalwarp_polynomial_order', None, 'int')
+
+#end Post processing and evaluation Parameters
+
 def test_readparamters():
     parafile = '/Users/huanglingcao/Data/offset_landsat_auto_test/para.txt'
 

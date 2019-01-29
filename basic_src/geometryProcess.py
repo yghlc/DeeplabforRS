@@ -355,10 +355,10 @@ def coregistration_siftGPU(basefile, warpfile,bkeepmidfile,xml_obj):
                 return False
         except ValueError:
             return basic.outputlogMessage(str(ValueError))
-            return False
+            # return False
         rms_files_obj.close()
     except IOError:
-        syslog.outputlogMessage(str(IOError))
+        basic.outputlogMessage(str(IOError))
         return False
 
 
@@ -396,10 +396,12 @@ def coregistration_siftGPU(basefile, warpfile,bkeepmidfile,xml_obj):
     if order_number is False:
         return False
     CommandString = 'gdalwarp '+' -order ' + str(order_number) +' -r bilinear -tr '+str(xres)+' ' +str(yres) + ' '+ Outputtiff + ' '+warpresultfile
-    basic.outputlogMessage(CommandString)
-    (status, result) = commands.getstatusoutput(CommandString)
-    basic.outputlogMessage(result)
-    if not os.path.isfile(warpresultfile):
+    # basic.outputlogMessage(CommandString)
+    # (status, result) = commands.getstatusoutput(CommandString)
+    # basic.outputlogMessage(result)
+    # if not os.path.isfile(warpresultfile):
+    #     return False
+    if basic.exec_command_string_one_file(CommandString,warpresultfile) is False:
         return False
 
     if not bkeepmidfile:
