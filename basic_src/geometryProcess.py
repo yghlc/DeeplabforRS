@@ -16,7 +16,7 @@ from RSImage import RSImageclass
 import parameters
 import basic,io_function
 
-# from PIL import Image, ImageDraw
+from PIL import Image, ImageDraw
 # import aggdraw,test_aggdraw
 
 try:
@@ -212,7 +212,7 @@ def setGCPsfromptsFile(imagefile,projection,GeoTransform, ptsfile):
     format = "GTiff"
     driver = gdal.GetDriverByName(format)
     metadata = driver.GetMetadata()
-    if metadata.has_key(gdal.DCAP_CREATE)  and metadata[gdal.DCAP_CREATE] == 'YES':
+    if gdal.DCAP_CREATE in metadata and metadata[gdal.DCAP_CREATE] == 'YES':
         basic.outputlogMessage( 'Driver %s supports Create() method.' % format)
     else:
         basic.outputlogMessage( 'Driver %s not supports Create() method.' % format)
@@ -326,8 +326,13 @@ def coregistration_siftGPU(basefile, warpfile,bkeepmidfile,xml_obj):
     #draw tie points rms vector on base image
     result_rms_files = '0_1_fs.txt'
     tiepoint_vector_ = 'tiepoints_vector.png'
-    output_tie_points_vector_on_base_image(basefile,result_rms_files,tiepoint_vector_)
-    xml_obj.add_coregistration_info('tie_points_drawed_image', os.path.abspath(tiepoint_vector_))
+    tmpImg_obj=RSImageclass()
+    tmpImg_obj.open(basefile)
+    if tmpImg_obj.GetWidth()*tmpImg_obj.GetHeight() < 10000*10000:
+        output_tie_points_vector_on_base_image(basefile,result_rms_files,tiepoint_vector_)
+        xml_obj.add_coregistration_info('tie_points_drawed_image', os.path.abspath(tiepoint_vector_))
+    else:
+        basic.outputlogMessage('warning: the width*height of the image > 10000*10000, skip drawing tie point vectors')
 
     #check the tie points
     try:

@@ -246,6 +246,9 @@ def get_gdalwarp_polynomial_order(parafile=''):
 def get_exec_dir(parafile=''):
     return get_string_parameters(parafile,'exec_dir')
 
+def get_draw_tie_points_rms_vector_scale(parafile=''):
+    return get_digit_parameters(parafile, 'draw_tie_points_rms_vector_scale', None, 'float')
+
 #end Post processing and evaluation Parameters
 
 def test_readparamters():
