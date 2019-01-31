@@ -381,8 +381,14 @@ def coregistration_siftGPU(basefile, warpfile, bkeepmidfile, xml_obj):
         return False
     proj = baseimg.GetProjection()
     geotransform = baseimg.GetGeoTransform()
-    xres = baseimg.GetXresolution()
-    yres = baseimg.GetYresolution()
+    # xres = baseimg.GetXresolution()
+    # yres = baseimg.GetYresolution()
+    # keep the output resolution the same as orginal image not the base image hlc Jan 31, 2019
+    warpimg = RSImageclass()
+    if not warpimg.open(warpfile):
+        return False
+    xres = warpimg.GetXresolution()
+    yres = warpimg.GetYresolution()
 
     try:
         Outputtiff = setGCPsfromptsFile(warpfile, proj, geotransform, tiepointfile)
