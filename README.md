@@ -17,7 +17,7 @@ This repo contains codes for mapping thermokarst landform on remote sensing imag
 ```
 
 ## Disclaimer
-This is a personal repo that we developed in the past. Some codes, including pre-processing and post-processing of remote sensing images may be useful for handling similar data. If you want to repeat my results in the paper, installing [DeepLab V2](http://liangchiehchen.com/projects/DeepLab.html) is necessary, which is painful. Since DeepLab has a newer version, i.e., [DeepLabV3+](https://github.com/tensorflow/models/tree/master/research/deeplab), we will use the new version in our future work. If we use your codes without adding a reference, please let us know. 
+This is a personal repo that we developed in the past. Some codes, including pre-processing and post-processing of remote sensing images may be useful for handling similar data. If you want to repeat our results in the paper, installing [DeepLab V2](http://liangchiehchen.com/projects/DeepLab.html) is necessary but painful. Since DeepLab has a newer version, i.e., [DeepLabV3+](https://github.com/tensorflow/models/tree/master/research/deeplab), we will use the new version in our future work. If we use your codes without adding a reference, please let us know. 
 
 
 ## TODO
