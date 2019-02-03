@@ -8,6 +8,11 @@ email:huanglingcao@gmail.com
 add time: 25 June, 2016
 """
 
+# support for python3: import the script in the same dir. hlc 2019-Jan-15
+import sys,os
+py_dir=os.path.dirname(os.path.realpath(__file__))
+# print(py_dir)
+sys.path.append(py_dir)
 
 import sys,basic,urllib,urllib2,httplib,RSImageProcess,RSImage,parameters
 # from basic import LogMessage
@@ -192,7 +197,7 @@ def get_geoimage_range_geoid_height(outputfile,ref_image):
             if value is False:
                 break
         saved_point = ('%f  %f  %f'%(lon_deg,lat_deg,value))
-        print saved_point
+        print(saved_point)
         # tempsave_str.append(saved_point)
         file_object.writelines(saved_point+'\n')
         file_object.flush()
@@ -461,12 +466,12 @@ def test_get_geoid_height():
     return True
 
 def help():
-    print "what_to_do: 1 is prepare_gimpdem_for_Jakobshavn"
-    print "what_to_do: 2 is get_range_geoid_height"
-    print "what_to_do: 3 is get_geoimage_range_geoid_height"
-    print "what_to_do: 4 is convert_orthometricH_to_elliopsoidalH"
-    print "what_to_do: 5 is calculate_terrain_offset"
-    print "what_to_do: 6 is prepare_GTOPO30_for_Jakobshavn"
+    print ("what_to_do: 1 is prepare_gimpdem_for_Jakobshavn")
+    print ("what_to_do: 2 is get_range_geoid_height")
+    print ("what_to_do: 3 is get_geoimage_range_geoid_height")
+    print ("what_to_do: 4 is convert_orthometricH_to_elliopsoidalH")
+    print ("what_to_do: 5 is calculate_terrain_offset")
+    print ("what_to_do: 6 is prepare_GTOPO30_for_Jakobshavn")
 
 def main(options, args):
     # syslog = LogMessage()
@@ -507,8 +512,8 @@ def main(options, args):
             ref_image = args[1]
             if get_geoimage_range_geoid_height(outputfile,ref_image) != False:
                 return True
-        print 'Input error, Try to do like this: '
-        print 'DemConvert.py  -a 3 -o outputfile work_dir ref_image'
+        print ('Input error, Try to do like this: ')
+        print ('DemConvert.py  -a 3 -o outputfile work_dir ref_image')
         sys.exit(1)
 
     elif want_to_do == 4:
@@ -518,8 +523,8 @@ def main(options, args):
             outputfile = io_function.get_name_by_adding_tail(orthometric_demfile,"ellip")
             if convert_orthometricH_to_elliopsoidalH(outputfile,orthometric_demfile,geoid_demfile) != False:
                 return True
-        print 'Input error, Try to do like this: '
-        print 'DemConvert.py -a 4  work_dir  orthometric_demfile geoid_demfile'
+        print ('Input error, Try to do like this: ')
+        print ('DemConvert.py -a 4  work_dir  orthometric_demfile geoid_demfile')
         sys.exit(1)
 
     elif want_to_do == 5:
@@ -530,16 +535,16 @@ def main(options, args):
             exec_dir = os.path.expanduser('~') +'/bin/'
             if calculate_terrain_offset(outputfile,dem_file,image_file,exec_dir) != False:
                 return True
-        print 'Input error, Try to do like this: '
-        print 'DemConvert.py  -a 5 -o output work_dir dem_file image_file'
+        print ('Input error, Try to do like this: ')
+        print ('DemConvert.py  -a 5 -o output work_dir dem_file image_file')
         sys.exit(1)
 
     elif want_to_do == 6:
         if length !=3 :
-            print 'Input error, Try to do like this: '
-            print 'DemConvert.py work_dir what_to_do'
+            print ('Input error, Try to do like this: ')
+            print ('DemConvert.py work_dir what_to_do')
             sys.exit(1)
-        print prepare_GTOPO30_for_Jakobshavn(work_dir)
+        print (prepare_GTOPO30_for_Jakobshavn(work_dir))
 
     else:
         basic.outputlogMessage('nothing to do')
