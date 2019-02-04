@@ -7,7 +7,15 @@ authors: Huang Lingcao
 email:huanglingcao@gmail.com
 add time: 05 May, 2016
 """
+
+# support for python3: import the script in the same dir. hlc 2019-Jan-15
+import sys,os
+py_dir=os.path.dirname(os.path.realpath(__file__))
+# print(py_dir)
+sys.path.append(py_dir)
+
 import sys,basic
+from RSImage import RSImageclass
 
 try:
     from osgeo import ogr, osr, gdal
@@ -33,6 +41,60 @@ def proj4_to_wkt(proj4):
         basic.outputlogMessage('convert wkt to proj4 failed')
         return False
     return wkt
+
+def convert_pixel_xy_to_lat_lon(pixel_x,pixel_y,ref_image):
+    '''
+    get lat, lon (WGS 84) of a pixel point
+    Args:
+        pixel_x:
+        pixel_y:
+        ref_image:
+
+    Returns:
+
+    '''
+    x_map, y_map = convert_pixel_xy_to_map_coordinate(pixel_x,pixel_y,ref_image)
+    epsg_info = get_raster_or_vector_srs_info(ref_image,'epsg')
+
+    epsg_int = int(epsg_info.split(':')[1])
+
+    if epsg_info=='EPSG:4326': # alreay on lat, lon
+        return x_map, y_map
+    else:
+        # to list for the input
+        x=[x_map]
+        y=[y_map]
+        if convert_points_coordinate_epsg(x,y,epsg_int,4326): # to 'EPSG:4326'
+            return x[0], y[0]
+        else:
+            raise ValueError('error in convert coordinates')
+
+def convert_pixel_xy_to_map_coordinate(pixel_x,pixel_y,ref_image):
+    """
+    get the map x,y of a pixel point
+    Args:
+        pixel_x: pixel, column index
+        pixel_y: pixel, row index
+        ref_image: the georeference image
+
+    Returns: x_map, y_map
+
+    """
+    img_obj = RSImageclass()
+    if img_obj.open(ref_image) is False:
+        raise IOError('Open %s failed'%ref_image)
+
+    # pixel to map coordiante
+    # https://www.gdal.org/classGDALDataset.html#a5101119705f5fa2bc1344ab26f66fd1d
+    # Xp = padfTransform[0] + P*padfTransform[1] + L*padfTransform[2];
+    # Yp = padfTransform[3] + P*padfTransform[4] + L*padfTransform[5];
+    padfTransform = img_obj.GetGeoTransform()
+
+    x_map = padfTransform[0] + pixel_x*padfTransform[1] + pixel_y*padfTransform[2]
+    y_map = padfTransform[3] + pixel_x*padfTransform[4] + pixel_y*padfTransform[5]
+    return x_map, y_map
+
+
 
 def convert_points_SpatialRef(input_x,input_y,inSpatialRef,outSpatialRef):
     """
@@ -79,6 +141,13 @@ def convert_points_coordinate_proj4(input_x,input_y,in_proj4, out_proj4):
     outSpatialRef = osr.SpatialReference()
     # outSpatialRef.ImportFromEPSG(outputEPSG)
     outSpatialRef.ImportFromProj4(out_proj4)
+    return convert_points_SpatialRef(input_x,input_y,inSpatialRef,outSpatialRef)
+
+def convert_points_coordinate_epsg(input_x,input_y,in_epsg, out_epsg):
+    inSpatialRef = osr.SpatialReference()
+    inSpatialRef.ImportFromEPSG(in_epsg)
+    outSpatialRef = osr.SpatialReference()
+    outSpatialRef.ImportFromEPSG(out_epsg)
     return convert_points_SpatialRef(input_x,input_y,inSpatialRef,outSpatialRef)
 
 def  convert_points_coordinate(input_x,input_y,inwkt, outwkt ):

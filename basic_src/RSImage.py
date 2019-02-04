@@ -410,11 +410,12 @@ def get_image_location_value(imagepath,x,y,xy_srs,bandindex):
     command_str = 'gdallocationinfo  -valonly ' + ' -b ' +str(bandindex) + coordinate \
     + '  '+imagepath + ' ' + str(x) +' '+ str(y)
     result = basic.exec_command_string_output_string(command_str)
+    if result == "":
+        raise ValueError('the command output is empty')
     try :
         result = float(result)
     except ValueError:
-        basic.outputlogMessage(str(ValueError))
-        assert False
+        raise ValueError('cannot convert: %s to float'%result)
     return result
 
 
