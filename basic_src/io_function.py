@@ -189,6 +189,8 @@ def get_file_list_by_pattern(folder,pattern):
     proc = subprocess.Popen('ls ' + file_pattern, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     profiles, err = proc.communicate()
     file_list = profiles.split()
+    # to string, not byte
+    file_list = [item.decode() for item in file_list]
     return file_list
 
 def get_absolute_path(path):
