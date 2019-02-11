@@ -10,6 +10,7 @@ add time: 04 May, 2016
 
 import os,shutil
 import basic_src.basic as basic
+import subprocess
 
 def mkdir(path):
     """
@@ -175,6 +176,20 @@ def get_file_list_by_ext(ext,folder,bsub_folder):
         sub_folders.pop(0)
 
     return files
+
+def get_file_list_by_pattern(folder,pattern):
+    """
+    get the file list by file pattern
+    :param folder: /home/hlc
+    :param pattern: eg. '*imgAug*.ini'
+    :return: the file list
+    """
+    # get the path of all the porosity profile
+    file_pattern = os.path.join(folder, pattern)
+    proc = subprocess.Popen('ls ' + file_pattern, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    profiles, err = proc.communicate()
+    file_list = profiles.split()
+    return file_list
 
 def get_absolute_path(path):
     return os.path.abspath(path)
