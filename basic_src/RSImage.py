@@ -381,6 +381,60 @@ def get_image_mean_value(imagepath):
         pass
     return False
 
+def get_image_histogram_oneband(image_path, band_idx=1):
+    """
+    get historgram of one band
+    Args:
+        image_path: image path
+        band_idx: band index, start from 1
+
+    Returns: hist_count (bucket count) ,hist_min, hist_max,hist_buckets
+
+    """
+    CommandString = 'gdalinfo -json -hist -mm ' + image_path
+    imginfo = basic.exec_command_string_output_string(CommandString)
+    if imginfo is False:
+        return False
+    imginfo_obj = json.loads(imginfo)
+
+    try:
+        bands_info = imginfo_obj['bands']
+        band_info = bands_info[band_idx -1 ]  # only care one band one
+        histogram_info = band_info["histogram"]
+
+        hist_count = histogram_info["count"]
+        hist_min = histogram_info["min"]
+        hist_max = histogram_info["max"]
+        hist_buckets = histogram_info["buckets"]
+
+        return hist_count,hist_min, hist_max,hist_buckets
+
+        # hist_array = np.array(hist_buckets)
+        # hist_x = np.linspace(hist_min, hist_max, hist_count)
+        # hist_percent = 100.0 * hist_array / np.sum(hist_array)
+        #
+        # print(np.sum(hist_array))
+
+    except KeyError:
+        raise KeyError('parse keys failed')
+
+def get_valid_pixel_count(image_path):
+    """
+    get the count of valid pixels (exclude no_data pixel)
+    assume that the nodata value already be set
+    Args:
+        image_path: path
+
+    Returns: the count
+
+    """
+    bucket_count, hist_min, hist_max, hist_buckets = get_image_histogram_oneband(image_path, 1)
+
+    # make sure no_data already set in img_path
+    valid_pixel_count = 0
+    for count in hist_buckets:
+        valid_pixel_count += count
+    return valid_pixel_count
 
 def get_image_location_value(imagepath,x,y,xy_srs,bandindex):
     """
