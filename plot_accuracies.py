@@ -163,7 +163,7 @@ def calculate_precision_recall_iou(IoU_prediction,IoU_ground_truth,iou_threshold
         F1score = 2.0 * precision * recall / (precision + recall)
     else:
         F1score = 0
-    print("TP:%3d, FP:%3d, FN:%3d, TP+FP:%3d, TP+FN:%3d"%(true_pos_count,false_pos_count,false_neg_count,
+    basic.outputlogMessage("iou_thr: %.3f,TP:%3d, FP:%3d, FN:%3d, TP+FP:%3d, TP+FN:%3d"%(iou_threshold,true_pos_count,false_pos_count,false_neg_count,
                                                           true_pos_count+false_pos_count,true_pos_count+false_neg_count))
     return precision, recall, F1score
 
@@ -199,6 +199,7 @@ def precision_recall_curve_iou(input_shp,groud_truth_shp):
     Returns: precision, recall, threshold
 
     """
+    basic.outputlogMessage('calculate precision recall curve for %s'%input_shp)
 
     # calculate the IoU of each predicted polygons
     iou_pre = np.array(get_iou_scores(input_shp, groud_truth_shp))
@@ -215,7 +216,7 @@ def precision_recall_curve_iou(input_shp,groud_truth_shp):
         # abs(iou_thr) >=0, it is strange (0 > -0.000 return true), Jan 16 2019. hlc
         # but it turns our that precision cannot be 1, so just keep it.
         precision, recall, f1score = calculate_precision_recall_iou(iou_pre, iou_GT, iou_thr) #abs(iou_thr)
-        print("iou: %.3f, precision: %.4f, recall: %.4f, f1score: %.4f"%(iou_thr,precision, recall, f1score))
+        basic.outputlogMessage("iou_thr: %.3f, precision: %.4f, recall: %.4f, f1score: %.4f"%(iou_thr,precision, recall, f1score))
         precision_list.append(precision)
         recall_list.append(recall)
         f1score_list.append(f1score)
@@ -249,6 +250,12 @@ def plot_precision_recall_curve(input_shp,groud_truth_shp,save_path):
     plt.xlim([-0.01, 1.01])
     plt.title('2-class Precision-Recall curve: AP={0:0.2f}'.format(
         average_precision))
+
+    # save average_precision to txt file
+    txt_path = os.path.splitext(save_path)[0]+'_ap.txt'
+    with open(txt_path,'w') as f_obj:
+        f_obj.writelines('shape_file    average_precision\n')
+        f_obj.writelines('%s %.4lf\n' % (input_shp, average_precision))
 
     # plt.show()
     plt.savefig(save_path,dpi=300)
@@ -345,6 +352,7 @@ def main(options, args):
 
     # get ground truth polygons
     val_path = parameters.get_validation_shape()    # ground truth
+    basic.outputlogMessage('the ground truth polygons are in %s'%val_path)
 
     # calculate f1 score
     # calculate_f1_score(shape_file,val_path,0.5)
@@ -381,6 +389,8 @@ if __name__ == '__main__':
         sys.exit(2)
     else:
         parameters.set_saved_parafile_path(options.para_file)
+
+    basic.setlogfile('accuracies_log.txt')
 
     main(options, args)
 
