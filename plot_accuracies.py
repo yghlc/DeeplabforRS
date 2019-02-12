@@ -290,6 +290,12 @@ def plot_precision_recall_curve_multi(input_shp_list,groud_truth_shp,save_path):
 
         line_labels.append('%s: AP=%.2f'%(label,average_precision))
 
+    # save average_precision to txt file
+    txt_path = os.path.splitext(save_path)[0]+'_ap.txt'
+    with open(txt_path,'w') as f_obj:
+        f_obj.writelines('shape_file    average_precision\n')
+        for shp_file,average_pre in zip(input_shp_list,average_precision_list):
+            f_obj.writelines('%s %.4lf\n'%(shp_file,average_pre))
 
     # matplotlib build-in color
     # b: blue
