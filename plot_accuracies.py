@@ -152,7 +152,10 @@ def calculate_precision_recall_iou(IoU_prediction,IoU_ground_truth,iou_threshold
 
     # val_polygon_count = len(IoU_ground_truth)
     # false_neg_count = val_polygon_count - true_pos_count
-    false_neg_count = len(IoU_ground_truth[np.where(IoU_ground_truth < iou_threshold)])
+    if iou_threshold <= 0:
+        false_neg_count = len(IoU_ground_truth[np.where(IoU_ground_truth ==0 )])
+    else:
+        false_neg_count = len(IoU_ground_truth[np.where(IoU_ground_truth < iou_threshold)])
 
     if false_neg_count < 0:
         basic.outputlogMessage('warning, false negative count is smaller than 0, recall can not be trusted')
@@ -215,6 +218,9 @@ def precision_recall_curve_iou(input_shp,groud_truth_shp):
     for iou_thr in np.arange(1, -0.01, -0.04): #-0.05
         # abs(iou_thr) >=0, it is strange (0 > -0.000 return true), Jan 16 2019. hlc
         # but it turns our that precision cannot be 1, so just keep it.
+        # iou_thr = abs(iou_thr)
+        if iou_thr < 0:
+            iou_thr = 0
         precision, recall, f1score = calculate_precision_recall_iou(iou_pre, iou_GT, iou_thr) #abs(iou_thr)
         basic.outputlogMessage("iou_thr: %.3f, precision: %.4f, recall: %.4f, f1score: %.4f"%(iou_thr,precision, recall, f1score))
         precision_list.append(precision)
