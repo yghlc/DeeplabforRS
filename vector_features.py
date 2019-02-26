@@ -1548,6 +1548,23 @@ def calculate_IoU_scores(result_shp,val_shp):
 
     return IoU_socres
 
+def read_attribute(shapefile, field_name):
+    """
+    read one attribute of shapefile
+    Args:
+        shapefile: shapefile path
+        field_name: name of the attribute
+
+    Returns: a list contains the values of the field, False otherwise
+
+    """
+    operation_obj = shape_opeation()
+    output_list = operation_obj.get_shape_records_value(shapefile, attributes=[field_name])
+    if len(output_list) < 1:
+        return False
+    else:
+        value_list = [item[0] for item in output_list]
+        return value_list
 
 def get_buffer_polygons(input_shp,output_shp,buffer_size):
     """

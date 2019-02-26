@@ -30,24 +30,7 @@ plt.rc('xtick',labelsize=20)
 plt.rc('ytick',labelsize=20)
 
 
-
-def read_attribute(shapefile, field_name):
-    """
-    read one attribute of shapefile
-    Args:
-        shapefile: shapefile path
-        field_name: name of the attribute
-
-    Returns: a list contains the values of the field, False otherwise
-
-    """
-    operation_obj = shape_opeation()
-    output_list = operation_obj.get_shape_records_value(shapefile, attributes=[field_name])
-    if len(output_list) < 1:
-        return False
-    else:
-        value_list = [item[0] for item in output_list]
-        return value_list
+from vector_features import read_attribute
 
 def draw_one_attribute_histogram(shp_file,field_name,attribute, output,color='grey',hatch=""):
     """
