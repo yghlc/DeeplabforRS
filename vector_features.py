@@ -29,6 +29,7 @@ import shapely
 from shapely.geometry import Polygon
 from shapely.geometry import MultiPolygon
 from shapely.geometry import Point
+from shapely.geometry import LineString
 from shapely.ops import cascaded_union
 
 # minimum_rotated_rectangle need shapely >= 1.6
@@ -210,6 +211,21 @@ class shape_opeation(object):
             basic.outputlogMessage(str(IOError))
             return False
         return len(org_obj.shapes())
+
+    def get_shapes(self,input_shp):
+        """
+        get shape (geometries) in the shape file
+        :param input_shp: path of shape file
+        :return: shapes (polygon, points), Fasle Otherwise
+        """
+        if io_function.is_file_exist(input_shp) is False:
+            return False
+        try:
+            org_obj = shapefile.Reader(input_shp)
+        except IOError:
+            basic.outputlogMessage(str(IOError))
+            return False
+        return org_obj.shapes()
 
 
     def add_fields_shape(self,ori_shp,new_shp,output_shp):
@@ -788,6 +804,64 @@ class shape_opeation(object):
         w.save(out_shp)
         return True
 
+    def remove_shapes_by_list(self,shape_file,out_shp,remove_list):
+        """
+        remove polygons based on the list
+        :param shape_file: input shapefile containing all the polygons
+        :param out_shp: output shapefile
+        :param remove_list: if True in the list, then the polygon will be removed
+        :return: True if successful, False Otherwise
+        """
+        if io_function.is_file_exist(shape_file) is False:
+            return False
+
+        try:
+            org_obj = shapefile.Reader(shape_file)
+        except:
+            basic.outputlogMessage(str(IOError))
+            return False
+
+        # Create a new shapefile in memory
+        w = shapefile.Writer()
+        w.shapeType = org_obj.shapeType
+
+        org_records = org_obj.records()
+        if (len(org_records) < 1):
+            basic.outputlogMessage('error, no record in shape file ')
+            return False
+
+        # Copy over the geometry without any changes
+        w.fields = list(org_obj.fields)
+        shapes_list = org_obj.shapes()
+        org_shape_count = len(shapes_list)
+        if org_shape_count != len(remove_list):
+            basic.outputlogMessage('warning, the count of remove list is not equal to the shape count')
+
+        i = 0
+        removed_count = 0
+        # for i in range(0,len(shapes_list)):
+        for i, (shape, bremove) in enumerate(zip(shapes_list,remove_list)):
+            if bremove :       # remove the record
+                removed_count = removed_count +1
+                continue
+
+            w._shapes.append(shapes_list[i])
+            rec = org_records[i]
+            w.records.append(rec)
+
+        basic.outputlogMessage('Remove shapes, total count: %d'%removed_count)
+        # w._shapes.extend(org_obj.shapes())
+        if removed_count==org_shape_count:
+            basic.outputlogMessage('error: already remove all the shapes in the file')
+            return False
+
+        # copy prj file
+        org_prj = os.path.splitext(shape_file)[0] + ".prj"
+        out_prj = os.path.splitext(out_shp)[0] + ".prj"
+        io_function.copy_file_to_dst(org_prj, out_prj,overwrite=True)
+
+        w.save(out_shp)
+        return True
 
     def remove_nonclass_polygon(self,shape_file,out_shp,class_field_name):
         """
@@ -1116,7 +1190,10 @@ def shape_from_pyshp_to_shapely(pyshp_shape):
             else:
                 record = all_polygons[0]
 
-
+    elif pyshp_shape.shapeType is 13:   #POLYLINEZ = 13
+        record = LineString(pyshp_shape.points) # have z value
+    elif pyshp_shape.shapeType is 3:    #POLYLINE = 3
+        record = LineString(pyshp_shape.points)
     else:
         basic.outputlogMessage('have not complete, other type of shape is not consider!')
         return False
@@ -1634,6 +1711,44 @@ def get_buffer_polygons(input_shp,output_shp,buffer_size):
 
 
     return True
+
+def get_intersection_of_line_polygon_(shp_line,shp_polygon):
+    '''
+    get the intersection between lines and polygons
+    Args:
+        shp_line:
+        shp_polygon:
+
+    Returns: a list of intersection corresponding to the lines, it is none if no intersection
+
+    '''
+    # read
+    operation_obj = shape_opeation()
+    line_shapes = operation_obj.get_shapes(shp_line)
+    polygon_shapes = operation_obj.get_shapes(shp_polygon)
+
+    if len(line_shapes) < 1:
+        raise ValueError('there is no line in %s' % shp_line)
+    if len(polygon_shapes) < 1:
+        raise ValueError('there is no polygon in %s' % shp_polygon)
+
+    # to shapyly object
+    lines = [shape_from_pyshp_to_shapely(item) for item in line_shapes]
+    polygons = [shape_from_pyshp_to_shapely(item) for item in polygon_shapes]
+
+    lines_inters_list = []
+    for line in lines:
+        for polygon in polygons:
+            inte_res = line.intersection(polygon)
+            if inte_res.is_empty is False:
+                break
+        if inte_res.is_empty:
+            lines_inters_list.append(None)
+        else:
+            lines_inters_list.append(inte_res)
+
+    basic.outputlogMessage('compete computing the intersection of %d lines '%len(lines))
+    return lines_inters_list
 
 def test(input,output):
 
