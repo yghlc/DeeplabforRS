@@ -252,20 +252,23 @@ def copy_file_to_dst(file_path, dst_name, overwrite=False):
         return True
 
 
-def move_file_to_dst(file_path, dst_name):
+def move_file_to_dst(file_path, dst_name,overwrite=False):
     """
     move file to a destination file
     Args:
         file_path: the moved file
         dst_name: destination file name
 
-    Returns: True if successful or already exist, False otherwise.
+    Returns: True if successful, False otherwise.
     Notes:  if IOError occurs, it will exit the program
 
     """
-    if os.path.isfile(dst_name):
+    if os.path.isfile(dst_name) and overwrite is False:
         basic.outputlogMessage("%s already exist, skip move file"%dst_name)
         return True
+    if os.path.isfile(dst_name) and overwrite is True:
+        delete_file_or_dir(dst_name)
+
     try:
         shutil.move(file_path,dst_name)
     except IOError:
