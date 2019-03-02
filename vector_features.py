@@ -1040,6 +1040,8 @@ def shape_from_shapely_to_pyshp(shapely_shape,keep_holes=True):
     except:
         import shapely.geometry
         shapelytogeojson = shapely.geometry.mapping
+
+    pyshptype = 0  # mean NULL, which is default when shapely_shape.is_empty is true
     geoj = shapelytogeojson(shapely_shape)
     # create empty pyshp shape
     if shapefile.__version__ < '2.0.0': # different verion of pyshp,  Jan 15, 2019 hlc
@@ -1498,10 +1500,48 @@ def cal_area_length_of_polygon(shape_file):
 
     return True
 
-def save_shaply_polygon_to_file(polyong_list, file_path):
+def save_shapely_shapes_to_file(shapes_list, ref_shp, output_shp):
+    """
+    save shapes in shapely format to a file
+    Args:
+        shapes_list: shapes list, can be polygon, line, and so on
+        ref_shp: reference shapefile containing the projection information
+        output_shp: save path
+
+    Returns:
+
+    """
+    # Create a new shapefile in memory
+    w = shapefile.Writer()
+    # w.shapeType = org_obj.shapeType ##???
+
+    # create a field
+    w.field('id', fieldType="N", size="24")
+
+    # to shapes in pyshp format
+    # shapely_shape may contain empty
+    pyshp_shapes = [shape_from_shapely_to_pyshp(shapely_shape, keep_holes=True) for shapely_shape in
+                      shapes_list]
+
+    for i, save_shape in enumerate(pyshp_shapes):
+        if save_shape.shapeType is 0:   # null, don't have geometry
+            basic.outputlogMessage('skip empty geometry at %d'%i)
+            continue
+        w._shapes.append(save_shape)
+        rec = [i]  # add id
+        # rec = [org_records[i][0]] # copy id
+        w.records.append(rec)
+
+    # copy prj file
+    org_prj = os.path.splitext(ref_shp)[0] + ".prj"
+    out_prj = os.path.splitext(output_shp)[0] + ".prj"
+    io_function.copy_file_to_dst(org_prj, out_prj, overwrite=True)
+
+    # save the file
+    w.save(output_shp)
 
 
-    pass
+    return True
 
 
 def IoU(polygon1,polygon2):
@@ -1712,7 +1752,7 @@ def get_buffer_polygons(input_shp,output_shp,buffer_size):
 
     return True
 
-def get_intersection_of_line_polygon_(shp_line,shp_polygon):
+def get_intersection_of_line_polygon(shp_line,shp_polygon):
     '''
     get the intersection between lines and polygons
     Args:
@@ -1728,7 +1768,7 @@ def get_intersection_of_line_polygon_(shp_line,shp_polygon):
     polygon_shapes = operation_obj.get_shapes(shp_polygon)
 
     if len(line_shapes) < 1:
-        raise ValueError('there is no line in %s' % shp_line)
+        raise ValueError('there is no shapes in %s' % shp_line)
     if len(polygon_shapes) < 1:
         raise ValueError('there is no polygon in %s' % shp_polygon)
 
@@ -1737,18 +1777,38 @@ def get_intersection_of_line_polygon_(shp_line,shp_polygon):
     polygons = [shape_from_pyshp_to_shapely(item) for item in polygon_shapes]
 
     lines_inters_list = []
+    polygon_count = len(polygons)
     for line in lines:
-        for polygon in polygons:
-            inte_res = line.intersection(polygon)
-            if inte_res.is_empty is False:
-                break
+        inte_res = line.intersection(polygons[0])  # initial
         if inte_res.is_empty:
-            lines_inters_list.append(None)
-        else:
-            lines_inters_list.append(inte_res)
+            for idx in range(1,polygon_count):  # skip the first one
+                inte_res = line.intersection(polygons[idx])
+                if inte_res.is_empty is False:
+                    break
+        lines_inters_list.append(inte_res)
 
-    basic.outputlogMessage('compete computing the intersection of %d lines '%len(lines))
+    basic.outputlogMessage('compete computing the intersection of %d shapes '%len(lines))
     return lines_inters_list
+
+def get_intersection_of_polygon_polygon(shp_polygon1,shp_polygon2,output):
+    '''
+    get the intersection between polygons in two shape files
+    Args:
+        shp_polygon1: based shape
+        shp_polygon2: find inteser
+        output: save intersection to file
+
+    Returns:
+
+    '''
+    # get intersections (only consider the first intersection)
+    # a list of intersection corresponding to the polygons in the first shape file, it is none if no intersection
+    inters_list = get_intersection_of_line_polygon(shp_polygon1, shp_polygon2)
+
+    # save to file
+    return save_shapely_shapes_to_file(inters_list,shp_polygon1,output)
+
+
 
 def test(input,output):
 
