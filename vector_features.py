@@ -248,11 +248,11 @@ class shape_opeation(object):
             return False
 
         if len(org_obj.shapes()) != len(new_obj.shapes()):
-            basic.outputlogMessage("error: the input two shape file do not have the same number of features")
-            return False
+            raise ValueError("error: the input two shape file do not have the same number of features")
+
         if org_obj.shapeType != new_obj.shapeType:
-            basic.outputlogMessage("error: the input two shape file have different shapeType")
-            return False
+            raise ValueError("error: the input two shape file have different shapeType")
+            # return False
 
         # Create a new shapefile in memory
         w = shapefile.Writer()
@@ -301,6 +301,22 @@ class shape_opeation(object):
 
         pass
 
+    def add_multi_field_records_to_shapefile(self,shape_file,record_value_list,field_name_list):
+        """
+        add multiple to field and their records to shape file
+        Args:
+            shape_file: shape file
+            record_value_list: the values list in 2D
+            field_name_list: the 1D list of name
+
+        Returns: True is successful, Flase otherwise
+
+        """
+        for idx,field_name in enumerate(field_name_list):
+            values = [item[idx] for item in record_value_list ]
+            self.add_one_field_records_to_shapefile(shape_file,values,field_name)
+
+
     def add_one_field_records_to_shapefile(self,shape_file,record_value,field_name,field_type=None):
         """
         add one field and records to shape file (add one column to attributes table)
@@ -328,8 +344,8 @@ class shape_opeation(object):
             basic.outputlogMessage(str(IOError))
             return False
         if len(org_obj.shapes()) != records_count:
-            basic.outputlogMessage("error: the input field_name_value do not have the same number of features")
-            return False
+            raise ValueError("error: the input field_name_value do not have the same number of features")
+            # return False
 
         # Create a new shapefile in memory
         w = shapefile.Writer()
@@ -1500,13 +1516,14 @@ def cal_area_length_of_polygon(shape_file):
 
     return True
 
-def save_shapely_shapes_to_file(shapes_list, ref_shp, output_shp):
+def save_shapely_shapes_to_file(shapes_list, ref_shp, output_shp,copy_field=None):
     """
     save shapes in shapely format to a file
     Args:
         shapes_list: shapes list, can be polygon, line, and so on
         ref_shp: reference shapefile containing the projection information
         output_shp: save path
+        copy_field: a list contain filed names, copy the fields from "ref_shp", the count in shapes_list should be the same as the record in ref_shp
 
     Returns:
 
@@ -1517,6 +1534,8 @@ def save_shapely_shapes_to_file(shapes_list, ref_shp, output_shp):
 
     # create a field
     w.field('id', fieldType="N", size="24")
+    # the empty will be removed
+    remove_index = []
 
     # to shapes in pyshp format
     # shapely_shape may contain empty
@@ -1526,6 +1545,7 @@ def save_shapely_shapes_to_file(shapes_list, ref_shp, output_shp):
     for i, save_shape in enumerate(pyshp_shapes):
         if save_shape.shapeType is 0:   # null, don't have geometry
             basic.outputlogMessage('skip empty geometry at %d'%i)
+            remove_index.append(i)
             continue
         w._shapes.append(save_shape)
         rec = [i]  # add id
@@ -1540,6 +1560,19 @@ def save_shapely_shapes_to_file(shapes_list, ref_shp, output_shp):
     # save the file
     w.save(output_shp)
 
+    # copy the field from the ref_shp
+    operation_obj = shape_opeation()
+    if copy_field is not None:
+        field_value_list = operation_obj.get_shape_records_value(ref_shp, attributes=copy_field)
+        if field_value_list is not False:
+            # add the field values
+            if len(remove_index) > 0:
+                for index in remove_index:
+                    del field_value_list[index]
+
+            operation_obj.add_multi_field_records_to_shapefile(output_shp,field_value_list,copy_field)
+        else:
+            basic.outputlogMessage('get field %s failed'%str(copy_field))
 
     return True
 
@@ -1790,13 +1823,14 @@ def get_intersection_of_line_polygon(shp_line,shp_polygon):
     basic.outputlogMessage('compete computing the intersection of %d shapes '%len(lines))
     return lines_inters_list
 
-def get_intersection_of_polygon_polygon(shp_polygon1,shp_polygon2,output):
+def get_intersection_of_polygon_polygon(shp_polygon1,shp_polygon2,output,copy_field=None):
     '''
     get the intersection between polygons in two shape files
     Args:
         shp_polygon1: based shape
         shp_polygon2: find inteser
         output: save intersection to file
+        copy_field: copy the fields from "shp_polygon1"
 
     Returns:
 
@@ -1806,7 +1840,7 @@ def get_intersection_of_polygon_polygon(shp_polygon1,shp_polygon2,output):
     inters_list = get_intersection_of_line_polygon(shp_polygon1, shp_polygon2)
 
     # save to file
-    return save_shapely_shapes_to_file(inters_list,shp_polygon1,output)
+    return save_shapely_shapes_to_file(inters_list,shp_polygon1,output,copy_field=copy_field)
 
 def get_adjacent_polygon_count(polygons_shp,buffer_size):
     '''
