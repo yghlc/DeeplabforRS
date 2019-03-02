@@ -1808,6 +1808,43 @@ def get_intersection_of_polygon_polygon(shp_polygon1,shp_polygon2,output):
     # save to file
     return save_shapely_shapes_to_file(inters_list,shp_polygon1,output)
 
+def get_adjacent_polygon_count(polygons_shp,buffer_size):
+    '''
+    get the polygon count at the buffer area for each polygon
+    Args:
+        polygons_shp:
+        buffer_size:
+
+    Returns: a list cotaining the count
+
+    '''
+    operation_obj = shape_opeation()
+    pyshp_polygons = operation_obj.get_shapes(polygons_shp)
+
+    if len(pyshp_polygons) < 1:
+        raise ValueError('there is no polygon in %s' % polygons_shp)
+
+    # to shapyly object
+    shapely_polygons = [shape_from_pyshp_to_shapely(item) for item in pyshp_polygons]
+
+    adjacent_counts = []
+    for idx in range(0,len(shapely_polygons)):
+        # get buffer areas
+        polygon = shapely_polygons[idx]
+        expansion_polygon = polygon.buffer(buffer_size)
+        # get count based on intersection with others
+        tmp_list = list(range(0,len(shapely_polygons)))
+        tmp_list.remove(idx)    # remove himself
+        count = 0
+        for index in tmp_list:
+            inte_res = expansion_polygon.intersection(shapely_polygons[index])
+            if inte_res.is_empty is False:
+                count += 1
+        #
+        adjacent_counts.append(count)
+
+    return adjacent_counts
+
 
 
 def test(input,output):
