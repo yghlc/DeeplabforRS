@@ -879,6 +879,110 @@ class shape_opeation(object):
         w.save(out_shp)
         return True
 
+    def remove_polygons_intersect_multi_polygons(self,shp_file, shp_ref, output, copy_fields=None):
+        """
+        remove polygon in shp_file if intersect with two or more polygons in shp_ref
+        copy the attributes if it only intersects one polygon in shp_ref
+        remov polygon if it don't intersects any polygons in shp_ref
+        Args:
+            shp_file: path of shape file
+            shp_ref: path of reference, e.g., validation shape file
+            output: save path
+            copy_fields: the fields want to copy
+
+        Returns: True is successful, Fasle otherwise
+
+        """
+        polygons = self.get_shapes(shp_file)
+        ref_polygons = self.get_shapes(shp_ref)
+
+        if len(polygons) < 1:
+            raise ValueError('there is no shapes in %s' % shp_file)
+        if len(ref_polygons) < 1:
+            raise ValueError('there is no polygon in %s' % shp_ref)
+
+        # to shapyly object
+        shapely_polygons = [shape_from_pyshp_to_shapely(item) for item in polygons]
+        ref_shapely_polygons = [ shape_from_pyshp_to_shapely(item) for item in ref_polygons]
+
+        # get the field values
+        field_records_list = self.get_shape_records_value(shp_ref, attributes=copy_fields)
+        if field_records_list is False:
+            raise IOError('read field values:%s from %s failed'%(str(copy_fields),shp_ref))
+
+        #     operation_obj.add_multi_field_records_to_shapefile(output_shp, field_value_list, copy_field)
+        # else:
+        #     basic.outputlogMessage('get field %s failed' % str(copy_field))
+
+        intersect_counts = []
+        copied_field_records = [] # 3d list
+        for polygon in shapely_polygons:
+            count = 0
+            records_list = []
+            for ref,record in zip(ref_shapely_polygons,field_records_list):
+                inte_res = polygon.intersection(ref)
+                if inte_res.is_empty is False:
+                    count += 1
+                    records_list.append(record)
+
+            intersect_counts.append(count)
+            copied_field_records.append(records_list)
+
+        ##############################################################
+        # copy field and save to files
+        org_obj = shapefile.Reader(shp_file)
+
+        # Create a new shapefile in memory
+        w = shapefile.Writer()
+        w.shapeType = org_obj.shapeType
+
+        org_records = org_obj.records()
+        if (len(org_records) < 1):
+            basic.outputlogMessage('error, no record in shape file ')
+            return False
+
+        # Copy over the geometry without any changes
+        w.fields = list(org_obj.fields)
+        shapes_list = org_obj.shapes()
+        org_shape_count = len(shapes_list)
+
+        removed_count = 0
+        removed_index = []
+        for i in range(0,len(shapes_list)):
+            if intersect_counts[i] != 1:
+            # if intersect_counts[i] < 2:
+                # delelte the copied field records
+                removed_count += 1
+                removed_index.append(i)
+                continue
+
+            w._shapes.append(shapes_list[i])
+            rec = org_records[i]
+            w.records.append(rec)
+
+        basic.outputlogMessage('Remove shapes, total count: %d'%removed_count)
+        # w._shapes.extend(org_obj.shapes())
+        if removed_count==org_shape_count:
+            basic.outputlogMessage('error: already remove all the shapes in the file')
+            return False
+
+        # copy prj file
+        org_prj = os.path.splitext(shp_file)[0] + ".prj"
+        out_prj = os.path.splitext(output)[0] + ".prj"
+        io_function.copy_file_to_dst(org_prj, out_prj,overwrite=True)
+        w.save(output)
+
+        # add the copied records
+         # 3d to 2d list
+        copied_field_records_2d = []
+        for idx,item in enumerate(copied_field_records):
+            if idx in removed_index:
+                continue
+            copied_field_records_2d.append(item[0])
+        return self.add_multi_field_records_to_shapefile(output, copied_field_records_2d, copy_fields)
+
+
+
     def remove_nonclass_polygon(self,shape_file,out_shp,class_field_name):
         """
         remove polygons that are not belong to targeted class, it means the value of class_field_name is 0
