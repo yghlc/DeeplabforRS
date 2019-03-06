@@ -954,6 +954,7 @@ class shape_opeation(object):
                 # delelte the copied field records
                 removed_count += 1
                 removed_index.append(i)
+                basic.outputlogMessage('remove (%d)th shape, which intersect with other %d shapes'%(i,intersect_counts[i]))
                 continue
 
             w._shapes.append(shapes_list[i])
