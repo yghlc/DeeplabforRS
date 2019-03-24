@@ -108,7 +108,7 @@ class RSImageclass(object):
         format = _format
         driver = gdal.GetDriverByName(format)
         metadata = driver.GetMetadata()
-        if metadata.has_key(gdal.DCAP_CREATE)  and metadata[gdal.DCAP_CREATE] == 'YES':
+        if gdal.DCAP_CREATE in metadata.keys()  and metadata[gdal.DCAP_CREATE] == 'YES':
             basic.outputlogMessage( 'Driver %s supports Create() method.' % format)
         else:
             basic.outputlogMessage( 'Driver %s not supports Create() method.' % format)
@@ -299,6 +299,33 @@ class RSImageclass(object):
             basic.outputlogMessage(str(e))
             return False
         return srcband
+
+    def Getband_names(self):
+        '''
+        get the all the band names (description) in this raster
+        Returns:
+
+        '''
+        if not self.ds:
+            basic.outputlogMessage('Please Open the file first')
+            return False
+        names = [self.ds.GetRasterBand(idx+1).GetDescription() for idx in range(self.ds.RasterCount)]
+        return names
+
+    def set_band_name(self,bandindex, band_name):
+        '''
+        set band name (description)
+        Args:
+            name:
+
+        Returns:
+
+        '''
+        if not self.ds:
+            basic.outputlogMessage('Please Open the file first')
+            return False
+        return self.ds.GetRasterBand(bandindex).SetDescription(band_name)
+
 
     def GetBandNoDataValue(self,bandindex):
         if not self.ds is None:
