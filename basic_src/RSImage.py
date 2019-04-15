@@ -499,6 +499,37 @@ def get_image_location_value(imagepath,x,y,xy_srs,bandindex):
         raise ValueError('cannot convert: %s to float'%result)
     return result
 
+def get_image_location_value_list(imagepath,x,y,xy_srs):
+    """
+    get the image value of given location(x,y) of all bands
+    Args:
+        imagepath:the image path which the information query
+        x:x value
+        y:y value
+        xy_srs:the coordinate system of (x,y), the value is :pixel ,prj or lon_lat_wgs84
+
+    Returns: a list containing values (string format) of all the bands
+
+    """
+    coordinate = ''
+    if xy_srs == 'pixel':
+        coordinate = ' '
+    elif xy_srs == 'prj':
+        coordinate = ' -geoloc '
+    elif xy_srs == 'lon_lat_wgs84':
+        coordinate = ' -wgs84 '
+    else:
+        basic.outputlogMessage('input error: %s is not right'%xy_srs)
+        assert  False
+
+    command_str = 'gdallocationinfo  -valonly '  + coordinate \
+    + '  '+imagepath + ' ' + str(x) +' '+ str(y)
+    result = basic.exec_command_string_output_string(command_str)
+    if result == "":
+        raise ValueError('the command output is empty')
+
+    return result.split('\n')
+
 
 def get_image_proj_extent(imagepath):
     """
