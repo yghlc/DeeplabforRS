@@ -365,7 +365,8 @@ def main(options, args):
         return False
     ratio_thr = options.min_ratio
 
-    remove_small_round_polygons(ouput_merged,output,area_thr,ratio_thr)
+    if remove_small_round_polygons(ouput_merged,output,area_thr,ratio_thr) is False:
+        return False
 
 
     # add topography of each polygons
