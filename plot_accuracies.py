@@ -152,6 +152,8 @@ def calculate_precision_recall_iou(IoU_prediction,IoU_ground_truth,iou_threshold
 
     # val_polygon_count = len(IoU_ground_truth)
     # false_neg_count = val_polygon_count - true_pos_count
+
+    # use the following method, because in beiluhe case, a mapped polygon can cover two or more thaw slumps
     if iou_threshold <= 0:
         false_neg_count = len(IoU_ground_truth[np.where(IoU_ground_truth ==0 )])
     else:
