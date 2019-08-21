@@ -1753,12 +1753,14 @@ def calculate_IoU_scores(result_shp,val_shp):
         result_obj = shapefile.Reader(result_shp)
     except:
         basic.outputlogMessage(str(IOError))
-        return False
+        raise IOError('failed to read %s'%result_shp)
+        # return False
     try:
         val_obj = shapefile.Reader(val_shp)
     except:
         basic.outputlogMessage(str(IOError))
-        return False
+        raise IOError('failed to read %s' % val_shp)
+        # return False
 
     result_polygon_list = result_obj.shapes()
     val_polygon_list = val_obj.shapes()
