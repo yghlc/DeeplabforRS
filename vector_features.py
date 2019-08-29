@@ -1866,9 +1866,12 @@ def get_buffer_polygons(input_shp,output_shp,buffer_size):
     expansion_polygons = [ item.buffer(buffer_size) for item in  polygon_shapely]
     buffer_area = []
     for i in range(0,len(expansion_polygons)):
-        expansion_poly = expansion_polygons[i]
-        org_poly = polygon_shapely[i]
-        buffer_area.append(expansion_poly.difference(org_poly))
+        try:
+            expansion_poly = expansion_polygons[i]
+            org_poly = polygon_shapely[i]
+            buffer_area.append(expansion_poly.difference(org_poly))
+        except : #BaseException as e
+            raise ValueError('Error at the %d (start from 1) polygon'%(i+1))
 
     # save the buffer area (polygon)
     pyshp_polygons = [shape_from_shapely_to_pyshp(shapely_polygon, keep_holes=True) for shapely_polygon in
