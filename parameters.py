@@ -40,8 +40,7 @@ def read_Parameters_file(parafile,parameter):
     try:
       inputfile = open(parafile, 'r')
     except IOError:
-      basic.outputlogMessage("Error: Open file failed, path: %s"%os.path.abspath(parafile))
-      return False
+      raise IOError("Error: Open file failed, path: %s"%os.path.abspath(parafile))
     list_of_all_the_lines = inputfile.readlines()
     value = False
     for i in range(0,len(list_of_all_the_lines)):
@@ -63,8 +62,7 @@ def write_Parameters_file(parafile,parameter,new_value):
     try:
       inputfile = open(parafile, 'r')
     except IOError:
-      basic.outputlogMessage("Error: Open file failed, path: %s"%os.path.abspath(parafile))
-      return False
+      raise IOError("Error: Open file failed, path: %s" % os.path.abspath(parafile))
     list_of_all_the_lines = inputfile.readlines()
     value = False
     for i in range(0,len(list_of_all_the_lines)):
@@ -82,8 +80,7 @@ def write_Parameters_file(parafile,parameter,new_value):
     try:
       outputfile = open(parafile, 'w')
     except IOError:
-      basic.outputlogMessage("Error: Open file failed, path: %s"%os.path.abspath(parafile))
-      return False
+      raise IOError("Error: Open file failed, path: %s" % os.path.abspath(parafile))
     outputfile.writelines(list_of_all_the_lines)
     outputfile.close()
     return True
