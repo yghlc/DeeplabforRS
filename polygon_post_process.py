@@ -171,13 +171,12 @@ def calculate_gully_information(gullies_shp):
     output_shapeinfo = io_function.get_name_by_adding_tail(gullies_shp, 'shapeInfo')
     if os.path.isfile(output_shapeinfo) is False:
         operation_obj.get_polygon_shape_info(gullies_shp, output_shapeinfo)
+        # note: the area in here, is the area of the oriented minimum bounding box, not the area of polygon
+        operation_obj.add_fields_shape(gullies_shp, output_shapeinfo, gullies_shp)
     else:
-        basic.outputlogMessage('warning, %s already exist, skip calculate shape feature' % output_shapeinfo)
+        basic.outputlogMessage('warning, %s already exist, skip calculate and add shape feature' % output_shapeinfo)
     # put all feature to one shapefile
     # parameter 3 the same as parameter 1 to overwrite the input file
-
-    # note: the area in here, is the area of the oriented minimum bounding box, not the area of polygon
-    operation_obj.add_fields_shape(gullies_shp, output_shapeinfo, gullies_shp)
 
     # add width/height (suppose height greater than width)
     width_height_list = operation_obj.get_shape_records_value(gullies_shp,attributes=['WIDTH','HEIGHT'])
