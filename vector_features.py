@@ -11,6 +11,7 @@ add time: 28 October, 2016
 from optparse import OptionParser
 import basic_src.basic as basic
 import basic_src.io_function as io_function
+import basic_src.map_projection as map_projection
 import os,sys
 import numpy
 
@@ -331,8 +332,10 @@ class shape_opeation(object):
         if isinstance(record_value,list) is False:
             basic.outputlogMessage('record_value must be list')
         if None in record_value:
-            raise ValueError("None in record_value, please check the projection or extent of shapefile and raster file. "
-                             "The projection should be the same. The shape file should be within the raster extent. ")
+            # raise ValueError("None in record_value, please check the projection or extent of shapefile and raster file. "
+            #                  "The projection should be the same. The shape file should be within the raster extent. ")
+            basic.outputlogMessage("warning: None in record_value, it will be replaced as -9999")
+            record_value = [-9999 if item is None else item for item in record_value ]
 
         records_count = len(record_value)
         if(records_count<1):
@@ -508,6 +511,13 @@ class shape_opeation(object):
         # stats_list = ['min', 'max', 'mean', 'count','median','std']
         if stats_list is None:
             stats_list = ['mean', 'std']
+
+        # check projection of vector and raster
+        shp_wkt = map_projection.get_raster_or_vector_srs_info_wkt(ori_shp)
+        raster_wkt = map_projection.get_raster_or_vector_srs_info_wkt(raster_file)
+        if shp_wkt != raster_wkt:
+            raise ValueError('erros: %s and %s do not have the same projection. '
+                             'Their WKT info are \n %s \n and \n%s'%(ori_shp,raster_file,shp_wkt,raster_wkt))
 
         # band = 1
         stats = zonal_stats(ori_shp,raster_file,band = band,stats = stats_list,all_touched=all_touched)
