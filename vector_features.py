@@ -513,11 +513,14 @@ class shape_opeation(object):
             stats_list = ['mean', 'std']
 
         # check projection of vector and raster
-        shp_wkt = map_projection.get_raster_or_vector_srs_info_wkt(ori_shp)
-        raster_wkt = map_projection.get_raster_or_vector_srs_info_wkt(raster_file)
-        if shp_wkt != raster_wkt:
+        # shp_wkt = map_projection.get_raster_or_vector_srs_info_wkt(ori_shp)
+        # raster_wkt = map_projection.get_raster_or_vector_srs_info_wkt(raster_file)
+        shp_proj4 = map_projection.get_raster_or_vector_srs_info_proj4(ori_shp)
+        raster_proj4 = map_projection.get_raster_or_vector_srs_info_proj4(raster_file)
+        # if shp_wkt != raster_wkt:
+        if shp_proj4 != raster_proj4:
             raise ValueError('erros: %s and %s do not have the same projection. '
-                             'Their WKT info are \n %s \n and \n%s'%(ori_shp,raster_file,shp_wkt,raster_wkt))
+                             'Their WKT info are \n %s \n and \n%s'%(ori_shp,raster_file,shp_proj4,raster_proj4))
 
         # band = 1
         stats = zonal_stats(ori_shp,raster_file,band = band,stats = stats_list,all_touched=all_touched)
