@@ -68,7 +68,7 @@ def calculate_gully_topography(polygons_shp,dem_file,slope_file,aspect_file=None
     operation_obj = shape_opeation()
 
     ## calculate the topography information from the buffer area
-    b_use_buffer_area = True
+    b_use_buffer_area = parameters.get_bool_parameters('b_topo_use_buffer_area', None) # True
     b_buffer_size = 5   # meters (the same as the shape file)
     if b_use_buffer_area is True:
         basic.outputlogMessage("info: calculate the topography information from the buffer area")
