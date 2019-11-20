@@ -76,7 +76,7 @@ def exec_command_args_list_one_string(args_list):
     out, err = ps.communicate()
     returncode = ps.returncode
     if returncode is 1:
-        outputlogMessage(err)
+        outputlogMessage(err.decode())
         return False
 
     if len(out) > 0:
