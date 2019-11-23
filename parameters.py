@@ -142,6 +142,23 @@ def get_digit_parameters(parafile,name,default,datatype):
 
     return digit_value
 
+def get_digit_parameters_None_if_absence(parafile,name,datatype):
+    if parafile =='':
+        parafile = saved_parafile_path
+    result = read_Parameters_file(parafile,name)
+    if result is False:
+        return None
+    try:
+        if datatype == 'int':
+            digit_value = int(result)
+        else:
+            digit_value = float(result)
+    except ValueError:
+            basic.outputlogMessage('convert %s to digit failed , exit'%(name))
+            raise ValueError('convert %s to digit failed , exit'%(name))
+
+    return digit_value
+
 #endregion
 
 #region input and output setting
