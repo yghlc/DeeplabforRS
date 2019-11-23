@@ -146,7 +146,7 @@ def get_digit_parameters_None_if_absence(parafile,name,datatype):
     if parafile =='':
         parafile = saved_parafile_path
     result = read_Parameters_file(parafile,name)
-    if result is False:
+    if result is False or len(result) < 1:
         return None
     try:
         if datatype == 'int':
