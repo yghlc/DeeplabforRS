@@ -1332,8 +1332,9 @@ def shape_from_pyshp_to_shapely(pyshp_shape):
     elif pyshp_shape.shapeType is 3:    #POLYLINE = 3
         record = LineString(pyshp_shape.points)
     else:
-        basic.outputlogMessage('have not complete, other type of shape is not consider!')
-        return False
+        # basic.outputlogMessage('have not complete, other type of shape is not consider!')
+        # return False
+        raise ValueError('currently, the shapeType is %d not supported'%pyshp_shape.shapeType)
 
     # # plot shape for checking
     # from matplotlib import pyplot as plt
