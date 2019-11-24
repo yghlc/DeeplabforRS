@@ -409,8 +409,7 @@ if __name__=='__main__':
     usage = "usage: %prog [options] input_path output_file"
     parser = OptionParser(usage=usage, version="1.0 2017-7-24")
     parser.description = 'Introduction: Post process of Polygon shape file, including  ' \
-                         'statistic polygon information, remove small area polygon,' \
-                         'remove  '
+                         'statistic polygon information,' 
     parser.add_option("-p", "--para",
                       action="store", dest="para_file",
                       help="the parameters file")
