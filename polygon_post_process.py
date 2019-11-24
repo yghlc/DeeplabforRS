@@ -348,14 +348,18 @@ def main(options, args):
     # ouput_merged = io_function.get_name_by_adding_tail(input,'merged')
     # if merge_polygons_in_gully(input,ouput_merged) is False:
     #     return False
-    ouput_merged = input
+    # ouput_merged = input
+
+    # copy output
+    if io_function.copy_shape_file(input, output) is False:
+        raise IOError('copy shape file %s failed'%input)
 
     # calcuate area, perimeter of polygons
-    if cal_add_area_length_of_polygon(ouput_merged) is False:
+    if cal_add_area_length_of_polygon(output) is False:
         return False
 
     # calculate the polygon information
-    if calculate_gully_information(ouput_merged) is False:
+    if calculate_gully_information(output) is False:
         return False
 
     # # remove small and not narrow polygons

@@ -420,6 +420,14 @@ def keep_only_used_files_in_list(output_list_file,old_image_list_txt,used_images
     used_images_txt_obj.close()
     output_list_obj.close()
 
+def copy_shape_file(input, output):
+
+    assert is_file_exist(input)
+
+    arg1 = os.path.splitext(input)[0]
+    arg2 = os.path.splitext(output)[0]
+    arg_list = ['cp_shapefile', arg1, arg2]
+    return basic.exec_command_args_list_one_file(arg_list, output)
 
 if __name__=='__main__':
     pass
