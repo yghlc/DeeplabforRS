@@ -358,16 +358,16 @@ def main(options, args):
     if calculate_gully_information(ouput_merged) is False:
         return False
 
-    # remove small and not narrow polygons
-    if options.min_area is None:
-        basic.outputlogMessage('minimum area is required for remove polygons')
-        return False
-    area_thr = options.min_area
-
-    if options.min_ratio is None:
-        basic.outputlogMessage('minimum ratio of perimeter/area is required for remove polygons')
-        return False
-    ratio_thr = options.min_ratio
+    # # remove small and not narrow polygons
+    # if options.min_area is None:
+    #     basic.outputlogMessage('minimum area is required for remove polygons')
+    #     return False
+    # area_thr = options.min_area
+    #
+    # if options.min_ratio is None:
+    #     basic.outputlogMessage('minimum ratio of perimeter/area is required for remove polygons')
+    #     return False
+    # ratio_thr = options.min_ratio
 
     # if remove_small_round_polygons(ouput_merged,output,area_thr,ratio_thr) is False:
     #     return False
