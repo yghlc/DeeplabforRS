@@ -96,6 +96,16 @@ def get_string_parameters(parafile,name):
         raise ValueError('get %s parameter failed'%name)
     else:
         return result
+
+def get_string_parameters_None_if_absence(parafile,name):
+    if parafile =='':
+        parafile = saved_parafile_path
+    result = read_Parameters_file(parafile,name)
+    if result is False or len(result) < 1:
+        return None
+    else:
+        return result
+
 def get_bool_parameters(parafile,name,default):
     if parafile =='':
         parafile = saved_parafile_path
