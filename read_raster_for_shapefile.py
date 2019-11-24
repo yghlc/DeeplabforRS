@@ -16,10 +16,17 @@ from basic_src import basic
 from basic_src import RSImage
 
 import shapefile
-# import vector_features
+import vector_features
 
-# from vector_features import shape_operation
+from vector_features import shape_opeation
 
+import rasterio
+from rasterio.mask import mask
+import geopandas as gpd
+from shapely.geometry import mapping
+import numpy as np
+import scipy.integrate as integrate
+from scipy.integrate import quad
 
 def read_start_end_point_length_of_a_line(shape_file):
     """
@@ -82,7 +89,7 @@ def read_dem_basedON_location(x, y, dem_raster):
     return RSImage.get_image_location_value(dem_raster, x, y, 'lon_lat_wgs84', 1)
 
 
-def calculate_polygon_velocity(polygons_shp, los_file):
+def calculate_polygon_velocity(polygons_shp, vel_file):
     """
 
     Args:
@@ -104,29 +111,23 @@ def calculate_polygon_velocity(polygons_shp, los_file):
     all_touched = True
 
     # #DEM
-    if io_function.is_file_exist(los_file):
-        stats_list = ['mean', 'std']  # ['min', 'max', 'mean', 'count','median','std']
-        if operation_obj.add_fields_from_raster(polygons_shp, los_file, "los", band=1, stats_list=stats_list,
+    if io_function.is_file_exist(vel_file):
+        stats_list = ['min', 'max', 'mean', 'median', 'std']  # ['min', 'max', 'mean', 'count','median','std']
+        if operation_obj.add_fields_from_raster(polygons_shp, vel_file, "vel", band=1, stats_list=stats_list,
                                                 all_touched=all_touched) is False:
             return False
     else:
-        basic.outputlogMessage("warning, LOS file not exist, skip the calculation of LOS information")
+        basic.outputlogMessage("warning, VEL file not exist, skip the calculation of VEL information")
 
     return True
 
-
-def main(options, args):
-    shp_file = args[0]
-    dem_file = args[1]
-
-    polygon_file = args[2]
-    los_file = args[3]
-
+def calculate_line_aspect(shp_file, dem_file, save_path):
     # read shape file
     start_point, end_point, length = read_start_end_point_length_of_a_line(shp_file)
 
     # get value of points
     shape_count = len(start_point)
+
 
     for idx in range(shape_count):
         # read value of start point
@@ -134,10 +135,9 @@ def main(options, args):
         # read value of end point
         end_value = read_dem_basedON_location(end_point[idx][0], end_point[idx][1], dem_file)
 
+        #print(start_value, end_value)
 
-        print(start_value, end_value)
-
-        #calculate bearing of line/aspect of RGs
+        # calculate bearing of line/aspect of RGs
         lat1 = math.radians(start_point[idx][1])
         lat2 = math.radians(end_point[idx][1])
         diffLong = math.radians(end_point[idx][0] - start_point[idx][0])
@@ -146,11 +146,251 @@ def main(options, args):
         initial_bearing = math.atan2(x, y)
         initial_bearing = math.degrees(initial_bearing)
         compass_bearing = (initial_bearing + 360) % 360
-        print(idx+1, compass_bearing)
+        print(idx + 1,start_value, end_value, compass_bearing)
+
+        out_file_name = str(save_path) + "LINE_RESULT.csv"
+        line_result = open(out_file_name, 'a')
+        line_result.write(str(start_value) + ',' + str(end_value) + ',' + str(compass_bearing) + '\n')
+        line_result.close()
+    pass
+
+def cal_vel_error(ARG_name, PF_name, save_path, shp_file, coh_file, inc_file, azi_file, vel_los_file, unmasked_coh_file, vel_file, asp_ori, slp_angle, h, d, N, wavelen, span, position_error, dem_error):
+
+    #read coh value of one shape from the coherence raster, inc raster, los azimuth raster into arrays
+    shapefile = gpd.read_file(shp_file)
+    geoms = shapefile.geometry.values
+    geoms = [mapping(geoms[0])]
+
+    with rasterio.open(coh_file) as src_coh:
+        out_coh, out_coh_transform = mask(src_coh, geoms, all_touched=True, crop=True)
+
+    with rasterio.open(inc_file) as src_inc:
+        out_inc, out_inc_transform = mask(src_inc, geoms, all_touched=True, crop=True)
+
+    with rasterio.open(azi_file) as src_azi:
+        out_azi, out_azi_transform = mask(src_azi, geoms, all_touched=True, crop=True)
+
+    with rasterio.open(vel_los_file) as src_vel_los:
+        out_vel_los, out_vel_los_transform = mask(src_vel_los, geoms, all_touched=True, crop=True)
+
+    with rasterio.open(unmasked_coh_file) as src_unmasked_coh:
+        out_unmasked_coh, out_unmasked_coh_transform = mask(src_unmasked_coh, geoms, all_touched=True, crop=True)
+
+    with rasterio.open(vel_file) as src_vel:
+        out_vel, out_vel_transform = mask(src_vel, geoms, all_touched=True, crop=True)
+
+    out_meta = src_vel.meta.copy()
+    out_meta.update({"driver": "GTiff",
+                      "height": out_vel.shape[1],
+                      "width": out_vel.shape[2],
+                      "transform": out_vel_transform})
+    image_name = str(save_path) + "/" + PF_name +"_VEL_clipped/" + str(ARG_name) + "_vel.tif"
+    with rasterio.open(image_name, "w", **out_meta) as dest:
+        dest.write(out_vel)
+
+    no_data_coh = src_coh.nodata
+    no_data_inc = src_inc.nodata
+    no_data_azi = src_azi.nodata
+    no_data_vel_los = src_vel_los.nodata
+    no_data_unmasked_coh = 0
+    no_data_vel = src_vel.nodata
+
+    # extract the values of the masked array
+    data_coh = out_coh[0]
+    data_inc = out_inc[0]
+    data_azi = out_azi[0]
+    data_vel_los = out_vel_los[0]
+    data_unmasked_coh = out_unmasked_coh[0]
+    data_vel = out_vel[0]
+
+    # extract the valid values
+    coh = np.extract(data_coh != no_data_coh, data_coh)
+    inc = np.extract(data_inc != no_data_inc, data_inc)
+    azi = np.extract(data_azi != no_data_azi, data_azi)
+    vel_los = np.extract(data_vel_los != no_data_vel_los, data_vel_los)
+    unmasked_coh = np.extract(data_unmasked_coh != no_data_unmasked_coh, data_unmasked_coh)
+    vel = np.extract(data_vel != no_data_vel, data_vel)
+
+    #calculate downslope velocity error for each pixel and store into array
+    error_d = position_error * math.sqrt(2)
+    error_h = dem_error * math.sqrt(2)
+
+    d_vel_los = 1 / (np.cos(inc) * np.sin(slp_angle) - np.cos(asp_ori + azi))
+    error_phs = (1 / math.sqrt(2 * N)) * (np.sqrt(1 - np.power(coh, 2)) / coh)
+    error_vel_los = error_phs * (wavelen / (4 * np.pi)) * (365 / span)
+
+    d_slp_angle = (- vel_los * np.cos(inc) * math.cos(slp_angle)) / np.power((np.cos(inc) * np.sin(slp_angle) - np.cos(asp_ori + azi)), 2)
+    error_slp_angle = math.sqrt(((error_h * d) / (d ** 2 + h ** 2)) ** 2 + (error_d * h / (d ** 2 + h ** 2)) ** 2)
+
+    d_asp_ori = (- vel_los * np.sin(asp_ori + azi)) / np.power((np.cos(inc) * math.sin(slp_angle) - np.cos(asp_ori + azi)), 2)
+    error_asp_ori = error_d / d
+
+    error_vel_slp = np.sqrt((np.power((d_vel_los * error_vel_los), 2)) + (np.power((d_slp_angle * error_slp_angle), 2)) + (np.power((d_asp_ori * error_asp_ori), 2)))
+
+    #calculate the error of the mean velocity for all the pixels
+
+    vel_mean = np.around(np.mean(vel), 2)
+    vel_median = np.around(np.median(vel), 2)
+    vel_max = np.around(np.max(vel), 2)
+    vel_std = np.around(np.std(vel), 2)
+
+    error_mean_vel = np.around((1 / vel_los.size) * np.sqrt(np.sum(error_vel_slp ** 2)), 2)
+    #index_median = np.argsort(vel)[len(vel)//2]
+    index_median = np.argmin(np.abs(np.median(vel)-vel))
+    error_median_vel = np.around(error_vel_slp[index_median], 2)
+    index_max = vel.argmax()
+    error_max_vel = np.around(error_vel_slp[index_max], 2)
+    print(vel_mean, error_mean_vel, vel_median, error_median_vel, vel_max, error_max_vel, vel_std)
+
+    coh_mean = np.around(np.mean(unmasked_coh), 2)
+    ratio = np.around(np.size(coh) / np.size(unmasked_coh), 2)
+    print(coh_mean, ratio)
+
+    out_file_name = str(save_path) + "/CSV_files/VEL_RESULT.csv"
+    result = open(out_file_name, 'a')
+    result.write(str(PF_name) + ',' + str(ARG_name) + ','
+                 + str(vel_mean) + ',' + str(error_mean_vel) + ','
+                 + str(vel_max) + '+/-' + str(error_max_vel) + ','
+                 + str(vel_median) + '+/-' + str(error_median_vel) + ','
+                 + str(vel_std) + ','
+                 + str(coh_mean) + ',' + str(ratio) + '\n')
+    result.close()
 
     pass
 
-    calculate_polygon_velocity(polygon_file, los_file)
+def cal_polygon_phs_uncertainty(shp_file, phs_file, coh_file):
+
+    #read phs value and coh value from the wrapped phs raster into array
+    shapefile = gpd.read_file(shp_file)
+    geoms = shapefile.geometry.values
+    geoms = [mapping(geoms[0])]
+
+    with rasterio.open(phs_file) as src_phs:
+        out_phs, out_phs_transform = mask(src_phs, geoms, crop=True)
+
+    with rasterio.open(coh_file) as src_coh:
+        out_coh, out_coh_transform = mask(src_coh, geoms, crop=True)
+
+    no_data_phs = src_phs.nodata
+    no_data_coh = src_coh.nodata
+
+    # extract the values of the masked array
+    data_phs = out_phs[0]
+    #data_phs = out_phs.reshape(out_phs.shape[1:])
+    data_coh = out_coh[0]
+
+    # extract the valid values
+    phs = np.extract(data_phs != no_data_phs, data_phs)
+    coh = np.extract(data_coh != no_data_coh, data_coh)
+
+    # calculate the pdf for the polygon
+    phs_mean = np.mean(phs)
+    coh_mean = np.mean(coh)
+    print(coh_mean)
+    #beta = coh * np.cos(phs - phs_mean)
+    L = 10
+    #item1 = np.power((1 - np.power(coh, 2)), L) / (2 * np.pi)
+    item2 = math.gamma(2 * L - 1) / (np.power(math.gamma(L), 2) * np.power(2, 2 * (L - 1)))
+    #item3 = ((2 * L - 1) * beta) / np.power((1 - np.power(beta, 2)), L + 1/2)
+    #item4 = np.pi/2 + np.arcsin(beta)
+    #item5 = 1 / np.power((1 - np.power(beta, 2)), L)
+    item6 = 1 / (2 * (L - 1))
+    #item7 = 0
+    #for k in range(L - 1):
+    #    item7_1 = math.gamma(L - 1/2) / math.gamma(L - 1/2 - k)
+    #    item7_2 = math.gamma(L - 1 - k) / math.gamma(L - 1)
+    #    item7_3 = (1 + (2 * k + 1) * np.power(beta, 2)) / np.power((1 - np.power(beta, 2)), (k + 2))
+    #    item7 = item7_1 * item7_2 * item7_3 + item7
+    #pdf = item1 * (item2 *(item3 * item4 + item5) + item6 * item7)
+
+    #calculate the phs variance of the polygon
+    var_phs = np.empty(coh.size)
+    std_phs = np.empty(coh.size)
+    for i in range(coh.size):
+        integrand = lambda x: np.power((x - phs_mean), 2) * ((np.power((1 - np.power(coh[i], 2)), L) / (2 * np.pi)) * (item2 * ((((2 * L - 1) * (coh[i] * np.cos(x - phs_mean))) / np.power((1 - np.power((coh[i] * np.cos(x - phs_mean)), 2)), L + 1/2)) * (np.pi/2 + np.arcsin(coh[i] * np.cos(x - phs_mean))) + (1 / np.power((1 - np.power((coh[i] * np.cos(x - phs_mean)), 2)), L))) + item6 * (((math.gamma(L - 1/2) / math.gamma(L - 1/2 - 0)) * (math.gamma(L - 1 - 0) / math.gamma(L - 1)) * ((1 + (2 * 0 + 1) * np.power((coh[i] * np.cos(x - phs_mean)), 2)) / np.power((1 - np.power((coh[i] * np.cos(x - phs_mean)), 2)), (0 + 2)))) + ((math.gamma(L - 1/2) / math.gamma(L - 1/2 - 1)) * (math.gamma(L - 1 - 1) / math.gamma(L - 1)) * ((1 + (2 * 1 + 1) * np.power((coh[i] * np.cos(x - phs_mean)), 2)) / np.power((1 - np.power((coh[i] * np.cos(x - phs_mean)), 2)), (1 + 2)))) + ((math.gamma(L - 1/2) / math.gamma(L - 1/2 - 2)) * (math.gamma(L - 1 - 2) / math.gamma(L - 1)) * ((1 + (2 * 2 + 1) * np.power((coh[i] * np.cos(x - phs_mean)), 2)) / np.power((1 - np.power((coh[i] * np.cos(x - phs_mean)), 2)), (2 + 2)))) + ((math.gamma(L - 1/2) / math.gamma(L - 1/2 - 3)) * (math.gamma(L - 1 - 3) / math.gamma(L - 1)) * ((1 + (2 * 3 + 1) * np.power((coh[i] * np.cos(x - phs_mean)), 2)) / np.power((1 - np.power((coh[i] * np.cos(x - phs_mean)), 2)), (3 + 2)))) + ((math.gamma(L - 1/2) / math.gamma(L - 1/2 - 4)) * (math.gamma(L - 1 - 4) / math.gamma(L - 1)) * ((1 + (2 * 4 + 1) * np.power((coh[i] * np.cos(x - phs_mean)), 2)) / np.power((1 - np.power((coh[i] * np.cos(x - phs_mean)), 2)), (4 + 2)))) + ((math.gamma(L - 1/2) / math.gamma(L - 1/2 - 5)) * (math.gamma(L - 1 - 5) / math.gamma(L - 1)) * ((1 + (2 * 5 + 1) * np.power((coh[i] * np.cos(x - phs_mean)), 2)) / np.power((1 - np.power((coh[i] * np.cos(x - phs_mean)), 2)), (5 + 2)))) + ((math.gamma(L - 1/2) / math.gamma(L - 1/2 - 6)) * (math.gamma(L - 1 - 6) / math.gamma(L - 1)) * ((1 + (2 * 6 + 1) * np.power((coh[i] * np.cos(x - phs_mean)), 2)) / np.power((1 - np.power((coh[i] * np.cos(x - phs_mean)), 2)), (6 + 2)))) + ((math.gamma(L - 1/2) / math.gamma(L - 1/2 - 7)) * (math.gamma(L - 1 - 7) / math.gamma(L - 1)) * ((1 + (2 * 7 + 1) * np.power((coh[i] * np.cos(x - phs_mean)), 2)) / np.power((1 - np.power((coh[i] * np.cos(x - phs_mean)), 2)), (7 + 2)))) + ((math.gamma(L - 1/2) / math.gamma(L - 1/2 - 8)) * (math.gamma(L - 1 - 8) / math.gamma(L - 1)) * ((1 + (2 * 8 + 1) * np.power((coh[i] * np.cos(x - phs_mean)), 2)) / np.power((1 - np.power((coh[i] * np.cos(x - phs_mean)), 2)), (8 + 2)))))))
+        result = quad(integrand, -np.pi, np.pi)
+        var_phs[i] = result[0]
+        std_phs[i] = np.sqrt(var_phs[i])
+    var_phs_mean = np.mean(var_phs)
+    std_phs_mean = np.mean(std_phs)
+
+    print(var_phs_mean)
+    print(std_phs_mean, '\n')
+
+
+def main(options, args):
+
+#     shp_file = args[0]
+#     dem_file = args[1]
+#     save_path = args[2]
+
+#     calculate_line_aspect(shp_file, dem_file, save_path)
+
+#########
+
+#    file_path = args[0]
+
+#    with open(file_path + "/ARG_info.list", "r") as info_file:
+#        for line in info_file:
+#            fields = line.split()
+#            PF_name = fields[0]
+#            ARG_name = fields[1]
+#            print(ARG_name)
+#            shp_file = file_path + "/shpfiles/polygons/" + str(ARG_name) + ".shp"
+#            vel_file = file_path + "/VEL_rasters/" + str(ARG_name) + "_vel"
+#            coh_file = file_path + "/COH_rasters/" + str(ARG_name) + "_coh"
+#            inc_file = file_path + "/INC_rasters/" + str(ARG_name) + "_inc"
+#            azi_file = file_path + "/AZI_rasters/" + str(ARG_name) + "_azi"
+#            vel_los_file = file_path + "/LOS_rasters/" + str(ARG_name) + "_los"
+#            unmasked_coh_file = file_path + "/" + PF_name + ".coh_map"
+#            asp_ori = float(fields[5])
+#            slp_angle = float(fields[4])
+#            h = float(fields[6])
+#            d = float(fields[7])
+#            save_path = file_path
+#            N = 10
+#            position_error = 50
+#            dem_error = 16
+#            wavelen = 23.60571
+            ##wavelen = 24.24525
+#            span = 46
+
+ #           cal_vel_error(ARG_name, PF_name, save_path, shp_file, coh_file, inc_file, azi_file, vel_los_file,
+ #                         unmasked_coh_file, vel_file, asp_ori, slp_angle, h, d,
+ #                         N, wavelen, span, position_error, dem_error)
+
+##########jingxian lobe############
+    file_path = args[0]
+
+    with open(file_path + "IFG.list", "r") as ifg_file:
+        for line_ifg in ifg_file:
+            fields_ifg = line_ifg.split()
+            PF_name = fields_ifg[0]
+            wavelen = float(fields_ifg[1])
+            span = fields_ifg[2]
+        with open(file_path + "/LOBE_info.list", "r") as info_file:
+            for line_l in info_file:
+                fields_l = line_l.split()
+                ARG_name = fields_l[0]
+                print(ARG_name)
+                shp_file = file_path + "/polygon_for_cal/" + str(ARG_name) + ".shp"
+                vel_file = file_path + "/" + PF_name + "_VEL_rasters/" + str(ARG_name) + "_vel"
+                coh_file = file_path + "/" + PF_name + "_COH_rasters/" + str(ARG_name) + "_coh"
+                inc_file = file_path + "/" + PF_name + "_INC_rasters/" + str(ARG_name) + "_inc"
+                azi_file = file_path + "/" + PF_name + "_AZI_rasters/" + str(ARG_name) + "_azi"
+                vel_los_file = file_path + "/" + PF_name + "_LOS_rasters/" + str(ARG_name) + "_los"
+                unmasked_coh_file = file_path + "/" + PF_name + "_coh_map"
+                asp_ori = float(fields_l[2])
+                slp_angle = float(fields_l[1])
+                h = float(fields_l[3])
+                d = float(fields_l[4])
+                save_path = file_path
+                N = 10
+                position_error = 50
+                dem_error = 10
+                cal_vel_error(ARG_name, PF_name, save_path, shp_file, coh_file, inc_file, azi_file, vel_los_file,
+                              unmasked_coh_file, vel_file, asp_ori, slp_angle, h, d,
+                              N, wavelen, span, position_error, dem_error)
 
 if __name__ == '__main__':
     usage = "usage: %prog [options] shp raster_file"
@@ -162,9 +402,9 @@ if __name__ == '__main__':
                       help="the parameters file")
 
     (options, args) = parser.parse_args()
-    if len(sys.argv) < 2 or len(args) < 2:
-        parser.print_help()
-        sys.exit(2)
+    #if len(sys.argv) < 2 or len(args) < 2:
+    #    parser.print_help()
+    #    sys.exit(2)
     # ## set parameters files
     # if options.para_file is None:
     #     print('error, no parameters file')
