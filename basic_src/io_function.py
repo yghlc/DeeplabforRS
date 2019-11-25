@@ -426,8 +426,15 @@ def copy_shape_file(input, output):
 
     arg1 = os.path.splitext(input)[0]
     arg2 = os.path.splitext(output)[0]
-    arg_list = ['cp_shapefile', arg1, arg2]
-    return basic.exec_command_args_list_one_file(arg_list, output)
+    # arg_list = ['cp_shapefile', arg1, arg2]
+    # return basic.exec_command_args_list_one_file(arg_list, output)
+
+    copy_file_to_dst(arg1+'.shx', arg2 + '.shx')
+    copy_file_to_dst(arg1+'.shp', arg2 + '.shp')
+    copy_file_to_dst(arg1+'.prj', arg2 + '.prj')
+    copy_file_to_dst(arg1+'.dbf', arg2 + '.dbf')
+
+    return True
 
 if __name__=='__main__':
     pass
