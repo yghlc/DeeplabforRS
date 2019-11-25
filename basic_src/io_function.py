@@ -429,10 +429,12 @@ def copy_shape_file(input, output):
     # arg_list = ['cp_shapefile', arg1, arg2]
     # return basic.exec_command_args_list_one_file(arg_list, output)
 
-    copy_file_to_dst(arg1+'.shx', arg2 + '.shx')
-    copy_file_to_dst(arg1+'.shp', arg2 + '.shp')
-    copy_file_to_dst(arg1+'.prj', arg2 + '.prj')
-    copy_file_to_dst(arg1+'.dbf', arg2 + '.dbf')
+    copy_file_to_dst(arg1+'.shx', arg2 + '.shx', overwrite=True)
+    copy_file_to_dst(arg1+'.shp', arg2 + '.shp', overwrite=True)
+    copy_file_to_dst(arg1+'.prj', arg2 + '.prj', overwrite=True)
+    copy_file_to_dst(arg1+'.dbf', arg2 + '.dbf', overwrite=True)
+
+    basic.outputlogMessage('finish copying %s to %s'%(input,output))
 
     return True
 
