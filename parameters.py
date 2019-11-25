@@ -237,7 +237,7 @@ def get_raster_example_file(parafile=''):
 
 ### Post processing and evaluation Parameters
 def get_minimum_gully_area(parafile=''):
-    return get_digit_parameters(parafile, 'minimum_gully_area', None, 'float')
+    return get_digit_parameters(parafile, 'minimum_area', None, 'float')
 
 def get_maximum_ratio_width_height(parafile=''):
     return get_digit_parameters(parafile, 'maximum_ratio_width_height', None, 'float')
