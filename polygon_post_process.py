@@ -185,24 +185,24 @@ def calculate_gully_information(gullies_shp):
 
     # add width/height (suppose height greater than width)
     width_height_list = operation_obj.get_shape_records_value(gullies_shp,attributes=['WIDTH','HEIGHT'])
-    ratio = []
-    for width_height in width_height_list:
-        if width_height[0] > width_height[1]:
-            r_value = width_height[1] / width_height[0]
-        else:
-            r_value = width_height[0] / width_height[1]
-        ratio.append(r_value)
-    operation_obj.add_one_field_records_to_shapefile(gullies_shp,ratio,'ratio_w_h')
+    if width_height_list is not False:
+        ratio = []
+        for width_height in width_height_list:
+            if width_height[0] > width_height[1]:
+                r_value = width_height[1] / width_height[0]
+            else:
+                r_value = width_height[0] / width_height[1]
+            ratio.append(r_value)
+        operation_obj.add_one_field_records_to_shapefile(gullies_shp,ratio,'ratio_w_h')
 
     # add perimeter/area
     perimeter_area_list = operation_obj.get_shape_records_value(gullies_shp, attributes=['INperimete','INarea'])
-    if perimeter_area_list is False:
-        return False
-    ratio_p_a = []
-    for perimeter_area in perimeter_area_list:
-        r_value = (perimeter_area[0])**2 / perimeter_area[1]
-        ratio_p_a.append(r_value)
-    operation_obj.add_one_field_records_to_shapefile(gullies_shp, ratio_p_a, 'ratio_p_a')
+    if perimeter_area_list is not False:
+        ratio_p_a = []
+        for perimeter_area in perimeter_area_list:
+            r_value = (perimeter_area[0])**2 / perimeter_area[1]
+            ratio_p_a.append(r_value)
+        operation_obj.add_one_field_records_to_shapefile(gullies_shp, ratio_p_a, 'ratio_p_a')
 
     # add circularity (4*pi*area/perimeter**2) which is similar to ratio_p_a
     circularity = []
