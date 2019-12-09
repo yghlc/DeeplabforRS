@@ -186,6 +186,7 @@ def get_file_list_by_pattern(folder,pattern):
     """
     # get the path of all the porosity profile
     file_pattern = os.path.join(folder, pattern)
+    basic.outputlogMessage('find pattern for: '+ file_pattern)
     proc = subprocess.Popen('ls ' + file_pattern, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     profiles, err = proc.communicate()
     file_list = profiles.split()
