@@ -245,91 +245,7 @@ def remove_small_round_polygons(input_shp,output_shp,area_thr,ratio_thr):
 
     return True
 
-def evaluation_result(result_shp,val_shp):
-    """
-    evaluate the result based on IoU
-    :param result_shp: result shape file contains detected polygons
-    :param val_shp: shape file contains validation polygons
-    :return: True is successful, False otherwise
-    """
-    basic.outputlogMessage("evaluation result")
-    IoUs = vector_features.calculate_IoU_scores(result_shp,val_shp)
-    if IoUs is False:
-        return False
 
-    #save IoU to result shapefile
-    operation_obj = shape_opeation()
-    operation_obj.add_one_field_records_to_shapefile(result_shp, IoUs, 'IoU')
-
-    iou_threshold = parameters.get_IOU_threshold()
-    true_pos_count = 0
-    false_pos_count = 0
-    val_polygon_count = operation_obj.get_shapes_count(val_shp)
-    # calculate precision, recall, F1 score
-    for iou in IoUs:
-        if iou > iou_threshold:
-            true_pos_count  +=  1
-        else:
-            false_pos_count += 1
-
-    false_neg_count = val_polygon_count - true_pos_count
-    if false_neg_count < 0:
-        basic.outputlogMessage('warning, false negative count is smaller than 0, recall can not be trusted')
-
-    precision = float(true_pos_count) / (float(true_pos_count) + float(false_pos_count))
-    recall = float(true_pos_count) / (float(true_pos_count) + float(false_neg_count))
-    if (true_pos_count > 0):
-        F1score = 2.0 * precision * recall / (precision + recall)
-    else:
-        F1score = 0
-
-    #output evaluation reslult
-    evaluation_txt = "evaluation_report.txt"
-    f_obj = open(evaluation_txt,'w')
-    f_obj.writelines('true_pos_count: %d\n'%true_pos_count)
-    f_obj.writelines('false_pos_count: %d\n'% false_pos_count)
-    f_obj.writelines('false_neg_count: %d\n'%false_neg_count)
-    f_obj.writelines('precision: %.6f\n'%precision)
-    f_obj.writelines('recall: %.6f\n'%recall)
-    f_obj.writelines('F1score: %.6f\n'%F1score)
-    f_obj.close()
-
-    ##########################################################################################
-    ## another method for calculating false_neg_count base on IoU value
-    # calculate the IoU for validation polygons (ground truths)
-    IoUs = vector_features.calculate_IoU_scores(val_shp, result_shp)
-    if IoUs is False:
-        return False
-
-    # if the IoU of a validation polygon smaller than threshold, then it's false negative
-    false_neg_count = 0
-    idx_of_false_neg = []
-    for idx,iou in enumerate(IoUs):
-        if iou < iou_threshold:
-            false_neg_count +=  1
-            idx_of_false_neg.append(idx+1) # index start from 1
-
-    precision = float(true_pos_count) / (float(true_pos_count) + float(false_pos_count))
-    recall = float(true_pos_count) / (float(true_pos_count) + float(false_neg_count))
-    if (true_pos_count > 0):
-        F1score = 2.0 * precision * recall / (precision + recall)
-    else:
-        F1score = 0
-    # output evaluation reslult
-    evaluation_txt = "evaluation_report.txt"
-    f_obj = open(evaluation_txt, 'a')  # add to "evaluation_report.txt"
-    f_obj.writelines('\n\n** Count false negative by IoU**\n')
-    f_obj.writelines('true_pos_count: %d\n' % true_pos_count)
-    f_obj.writelines('false_pos_count: %d\n' % false_pos_count)
-    f_obj.writelines('false_neg_count_byIoU: %d\n' % false_neg_count)
-    f_obj.writelines('precision: %.6f\n' % precision)
-    f_obj.writelines('recall: %.6f\n' % recall)
-    f_obj.writelines('F1score: %.6f\n' % F1score)
-    # output the index of false negative
-    f_obj.writelines('\nindex (start from 1) of false negatives: %s\n' % ','.join([str(item) for item in idx_of_false_neg]))
-    f_obj.close()
-
-    pass
 
 
 def main(options, args):
@@ -395,12 +311,12 @@ def main(options, args):
     else:
         basic.outputlogMessage("warning, flow accumulation file not exist, skip the calculation of flow accumulation")
 
-    # evaluation result
-    val_path = parameters.get_validation_shape()
-    if os.path.isfile(val_path):
-        evaluation_result(output,val_path)
-    else:
-        basic.outputlogMessage("warning, validation polygon not exist, skip evaluation")
+    # # evaluation result
+    # val_path = parameters.get_validation_shape()
+    # if os.path.isfile(val_path):
+    #     evaluation_result(output,val_path)
+    # else:
+    #     basic.outputlogMessage("warning, validation polygon not exist, skip evaluation")
 
     pass
 
