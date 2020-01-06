@@ -90,6 +90,23 @@ def read_polygons_gpd(polygon_shp):
 
     return polygons
 
+def save_polygons_to_files(data_frame, geometry_name, wkt_string, save_path):
+    '''
+    :param data_frame: include polygon list and the corresponding attributes
+    :param geometry_name: dict key for the polgyon in the DataFrame
+    :param wkt_string: wkt string (projection)
+    :param save_path: save path
+    :return:
+    '''
+    # data_frame[geometry_name] = data_frame[geometry_name].apply(wkt.loads)
+    poly_df = gpd.GeoDataFrame(data_frame, geometry=geometry_name)
+    poly_df.crs = wkt_string # or poly_df.crs = {'init' :'epsg:4326'}
+    poly_df.to_file(save_path, driver='ESRI Shapefile')
+
+    return True
+
+
+
 def main(options, args):
     pass
 
