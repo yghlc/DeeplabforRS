@@ -12,7 +12,7 @@ import os,sys
 from optparse import OptionParser
 
 
-# import thest two to make sure load GEOS dll before using shapely
+# import these two to make sure load GEOS dll before using shapely
 import shapely
 from shapely.geometry import mapping # transform to GeJSON format
 import geopandas as gpd
