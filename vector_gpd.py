@@ -16,6 +16,9 @@ from optparse import OptionParser
 import shapely
 from shapely.geometry import mapping # transform to GeJSON format
 import geopandas as gpd
+from shapely.geometry import Point
+
+import math
 
 import basic_src.basic as basic
 
@@ -89,6 +92,40 @@ def read_polygons_gpd(polygon_shp):
         basic.outputlogMessage('Warning, polygons %s (index start from 1) in %s are invalid, fix them by the buffer operation '%(str(invalid_polygon_idx),polygon_shp))
 
     return polygons
+
+def calculate_polygon_shape_info(polygon_shapely):
+    '''
+    calculate the shape information of a polygon, including area, perimeter, circularity,
+    WIDTH and HEIGHT based on minimum_rotated_rectangle,
+    :param polygon_shapely: a polygon (shapely object)
+    :return:
+    '''
+    shape_info = {}
+    shape_info['INarea'] = polygon_shapely.area
+    shape_info['INperimete']  = polygon_shapely.length
+
+    # circularity
+    circularity = (4 * math.pi *  polygon_shapely.area / polygon_shapely.length** 2)
+    shape_info['circularit'] = circularity
+
+    minimum_rotated_rectangle = polygon_shapely.minimum_rotated_rectangle
+
+    points = list(minimum_rotated_rectangle.boundary.coords)
+    point1 = Point(points[0])
+    point2 = Point(points[1])
+    point3 = Point(points[2])
+    width = point1.distance(point2)
+    height = point2.distance(point3)
+
+    shape_info['WIDTH'] = width
+    shape_info['HEIGHT'] = height
+    if width > height:
+        shape_info['ratio_w_h'] = height / width
+    else:
+        shape_info['ratio_w_h'] = width / height
+
+    return shape_info
+
 
 def save_polygons_to_files(data_frame, geometry_name, wkt_string, save_path):
     '''
