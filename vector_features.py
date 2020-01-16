@@ -1318,9 +1318,10 @@ def shape_from_pyshp_to_shapely(pyshp_shape):
                     polygon = Polygon(shell=exterior,holes=interiors)
                     all_polygons.append(polygon)
                 else:
-                    basic.outputlogMessage('error, holes found in the first ring')
+                    # basic.outputlogMessage('error, holes found in the first ring')
                     basic.outputlogMessage("parts_index:"+str(parts_index)+'\n'+"len of seperate_parts:"+str(len(seperate_parts)))
-                    return False
+                    raise ValueError('error, holes found in the first ring')
+                    # return False
 
             if len(all_polygons) > 1:
                 record = MultiPolygon(polygons=all_polygons)
