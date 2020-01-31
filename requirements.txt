@@ -1,0 +1,3 @@
+pyshp==1.2.12
+shapely
+geopandas
