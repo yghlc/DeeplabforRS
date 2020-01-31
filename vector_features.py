@@ -19,9 +19,11 @@ import  parameters
 
 #pyshp library
 import shapefile
-# code code need to consider the new version of pyshp 31 Jan 2020.
-# if shapefile.__version__ >= '2.0.0':
-#     raise ValueError('Current do not support pyshp version 2 or above, please use pyshp version 1.2.12')
+
+# some changes in 2.x the new changes are incompatible with previous versions (1.x)
+# many place need to change, such as "shapefile.Writer()"
+if shapefile.__version__ >= '2.0.0':
+    raise ValueError('Current do not support pyshp version 2 or above, please use pyshp version 1.2.12')
 
 import random
 
