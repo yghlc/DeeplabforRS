@@ -150,8 +150,8 @@ class shape_opeation(object):
         shapes_list = org_obj.shapes()
 
         polygon_shapely = []
-        for temp in shapes_list:
-            polygon_shapely.append(shape_from_pyshp_to_shapely(temp))
+        for idx, temp in enumerate(shapes_list):
+            polygon_shapely.append(shape_from_pyshp_to_shapely(temp, shape_index=idx,shp_path=input_shp))
 
         # minimum_rotated_rectangle of the polygons (i.e., orientedminimumboundingbox in QGIS)
         polygon_min_r_rectangles = [item.minimum_rotated_rectangle for item in polygon_shapely]
@@ -1265,7 +1265,7 @@ def shape_from_shapely_to_pyshp(shapely_shape,keep_holes=True):
         # record.parts = parts
     return record
 
-def shape_from_pyshp_to_shapely(pyshp_shape):
+def shape_from_pyshp_to_shapely(pyshp_shape,shape_index=None, shp_path=None):
     """
      convert pyshp object to shapely object
     :param pyshp_shape: pyshp (shapefile) object
@@ -1323,6 +1323,11 @@ def shape_from_pyshp_to_shapely(pyshp_shape):
                 else:
                     # basic.outputlogMessage('error, holes found in the first ring')
                     basic.outputlogMessage("parts_index:"+str(parts_index)+'\n'+"len of seperate_parts:"+str(len(seperate_parts)))
+                    if shape_index is not None:
+                        basic.outputlogMessage("the %dth (0 index) polygon causing an error, "
+                                               "please check its validity and fix it"%shape_index)
+                    if shp_path is not None:
+                        basic.outputlogMessage("the shape is in file: %s " % shp_path)
                     raise ValueError('error, holes found in the first ring')
                     # return False
 
