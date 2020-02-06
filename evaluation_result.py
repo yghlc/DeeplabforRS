@@ -114,7 +114,7 @@ def main(options, args):
         if os.path.isfile(multi_val_files) is False:
             multi_val_files = os.path.join(os.path.dirname(os.path.dirname(cwd_path)), multi_val_files)
         with open(multi_val_files, 'r') as f_obj:
-            lines = f_obj.readline()
+            lines = f_obj.readlines()
             lines = [item.strip() for item in lines]
 
         folder = os.path.basename(cwd_path)
