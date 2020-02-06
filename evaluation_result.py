@@ -106,7 +106,7 @@ def main(options, args):
     input = args[0]
 
     # evaluation result
-    multi_training_files = parameters.get_string_parameters_None_if_absence('validation_shape_list')
+    multi_training_files = parameters.get_string_parameters_None_if_absence('','validation_shape_list')
     if multi_training_files is None:
         val_path = parameters.get_validation_shape()
     else:
