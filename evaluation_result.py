@@ -106,7 +106,18 @@ def main(options, args):
     input = args[0]
 
     # evaluation result
-    val_path = parameters.get_validation_shape()
+    multi_training_files = parameters.get_string_parameters_None_if_absence('validation_shape_list')
+    if multi_training_files is None:
+        val_path = parameters.get_validation_shape()
+    else:
+        with open(multi_training_files, 'r') as f_obj:
+            lines = f_obj.readline()
+            lines = [item.strip() for item in lines]
+        cwd_path = os.getcwd()
+        folder = os.path.basename(cwd_path)
+        index = int(folder[1:])
+        val_path = lines[index]
+
     if os.path.isfile(val_path):
         evaluation_result(input, val_path)
     else:
