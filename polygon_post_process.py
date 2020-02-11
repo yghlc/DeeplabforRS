@@ -269,6 +269,9 @@ def main(options, args):
     # copy output
     if io_function.copy_shape_file(input, output) is False:
         raise IOError('copy shape file %s failed'%input)
+    else:
+        # remove "_shapeInfo.shp" to make it calculate shape information again
+        os.system('rm *_shapeInfo.shp')
 
     # calcuate area, perimeter of polygons
     if cal_add_area_length_of_polygon(output) is False:

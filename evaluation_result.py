@@ -118,13 +118,26 @@ def main(options, args):
             lines = [item.strip() for item in lines]
 
         folder = os.path.basename(cwd_path)
-        index = int(folder[1:])
+        import re
+        I_idx_str = re.findall('I\d+',folder)
+        if len(I_idx_str) == 1:
+            index = int(I_idx_str[0][1:])
+        else:
+            # try to find the image idx from file name
+            file_name = os.path.basename(input)
+            I_idx_str = re.findall('I\d+', file_name)
+            if len(I_idx_str) == 1:
+                index = int(I_idx_str[0][1:])
+            else:
+                raise ValueError('Cannot find the I* which represents image index')
+
         val_path = lines[index]
 
     if os.path.isfile(val_path):
+        basic.outputlogMessage('Start evaluation, input: %s, validation file: %s'%(input, val_path))
         evaluation_result(input, val_path)
     else:
-        basic.outputlogMessage("warning, validation polygon not exist, skip evaluation")
+        basic.outputlogMessage("warning, validation polygon (%s) not exist, skip evaluation"%val_path)
 
 
 
