@@ -593,7 +593,7 @@ class shape_opeation(object):
                 rec = org_records[i]
                 w.records.append(rec)
 
-        basic.outputlogMessage('Remove polygons based on %s, total count: %d' % (class_field_name,removed_count))
+        basic.outputlogMessage('Remove polygons based on %s, count: %d, remain %d ones' % (class_field_name,removed_count, len(w.records)))
         # w._shapes.extend(org_obj.shapes())
 
         # copy prj file
