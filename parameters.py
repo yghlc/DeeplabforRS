@@ -124,6 +124,17 @@ def get_bool_parameters(parafile,name,default):
     else:
         return False
 
+def get_bool_parameters_None_if_absence(parafile,name):
+    if parafile =='':
+        parafile = saved_parafile_path
+    result = read_Parameters_file(parafile,name)
+    if result is False or len(result) < 1:
+        return None
+    if result.upper()=='YES':
+        return True
+    else:
+        return False
+
 def get_digit_parameters(parafile,name,default,datatype):
     if parafile =='':
         parafile = saved_parafile_path
