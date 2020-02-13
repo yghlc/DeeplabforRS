@@ -16,7 +16,7 @@ import parameters
 import vector_features
 from vector_features import shape_opeation
 
-def evaluation_result(result_shp,val_shp):
+def evaluation_result(result_shp,val_shp,evaluation_txt=None):
     """
     evaluate the result based on IoU
     :param result_shp: result shape file contains detected polygons
@@ -55,7 +55,8 @@ def evaluation_result(result_shp,val_shp):
         F1score = 0
 
     #output evaluation reslult
-    evaluation_txt = "evaluation_report.txt"
+    if evaluation_txt is None:
+        evaluation_txt = "evaluation_report.txt"
     f_obj = open(evaluation_txt,'w')
     f_obj.writelines('true_pos_count: %d\n'%true_pos_count)
     f_obj.writelines('false_pos_count: %d\n'% false_pos_count)
@@ -87,7 +88,8 @@ def evaluation_result(result_shp,val_shp):
     else:
         F1score = 0
     # output evaluation reslult
-    evaluation_txt = "evaluation_report.txt"
+
+    # evaluation_txt = "evaluation_report.txt"
     f_obj = open(evaluation_txt, 'a')  # add to "evaluation_report.txt"
     f_obj.writelines('\n\n** Count false negative by IoU**\n')
     f_obj.writelines('true_pos_count: %d\n' % true_pos_count)
