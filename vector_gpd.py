@@ -124,6 +124,9 @@ def calculate_polygon_shape_info(polygon_shapely):
     else:
         shape_info['ratio_w_h'] = width / height
 
+    #added number of holes
+    shape_info['hole_count'] = len(list(polygon_shapely.interiors))
+
     return shape_info
 
 
@@ -145,6 +148,18 @@ def save_polygons_to_files(data_frame, geometry_name, wkt_string, save_path):
 
 
 def main(options, args):
+
+    # test reading polygons with holes
+    polygons = read_polygons_gpd(args[0])
+    for idx, polygon in enumerate(polygons):
+        if idx == 268:
+            test = 1
+            # print(polygon)
+        print(idx, list(polygon.interiors))
+        for inPoly in list(polygon.interiors):      # for holes
+            print(inPoly)
+
+
     pass
 
 
