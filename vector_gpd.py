@@ -145,19 +145,58 @@ def save_polygons_to_files(data_frame, geometry_name, wkt_string, save_path):
 
     return True
 
+def remove_narrow_parts_of_a_polygon(shapely_polygon, rm_narrow_thr):
+    '''
+    try to remove the narrow (or thin) parts of a polygon by using buffer opeartion
+    :param shapely_polygon: a shapely object, Polygon or MultiPolygon
+    :param rm_narrow_thr: how narrow
+    :return: the shapely polygon, multipolygons or polygons
+    '''
 
+    # A positive distance has an effect of dilation; a negative distance, erosion.
+    # object.buffer(distance, resolution=16, cap_style=1, join_style=1, mitre_limit=5.0)
+
+    enlarge_factor = 2.0
+    # can return multiple polygons
+    # remain_polygon_parts = shapely_polygon.buffer(-rm_narrow_thr)
+    # remain_polygon_parts = shapely_polygon.buffer(-rm_narrow_thr).buffer(rm_narrow_thr * enlarge_factor)
+    remain_polygon_parts = shapely_polygon.buffer(-rm_narrow_thr).buffer(rm_narrow_thr * enlarge_factor).intersection(shapely_polygon)
+
+    return remain_polygon_parts
 
 def main(options, args):
 
-    # test reading polygons with holes
-    polygons = read_polygons_gpd(args[0])
+    # ###############################################################
+    # # test reading polygons with holes
+    # polygons = read_polygons_gpd(args[0])
+    # for idx, polygon in enumerate(polygons):
+    #     if idx == 268:
+    #         test = 1
+    #         # print(polygon)
+    #     print(idx, list(polygon.interiors))
+    #     for inPoly in list(polygon.interiors):      # for holes
+    #         print(inPoly)
+
+    ###############################################################
+    # test thinning a polygon
+    input_shp = args[0]
+    save_shp = args[1]
+    out_polygons_list = []
+    polygons = read_polygons_gpd(input_shp)
     for idx, polygon in enumerate(polygons):
-        if idx == 268:
-            test = 1
-            # print(polygon)
-        print(idx, list(polygon.interiors))
-        for inPoly in list(polygon.interiors):      # for holes
-            print(inPoly)
+        # print(idx, polygon)
+
+        out_polygons = remove_narrow_parts_of_a_polygon(polygon,1.5)
+        # save them
+        out_polygons_list.append(out_polygons)
+        print(idx)
+    import pandas as pd
+    import basic_src.map_projection as map_projection
+    out_polygon_df = pd.DataFrame({'out_Polygons': out_polygons_list
+                                })
+
+    wkt_string = map_projection.get_raster_or_vector_srs_info_wkt(input_shp)
+    save_polygons_to_files(out_polygon_df,'out_Polygons', wkt_string, save_shp)
 
 
     pass
