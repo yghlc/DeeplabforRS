@@ -164,6 +164,25 @@ def remove_narrow_parts_of_a_polygon(shapely_polygon, rm_narrow_thr):
 
     return remain_polygon_parts
 
+def remove_narrow_parts_of_polygons_shp(input_shp,out_shp,rm_narrow_thr ):
+    # read polygons as shapely objects
+    shapefile = gpd.read_file(input_shp)
+
+    for idx, row in shapefile.iterrows():
+
+        shapely_polygon = row['geometry']
+        out_polygon = remove_narrow_parts_of_a_polygon(shapely_polygon, rm_narrow_thr)
+        # if out_polygon.is_empty is True:
+        #     print(idx, out_polygon)
+        if out_polygon.is_empty is True:
+            basic.outputlogMessage('Warning, remove %d (0 index) in %s because it is empty after removing narrow parts'%
+                                   (idx, os.path.basename(input_shp)))
+            shapefile.drop(idx, inplace=True)
+
+    # save results
+    shapefile.to_file(out_shp, driver='ESRI Shapefile')
+
+
 def main(options, args):
 
     # ###############################################################
@@ -181,22 +200,24 @@ def main(options, args):
     # test thinning a polygon
     input_shp = args[0]
     save_shp = args[1]
-    out_polygons_list = []
-    polygons = read_polygons_gpd(input_shp)
-    for idx, polygon in enumerate(polygons):
-        # print(idx, polygon)
+    # out_polygons_list = []
+    # polygons = read_polygons_gpd(input_shp)
+    # for idx, polygon in enumerate(polygons):
+    #     # print(idx, polygon)
+    #
+    #     out_polygons = remove_narrow_parts_of_a_polygon(polygon,1.5)
+    #     # save them
+    #     out_polygons_list.append(out_polygons)
+    #     print(idx)
+    # import pandas as pd
+    # import basic_src.map_projection as map_projection
+    # out_polygon_df = pd.DataFrame({'out_Polygons': out_polygons_list
+    #                             })
+    #
+    # wkt_string = map_projection.get_raster_or_vector_srs_info_wkt(input_shp)
+    # save_polygons_to_files(out_polygon_df,'out_Polygons', wkt_string, save_shp)
 
-        out_polygons = remove_narrow_parts_of_a_polygon(polygon,1.5)
-        # save them
-        out_polygons_list.append(out_polygons)
-        print(idx)
-    import pandas as pd
-    import basic_src.map_projection as map_projection
-    out_polygon_df = pd.DataFrame({'out_Polygons': out_polygons_list
-                                })
-
-    wkt_string = map_projection.get_raster_or_vector_srs_info_wkt(input_shp)
-    save_polygons_to_files(out_polygon_df,'out_Polygons', wkt_string, save_shp)
+    remove_narrow_parts_of_polygons_shp(input_shp,save_shp, 1.5)
 
 
     pass
