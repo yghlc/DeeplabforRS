@@ -175,7 +175,7 @@ def remove_narrow_parts_of_polygons_shp(input_shp,out_shp,rm_narrow_thr ):
         # if out_polygon.is_empty is True:
         #     print(idx, out_polygon)
         if out_polygon.is_empty is True:
-            basic.outputlogMessage('Warning, remove %d (0 index) in %s because it is empty after removing narrow parts'%
+            basic.outputlogMessage('Warning, remove %dth (0 index) polygon in %s because it is empty after removing narrow parts'%
                                    (idx, os.path.basename(input_shp)))
             shapefile.drop(idx, inplace=True)
 
