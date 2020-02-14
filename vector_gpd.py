@@ -17,10 +17,13 @@ import shapely
 from shapely.geometry import mapping # transform to GeJSON format
 import geopandas as gpd
 from shapely.geometry import Point
+import pandas as pd
 
 import math
 
 import basic_src.basic as basic
+
+import basic_src.map_projection as map_projection
 
 def read_polygons_json(polygon_shp, no_json=False):
     '''
@@ -164,12 +167,18 @@ def remove_narrow_parts_of_a_polygon(shapely_polygon, rm_narrow_thr):
 
     return remain_polygon_parts
 
-def remove_narrow_parts_of_polygons_shp(input_shp,out_shp,rm_narrow_thr ):
+def remove_narrow_parts_of_polygons_shp(input_shp,out_shp,rm_narrow_thr):
     # read polygons as shapely objects
     shapefile = gpd.read_file(input_shp)
 
-    for idx, row in shapefile.iterrows():
+    attribute_names = None
+    new_polygon_list = []
+    polygon_attributes_list = []  # 2d list
 
+    for idx, row in shapefile.iterrows():
+        if idx==0:
+            attribute_names = row.keys().to_list()[:-1]  # the last one is 'geometry'
+        print('removing narrow parts of %dth polygon (total: %d)'%(idx+1,len(shapefile.geometry.values)))
         shapely_polygon = row['geometry']
         out_polygon = remove_narrow_parts_of_a_polygon(shapely_polygon, rm_narrow_thr)
         # if out_polygon.is_empty is True:
@@ -177,10 +186,25 @@ def remove_narrow_parts_of_polygons_shp(input_shp,out_shp,rm_narrow_thr ):
         if out_polygon.is_empty is True:
             basic.outputlogMessage('Warning, remove %dth (0 index) polygon in %s because it is empty after removing narrow parts'%
                                    (idx, os.path.basename(input_shp)))
-            shapefile.drop(idx, inplace=True)
+            # continue, don't save
+            # shapefile.drop(idx, inplace=True),
+        else:
+            new_polygon_list.append(out_polygon)
+            attributes = [row[key] for key in attribute_names]
+            polygon_attributes_list.append(attributes)        # last one is 'geometry'
+            # copy attributes
 
-    # save results
-    shapefile.to_file(out_shp, driver='ESRI Shapefile')
+    save_polyons_attributes = {}
+    for idx, attribute in enumerate(attribute_names):
+        # print(idx, attribute)
+        values = [item[idx] for item in polygon_attributes_list]
+        save_polyons_attributes[attribute] = values
+
+    save_polyons_attributes["Polygons"] = new_polygon_list
+    polygon_df = pd.DataFrame(save_polyons_attributes)
+
+    wkt_string = map_projection.get_raster_or_vector_srs_info_wkt(input_shp)
+    return save_polygons_to_files(polygon_df, 'Polygons', wkt_string, out_shp)
 
 
 def main(options, args):
