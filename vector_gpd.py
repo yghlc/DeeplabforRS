@@ -96,6 +96,79 @@ def read_polygons_gpd(polygon_shp):
 
     return polygons
 
+def remove_polygon_equal(shapefile,field_name, expect_value, b_equal, output):
+    '''
+    remove polygons the the attribute value is not equal to a specific value
+    :param shapefile:
+    :param field_name:
+    :param threshold:
+    :param b_equal: if True, remove records not equal to expect_value, otherwise, remove the one equal to expect_value
+    :param output:
+    :return:
+    '''
+
+    shapefile = gpd.read_file(shapefile)
+
+    remove_count = 0
+
+    for idx,row in shapefile.iterrows():
+
+        # polygon = row['geometry']
+        # go through post-processing to decide to keep or remove it
+        if b_equal:
+            if row[field_name] != expect_value:
+                shapefile.drop(idx, inplace=True)
+                remove_count += 1
+        else:
+            if row[field_name] == expect_value:
+                shapefile.drop(idx, inplace=True)
+                remove_count += 1
+
+    basic.outputlogMessage('remove %d polygons based on %s, remain %d ones saving to %s' %
+                           (remove_count, field_name, len(shapefile.geometry.values), output))
+    # save results
+    shapefile.to_file(output, driver='ESRI Shapefile')
+
+
+def remove_polygons(shapefile,field_name, threshold, bsmaller,output):
+    '''
+    remove polygons based on attribute values
+    :param shapefile:
+    :param field_name:
+    :param threshold:
+    :param bsmaller:
+    :param output:
+    :return:
+    '''
+    # another version
+    # operation_obj = shape_opeation()
+    # if operation_obj.remove_shape_baseon_field_value(shapefile, output, field_name, threshold, smaller=bsmaller) is False:
+    #     return False
+
+    # read polygons as shapely objects
+    shapefile = gpd.read_file(shapefile)
+
+    remove_count = 0
+
+    for idx,row in shapefile.iterrows():
+
+        # polygon = row['geometry']
+        # go through post-processing to decide to keep or remove it
+
+        if bsmaller:
+            if row[field_name] < threshold:
+                shapefile.drop(idx, inplace=True)
+                remove_count += 1
+        else:
+            if row[field_name] >= threshold:
+                shapefile.drop(idx, inplace=True)
+                remove_count += 1
+
+    basic.outputlogMessage('remove %d polygons based on %s, remain %d ones saving to %s' %
+                           (remove_count, field_name, len(shapefile.geometry.values), output))
+    # save results
+    shapefile.to_file(output, driver='ESRI Shapefile')
+
 def calculate_polygon_shape_info(polygon_shapely):
     '''
     calculate the shape information of a polygon, including area, perimeter, circularity,
