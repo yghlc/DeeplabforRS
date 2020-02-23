@@ -2066,6 +2066,18 @@ def test_get_buffer_polygon():
 
     return  get_buffer_polygons(input_shp, output_shp,buffer_size)
 
+def test_add_one_field_records_to_shapefile():
+
+    shp = '/Users/huanglingcao/Data/Qinghai-Tibet/beiluhe/beiluhe_planet/polygon_based_ChangeDet/' \
+          'manu_blh_2017To2019/change_manu_blh_2017To2019_T_201807_vs_201907.shp'
+
+    insert_text = []
+    for idx in range(349):
+        tmp_str = '_'.join([str(i) for i in range(idx+1)])
+        insert_text.append(tmp_str)
+
+    shp_obj = shape_opeation()
+    shp_obj.add_one_field_records_to_shapefile(shp, insert_text, 'text')
 
 def main(options, args):
     # if len(args) != 2:
@@ -2077,11 +2089,13 @@ def main(options, args):
     else:
         parameters.set_saved_parafile_path(options.para_file)
 
-    input = args[0]
-    output = args[1]
-    test(input,output)
+    # input = args[0]
+    # output = args[1]
+    # test(input,output)
 
     # test_get_buffer_polygon()
+
+    test_add_one_field_records_to_shapefile()
 
     pass
 
