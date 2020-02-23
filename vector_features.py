@@ -379,7 +379,7 @@ class shape_opeation(object):
             elif isinstance(first_record, int):
                 attr_list = [field_name, 'N', 24, 0]
             elif isinstance(first_record, str):
-                attr_list = [field_name, 'C', 1024, 0]
+                attr_list = [field_name, 'C', 255, 0]  # limit to 255  # ubyte format requires 0 <= number <= 255
             else:
                 basic.outputlogMessage('error, unsupport data type')
                 return False
