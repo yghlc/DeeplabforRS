@@ -245,9 +245,7 @@ def copy_file_to_dst(file_path, dst_name, overwrite=False):
     #     basic.outputlogMessage('warning: shutil.SameFileError')
     #     pass
     except IOError:
-        basic.outputlogMessage(str(IOError))
-        basic.outputlogMessage('copy file failed: '+ file_path)
-        assert False
+        raise IOError('copy file failed: '+ file_path)
 
 
 
@@ -279,9 +277,7 @@ def move_file_to_dst(file_path, dst_name,overwrite=False):
     try:
         shutil.move(file_path,dst_name)
     except IOError:
-        basic.outputlogMessage(str(IOError))
-        basic.outputlogMessage('move file failed: '+ file_path)
-        assert False
+        raise IOError('move file failed: '+ file_path)
 
     if not os.path.isfile(dst_name):
         basic.outputlogMessage('move file failed')
@@ -308,9 +304,7 @@ def movefiletodir(file_path, dir_name):
     try:
         shutil.move(file_path,dst_name)
     except IOError:
-        basic.outputlogMessage(str(IOError))
-        basic.outputlogMessage('move file failed: '+ file_path)
-        assert False
+        raise IOError('move file failed: ' + file_path)
 
     if not os.path.isfile(dst_name):
         basic.outputlogMessage('move file failed')
@@ -337,9 +331,7 @@ def copyfiletodir(file_path, dir_name):
     try:
         shutil.copyfile(file_path,dst_name)
     except IOError:
-        basic.outputlogMessage(str(IOError))
-        basic.outputlogMessage('copy file failed: '+ file_path)
-        assert False
+        raise IOError('copy file failed: ' + file_path)
 
     if not os.path.isfile(dst_name):
         basic.outputlogMessage('copy file failed')
