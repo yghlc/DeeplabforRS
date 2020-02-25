@@ -250,7 +250,7 @@ def copy_file_to_dst(file_path, dst_name, overwrite=False):
 
 
     if not os.path.isfile(dst_name):
-        basic.outputlogMessage('copy file failed')
+        basic.outputlogMessage('copy file failed, from %s to %s.'%(file_path,dst_name))
         return False
     else:
         basic.outputlogMessage('copy file success: '+ file_path)
@@ -280,7 +280,7 @@ def move_file_to_dst(file_path, dst_name,overwrite=False):
         raise IOError('move file failed: '+ file_path)
 
     if not os.path.isfile(dst_name):
-        basic.outputlogMessage('move file failed')
+        basic.outputlogMessage('move file failed, from %s to %s.'%(file_path,dst_name))
         return False
     else:
         basic.outputlogMessage('move file success: '+ file_path)
