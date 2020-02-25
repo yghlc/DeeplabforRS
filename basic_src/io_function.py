@@ -286,7 +286,7 @@ def move_file_to_dst(file_path, dst_name,overwrite=False):
         basic.outputlogMessage('move file success: '+ file_path)
         return True
 
-def movefiletodir(file_path, dir_name):
+def movefiletodir(file_path, dir_name,overwrite=False):
     """
     move file to a destination folder
     Args:
@@ -298,22 +298,9 @@ def movefiletodir(file_path, dir_name):
 
     """
     dst_name =  os.path.join(dir_name,os.path.split(file_path)[1])
-    if os.path.isfile(dst_name):
-        basic.outputlogMessage("%s already exist, skip"%dst_name)
-        return True
-    try:
-        shutil.move(file_path,dst_name)
-    except IOError:
-        raise IOError('move file failed: ' + file_path)
+    return move_file_to_dst(file_path,dst_name, overwrite=overwrite)
 
-    if not os.path.isfile(dst_name):
-        basic.outputlogMessage('move file failed')
-        return False
-    else:
-        basic.outputlogMessage('move file success: '+ file_path)
-        return True
-
-def copyfiletodir(file_path, dir_name):
+def copyfiletodir(file_path, dir_name,overwrite=False):
     """
     copy file to a destination folder
     Args:
@@ -325,20 +312,7 @@ def copyfiletodir(file_path, dir_name):
 
     """
     dst_name =  os.path.join(dir_name,os.path.split(file_path)[1])
-    if os.path.isfile(dst_name):
-        basic.outputlogMessage("%s already exist, skip"%dst_name)
-        return True
-    try:
-        shutil.copyfile(file_path,dst_name)
-    except IOError:
-        raise IOError('copy file failed: ' + file_path)
-
-    if not os.path.isfile(dst_name):
-        basic.outputlogMessage('copy file failed')
-        return False
-    else:
-        basic.outputlogMessage('copy file success: '+ file_path)
-        return True
+    return copy_file_to_dst(file_path,dst_name,overwrite=overwrite)
 
 def decompress_gz_file(file_path,work_dir,bkeepmidfile):
     """
