@@ -232,7 +232,7 @@ def remove_narrow_parts_of_a_polygon(shapely_polygon, rm_narrow_thr):
     # A positive distance has an effect of dilation; a negative distance, erosion.
     # object.buffer(distance, resolution=16, cap_style=1, join_style=1, mitre_limit=5.0)
 
-    enlarge_factor = 2.0
+    enlarge_factor = 1.6
     # can return multiple polygons
     # remain_polygon_parts = shapely_polygon.buffer(-rm_narrow_thr)
     # remain_polygon_parts = shapely_polygon.buffer(-rm_narrow_thr).buffer(rm_narrow_thr * enlarge_factor)
