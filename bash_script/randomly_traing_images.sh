@@ -33,7 +33,7 @@ mkdir ${out_dir}
 for ii in {1..10}
 do
     echo "get ${ii} random training polygons"
-    ${eo_dir}/get_trianing_polygons.py ${gt_shp} ${out_dir}/train_polygon_random_${ii}.shp
+    ${eo_dir}/get_training_polygons.py ${gt_shp} ${out_dir}/train_polygon_random_${ii}.shp
 
 done
 
