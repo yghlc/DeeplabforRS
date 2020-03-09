@@ -96,6 +96,20 @@ def read_polygons_gpd(polygon_shp):
 
     return polygons
 
+def read_attribute_values_list(polygon_shp, field_name):
+    '''
+    read the attribute value to a list
+    :param polygon_shp:
+    :param field_name:
+    :return: a list containing the attribute values
+    '''
+
+    shapefile = gpd.read_file(polygon_shp)
+    attribute_values = shapefile[field_name]
+
+    return attribute_values.tolist()
+
+
 def remove_polygon_equal(shapefile,field_name, expect_value, b_equal, output):
     '''
     remove polygons the the attribute value is not equal to a specific value
