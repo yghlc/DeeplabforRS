@@ -64,6 +64,13 @@ def read_polygons_json(polygon_shp, no_json=False):
     return polygons_json
 
 def fix_invalid_polygons(polygons, polygon_shp, buffer_size = 0.000001):
+    '''
+    fix invalid polygon by using buffer operation.
+    :param polygons: polygons in shapely format
+    :param polygon_shp: shapefile path where the polygons are from
+    :param buffer_size: buffer size
+    :return: polygons after checking invalidity
+    '''
     invalid_polygon_idx = []
     for idx in range(0,len(polygons)):
         if polygons[idx].is_valid is False:
