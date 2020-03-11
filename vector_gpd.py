@@ -15,6 +15,7 @@ from optparse import OptionParser
 # import these two to make sure load GEOS dll before using shapely
 import shapely
 from shapely.geometry import mapping # transform to GeJSON format
+from shapely.geometry import MultiPolygon
 import geopandas as gpd
 from shapely.geometry import Point
 import pandas as pd
@@ -293,6 +294,12 @@ def remove_narrow_parts_of_polygons_shp(input_shp,out_shp,rm_narrow_thr):
     wkt_string = map_projection.get_raster_or_vector_srs_info_wkt(input_shp)
     return save_polygons_to_files(polygon_df, 'Polygons', wkt_string, out_shp)
 
+def polygons_to_a_MultiPolygon(polygon_list):
+    if isinstance(polygon_list,list) is False:
+        raise ValueError('the input is a not list')
+    if len(polygon_list) < 1:
+        raise ValueError('There is no polygon in the input')
+    return MultiPolygon(polygon_list)
 
 def main(options, args):
 
