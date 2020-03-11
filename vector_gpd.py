@@ -53,12 +53,7 @@ def read_polygons_json(polygon_shp, no_json=False):
     #     raise ValueError('error, polygons %s (index start from 1) in %s are invalid, please fix them first '%(str(invalid_polygon_idx),polygon_shp))
 
     # fix invalid polygons
-    for idx in range(0,len(polygons)):
-        if polygons[idx].is_valid is False:
-            invalid_polygon_idx.append(idx + 1)
-            polygons[idx] = polygons[idx].buffer(0.0001)  # trying to solve self-intersection
-    if len(invalid_polygon_idx) > 0:
-        basic.outputlogMessage('Warning, polygons %s (index start from 1) in %s are invalid, fix them by the buffer operation '%(str(invalid_polygon_idx),polygon_shp))
+    polygons = fix_invalid_polygons(polygons)
 
     if no_json:
         return polygons
@@ -67,6 +62,17 @@ def read_polygons_json(polygon_shp, no_json=False):
         polygons_json = [ mapping(item) for item in polygons]
 
     return polygons_json
+
+def fix_invalid_polygons(polygons):
+    invalid_polygon_idx = []
+    for idx in range(0,len(polygons)):
+        if polygons[idx].is_valid is False:
+            invalid_polygon_idx.append(idx + 1)
+            polygons[idx] = polygons[idx].buffer(0.000001)  # trying to solve self-intersection
+    if len(invalid_polygon_idx) > 0:
+        basic.outputlogMessage('Warning, polygons %s (index start from 1) in %s are invalid, fix them by the buffer operation '%(str(invalid_polygon_idx),polygon_shp))
+
+    return polygons
 
 def read_polygons_gpd(polygon_shp):
     '''
@@ -88,12 +94,7 @@ def read_polygons_gpd(polygon_shp):
     #     raise ValueError('error, polygons %s (index start from 1) in %s are invalid, please fix them first '%(str(invalid_polygon_idx),polygon_shp))
 
     # fix invalid polygons
-    for idx in range(0,len(polygons)):
-        if polygons[idx].is_valid is False:
-            invalid_polygon_idx.append(idx + 1)
-            polygons[idx] = polygons[idx].buffer(0.0001)  # trying to solve self-intersection
-    if len(invalid_polygon_idx) > 0:
-        basic.outputlogMessage('Warning, polygons %s (index start from 1) in %s are invalid, fix them by the buffer operation '%(str(invalid_polygon_idx),polygon_shp))
+    polygons = fix_invalid_polygons(polygons)
 
     return polygons
 
