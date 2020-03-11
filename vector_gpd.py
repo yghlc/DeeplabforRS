@@ -63,12 +63,12 @@ def read_polygons_json(polygon_shp, no_json=False):
 
     return polygons_json
 
-def fix_invalid_polygons(polygons):
+def fix_invalid_polygons(polygons, buffer_size = 0.000001):
     invalid_polygon_idx = []
     for idx in range(0,len(polygons)):
         if polygons[idx].is_valid is False:
             invalid_polygon_idx.append(idx + 1)
-            polygons[idx] = polygons[idx].buffer(0.000001)  # trying to solve self-intersection
+            polygons[idx] = polygons[idx].buffer(buffer_size)  # trying to solve self-intersection
     if len(invalid_polygon_idx) > 0:
         basic.outputlogMessage('Warning, polygons %s (index start from 1) in %s are invalid, fix them by the buffer operation '%(str(invalid_polygon_idx),polygon_shp))
 
