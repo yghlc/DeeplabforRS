@@ -53,7 +53,7 @@ def read_polygons_json(polygon_shp, no_json=False):
     #     raise ValueError('error, polygons %s (index start from 1) in %s are invalid, please fix them first '%(str(invalid_polygon_idx),polygon_shp))
 
     # fix invalid polygons
-    polygons = fix_invalid_polygons(polygons)
+    polygons = fix_invalid_polygons(polygons,polygon_shp)
 
     if no_json:
         return polygons
@@ -63,7 +63,7 @@ def read_polygons_json(polygon_shp, no_json=False):
 
     return polygons_json
 
-def fix_invalid_polygons(polygons, buffer_size = 0.000001):
+def fix_invalid_polygons(polygons, polygon_shp, buffer_size = 0.000001):
     invalid_polygon_idx = []
     for idx in range(0,len(polygons)):
         if polygons[idx].is_valid is False:
@@ -94,7 +94,7 @@ def read_polygons_gpd(polygon_shp):
     #     raise ValueError('error, polygons %s (index start from 1) in %s are invalid, please fix them first '%(str(invalid_polygon_idx),polygon_shp))
 
     # fix invalid polygons
-    polygons = fix_invalid_polygons(polygons)
+    polygons = fix_invalid_polygons(polygons,polygon_shp)
 
     return polygons
 
