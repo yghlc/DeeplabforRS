@@ -116,6 +116,7 @@ def exec_command_args_list(args_list):
     ps = subprocess.Popen(args_list)
     returncode = ps.wait()
     outputlogMessage('return codes: '+ str(returncode))
+    return returncode
 
 
 def exec_command_string(command_str):
