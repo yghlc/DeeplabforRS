@@ -81,6 +81,21 @@ def fix_invalid_polygons(polygons, polygon_shp, buffer_size = 0.000001):
 
     return polygons
 
+def read_lines_gpd(lines_shp):
+    shapefile = gpd.read_file(lines_shp)
+    lines = shapefile.geometry.values
+    # check are lines
+    return lines
+
+def find_one_line_intersect_Polygon(polygon, line_list, line_check_list):
+    for idx, (line, b_checked) in enumerate(zip(line_list,line_check_list)):
+        if b_checked:
+            continue
+        if polygon.intersection(line).is_empty is False:
+            line_check_list[idx] = True
+            return line
+    return None
+
 def read_polygons_gpd(polygon_shp):
     '''
     read polyogns using geopandas
