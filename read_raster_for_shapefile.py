@@ -92,13 +92,13 @@ def read_phs_basedON_location(x1, y1, x2, y2, x3, y3, phs_raster):
 
     refs = []
 
-    ref1 = RSImage.get_image_location_value(phs_raster, x1, y1, 'lon_lat_wgs84', 1)
+    ref1 = read_dem_basedON_location(x1, y1, phs_raster)
     if ref1 != -9999:
         refs.append(ref1)
-    ref2 = RSImage.get_image_location_value(phs_raster, x2, y2, 'lon_lat_wgs84', 1)
+    ref2 = read_dem_basedON_location(x2, y2, phs_raster)
     if ref2 != -9999:
         refs.append(ref2)
-    ref3 = RSImage.get_image_location_value(phs_raster, x3, y3, 'lon_lat_wgs84', 1)
+    ref3 = read_dem_basedON_location(x3, y3, phs_raster)
     if ref3 != -9999:
         refs.append(ref3)
     ref = np.mean(refs)
