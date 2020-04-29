@@ -434,11 +434,12 @@ def main(options, args):
                     IFG_name = fields_ifg[0]
                     phs_file = RESULT_DIR + '/' + IFG_name + "_unwphs"
 
-                    ref_mean = read_phs_basedON_location(ref_lon1, ref_lat1, ref_lon2, ref_lat2, ref_lon3, ref_lat3, phs_file)
+                    ref_mean, r1, r2, r3 = read_phs_basedON_location(ref_lon1, ref_lat1, ref_lon2, ref_lat2, ref_lon3, ref_lat3, phs_file)
 
                     out_file_name = str(RESULT_DIR) + "/REF.list"
                     result = open(out_file_name, 'a')
-                    result.write(str(TARGET_name) + ' ' + str(IFG_name) + ' ' +  str(ref_mean) + '\n')
+                    result.write(str(TARGET_name) + ' ' + str(IFG_name) + ' ' + str(ref_mean) \
+                                 + ' ' + str(r1) + ' ' + str(r2) + ' ' + str(r3) + '\n')
                     result.close()
 
 if __name__ == '__main__':
