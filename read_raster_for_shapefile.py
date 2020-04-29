@@ -88,9 +88,22 @@ def read_dem_basedON_location(x, y, dem_raster):
     # return RSImage.get_image_location_value(dem_raster,x,y,'lon_lat_wgs84',1)
     return RSImage.get_image_location_value(dem_raster, x, y, 'lon_lat_wgs84', 1)
 
-def read_phs_basedON_location(x, y, phs_raster):
+def read_phs_basedON_location(x1, y1, x2, y2, x3, y3, phs_raster):
 
-    pass
+    refs = []
+
+    ref1 = RSImage.get_image_location_value(phs_raster, x1, y1, 'lon_lat_wgs84', 1)
+    if ref1 != -9999:
+        refs.append(ref1)
+    ref2 = RSImage.get_image_location_value(phs_raster, x2, y2, 'lon_lat_wgs84', 1)
+    if ref2 != -9999:
+        refs.append(ref2)
+    ref3 = RSImage.get_image_location_value(phs_raster, x3, y3, 'lon_lat_wgs84', 1)
+    if ref3 != -9999:
+        refs.append(ref3)
+    ref = np.mean(refs)
+
+    return ref
 
 
 def calculate_polygon_velocity(polygons_shp, vel_file):
