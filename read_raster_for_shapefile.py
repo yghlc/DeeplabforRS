@@ -432,7 +432,7 @@ def main(options, args):
                 for line_ifg in ifg_file:
                     fields_ifg = line_ifg.split()
                     IFG_name = fields_ifg[0]
-                    phs_file = IFG_name + "_unwphs"
+                    phs_file = RESULT_DIR + '/' + IFG_name + "_unwphs"
 
                     ref_mean = read_phs_basedON_location(ref_lon1, ref_lat1, ref_lon2, ref_lat2, ref_lon3, ref_lat3, phs_file)
 
