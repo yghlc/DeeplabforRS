@@ -103,7 +103,7 @@ def read_phs_basedON_location(x1, y1, x2, y2, x3, y3, phs_raster):
         refs.append(ref3)
     ref = np.mean(refs)
 
-    return ref
+    return ref, ref1, ref2, ref3
 
 
 def calculate_polygon_velocity(polygons_shp, vel_file):
