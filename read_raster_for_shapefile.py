@@ -435,6 +435,12 @@ with open(TARGET_info_list, "r") as info_file:
                 span = fields_ifg[1]
                 phs_file = RESULT_DIR + "_unwphs"
 
+                ref_mean = read_phs_basedON_location(ref_lon1, ref_lat1, ref_lon2, ref_lat2, ref_lon3, ref_lat3, phs_file)
+
+                out_file_name = str(RESULT_DIR) + "/REF.list"
+                result = open(out_file_name, 'a')
+                result.write(str(TARGET_name) + ' ' + str(IFG_name) + ' ' +  str(ref_mean) + '\n')
+                result.close()
 
 if __name__ == '__main__':
     usage = "usage: %prog [options] shp raster_file"
