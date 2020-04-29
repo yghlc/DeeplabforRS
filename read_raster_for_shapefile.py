@@ -410,37 +410,37 @@ def main(options, args):
     #                           N, wavelen, span, position_error, dem_error)
 
 #################cal ref value###################
-RESULT_DIR = "/home/huyan/huyan_data/khumbu_valley/alos/result"
+    RESULT_DIR = "/home/huyan/huyan_data/khumbu_valley/alos/result"
 
-IFG_list = RESULT_DIR + "/IFG.list"
-TARGET_info_list = RESULT_DIR + "/TARGET_info.list"
+    IFG_list = RESULT_DIR + "/IFG.list"
+    TARGET_info_list = RESULT_DIR + "/TARGET_info.list"
 
 
-with open(TARGET_info_list, "r") as info_file:
-    for line_target in info_file:
-        fields_target = line_target.split()
-        TARGET_name = fields_target[0]
-        print(TARGET_name)
-        ref_lon1 = fields_target[3]
-        ref_lat1 = fields_target[4]
-        ref_lon2 = fields_target[5]
-        ref_lat2 = fields_target[6]
-        ref_lon3 = fields_target[7]
-        ref_lat3 = fields_target[8]
+    with open(TARGET_info_list, "r") as info_file:
+        for line_target in info_file:
+            fields_target = line_target.split()
+            TARGET_name = fields_target[0]
+            print(TARGET_name)
+            ref_lon1 = fields_target[3]
+            ref_lat1 = fields_target[4]
+            ref_lon2 = fields_target[5]
+            ref_lat2 = fields_target[6]
+            ref_lon3 = fields_target[7]
+            ref_lat3 = fields_target[8]
 
-        with open(IFG_list, "r") as ifg_file:
-            for line_ifg in ifg_file:
-                fields_ifg = line_ifg.split()
-                IFG_name = fields_ifg[0]
-                span = fields_ifg[1]
-                phs_file = RESULT_DIR + "_unwphs"
+            with open(IFG_list, "r") as ifg_file:
+                for line_ifg in ifg_file:
+                    fields_ifg = line_ifg.split()
+                    IFG_name = fields_ifg[0]
+                    span = fields_ifg[1]
+                    phs_file = RESULT_DIR + "_unwphs"
 
-                ref_mean = read_phs_basedON_location(ref_lon1, ref_lat1, ref_lon2, ref_lat2, ref_lon3, ref_lat3, phs_file)
+                    ref_mean = read_phs_basedON_location(ref_lon1, ref_lat1, ref_lon2, ref_lat2, ref_lon3, ref_lat3, phs_file)
 
-                out_file_name = str(RESULT_DIR) + "/REF.list"
-                result = open(out_file_name, 'a')
-                result.write(str(TARGET_name) + ' ' + str(IFG_name) + ' ' +  str(ref_mean) + '\n')
-                result.close()
+                    out_file_name = str(RESULT_DIR) + "/REF.list"
+                    result = open(out_file_name, 'a')
+                    result.write(str(TARGET_name) + ' ' + str(IFG_name) + ' ' +  str(ref_mean) + '\n')
+                    result.close()
 
 if __name__ == '__main__':
     usage = "usage: %prog [options] shp raster_file"
