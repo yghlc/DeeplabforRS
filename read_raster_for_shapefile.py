@@ -336,12 +336,12 @@ def cal_polygon_phs_uncertainty(shp_file, phs_file, coh_file):
 
 
 def main(options, args):
+#########calculate line aspect###########
+    shp_file = "/home/huyan/huyan_data/khumbu_valley/shp/Khumbu_creep_lines_lonlat.shp"
+    dem_file = "/home/huyan/huyan_data/SRTM/khumbu_valley/khumbu_dem_deg.tif"
+    save_path = "/home/huyan/huyan_data/khumbu_valley/alos/result"
 
-#     shp_file = args[0]
-#     dem_file = args[1]
-#     save_path = args[2]
-
-#     calculate_line_aspect(shp_file, dem_file, save_path)
+    calculate_line_aspect(shp_file, dem_file, save_path)
 
 #########
 
@@ -376,71 +376,73 @@ def main(options, args):
  #                         unmasked_coh_file, vel_file, asp_ori, slp_angle, h, d,
  #                         N, wavelen, span, position_error, dem_error)
 
-##########jingxian lobe############
-    # file_path = args[0]
+##########jingxian lobe/time series instead of snapshot############
+    # file_path = "/home/huyan/huyan_data/khumbu_valley/alos/result"
     #
     # with open(file_path + "IFG.list", "r") as ifg_file:
     #     for line_ifg in ifg_file:
     #         fields_ifg = line_ifg.split()
-    #         PF_name = fields_ifg[0]
-    #         wavelen = float(fields_ifg[1])
-    #         span = fields_ifg[2]
-    #     with open(file_path + "/LOBE_info.list", "r") as info_file:
-    #         for line_l in info_file:
-    #             fields_l = line_l.split()
-    #             ARG_name = fields_l[0]
-    #             print(ARG_name)
-    #             shp_file = file_path + "/polygon_for_cal/" + str(ARG_name) + ".shp"
-    #             vel_file = file_path + "/" + PF_name + "_VEL_rasters/" + str(ARG_name) + "_vel"
-    #             coh_file = file_path + "/" + PF_name + "_COH_rasters/" + str(ARG_name) + "_coh"
-    #             inc_file = file_path + "/" + PF_name + "_INC_rasters/" + str(ARG_name) + "_inc"
-    #             azi_file = file_path + "/" + PF_name + "_AZI_rasters/" + str(ARG_name) + "_azi"
-    #             vel_los_file = file_path + "/" + PF_name + "_LOS_rasters/" + str(ARG_name) + "_los"
-    #             unmasked_coh_file = file_path + "/" + PF_name + "_coh_map"
-    #             asp_ori = float(fields_l[2])
-    #             slp_angle = float(fields_l[1])
-    #             h = float(fields_l[3])
-    #             d = float(fields_l[4])
+    #         IFG_name = fields_ifg[0]
+    #         #wavelen = float(fields_ifg[1])
+    #         wavelen = 23.60571
+    #         span = fields_ifg[1]
+    #     with open(file_path + "/TARGET_info.list", "r") as info_file:
+    #         for line_t in info_file:
+    #             fields_t = line_t.split()
+    #             TARGET_name = fields_t[0]
+    #             print(TARGET_name)
+    #             shp_file = file_path + "/polygon_for_cal/" + str(TARGET_name) + ".shp"
+    #             vel_file = file_path + "/" + IFG_name + "_VEL_rasters/" + str(TARGET_name) + "_vel"
+    #             coh_file = file_path + "/" + IFG_name + "_COH_rasters/" + str(TARGET_name) + "_coh"
+    #             inc_file = file_path + "/" + IFG_name + "_INC_rasters/" + str(TARGET_name) + "_inc"
+    #             azi_file = file_path + "/" + IFG_name + "_AZI_rasters/" + str(TARGET_name) + "_azi"
+    #             vel_los_file = file_path + "/" + IFG_name + "_LOS_rasters/" + str(TARGET_name) + "_los"
+    #             unmasked_coh_file = file_path + "/" + IFG_name + "_coh_map"
+    #             slp_angle = float(fields_t[1])
+    #             asp_ori = float(fields_t[2])
+    #             h = float(fields_t[3])
+    #             d = float(fields_t[4])
     #             save_path = file_path
     #             N = 10
     #             position_error = 50
-    #             dem_error = 10
-    #             cal_vel_error(ARG_name, PF_name, save_path, shp_file, coh_file, inc_file, azi_file, vel_los_file,
+    #             # SRTM: 16; TANDEM: 10
+    #             dem_error = 16
+    #             cal_vel_error(TARGET_name, IFG_name, save_path, shp_file, coh_file, inc_file, azi_file, vel_los_file,
     #                           unmasked_coh_file, vel_file, asp_ori, slp_angle, h, d,
     #                           N, wavelen, span, position_error, dem_error)
 
 #################cal ref value###################
-    RESULT_DIR = "/home/huyan/huyan_data/khumbu_valley/alos/result"
-
-    IFG_list = RESULT_DIR + "/IFG.list"
-    TARGET_info_list = RESULT_DIR + "/TARGET_info.list"
-
-
-    with open(TARGET_info_list, "r") as info_file:
-        for line_target in info_file:
-            fields_target = line_target.split()
-            TARGET_name = fields_target[0]
-            print(TARGET_name)
-            ref_lon1 = fields_target[3]
-            ref_lat1 = fields_target[4]
-            ref_lon2 = fields_target[5]
-            ref_lat2 = fields_target[6]
-            ref_lon3 = fields_target[7]
-            ref_lat3 = fields_target[8]
-
-            with open(IFG_list, "r") as ifg_file:
-                for line_ifg in ifg_file:
-                    fields_ifg = line_ifg.split()
-                    IFG_name = fields_ifg[0]
-                    phs_file = RESULT_DIR + '/' + IFG_name + "_unwphs"
-
-                    ref_mean, r1, r2, r3 = read_phs_basedON_location(ref_lon1, ref_lat1, ref_lon2, ref_lat2, ref_lon3, ref_lat3, phs_file)
-
-                    out_file_name = str(RESULT_DIR) + "/REF.list"
-                    result = open(out_file_name, 'a')
-                    result.write(str(TARGET_name) + ' ' + str(IFG_name) + ' ' + str(ref_mean) \
-                                 + ' ' + str(r1) + ' ' + str(r2) + ' ' + str(r3) + '\n')
-                    result.close()
+    # RESULT_DIR = "/home/huyan/huyan_data/khumbu_valley/alos/result"
+    #
+    # IFG_list = RESULT_DIR + "/IFG.list"
+    # TARGET_info_list = RESULT_DIR + "/TARGET_info.list"
+    #
+    #
+    # with open(TARGET_info_list, "r") as info_file:
+    #     for line_target in info_file:
+    #         fields_target = line_target.split()
+    #         TARGET_name = fields_target[0]
+    #         print(TARGET_name)
+    #         ref_lon1 = fields_target[3]
+    #         ref_lat1 = fields_target[4]
+    #         ref_lon2 = fields_target[5]
+    #         ref_lat2 = fields_target[6]
+    #         ref_lon3 = fields_target[7]
+    #         ref_lat3 = fields_target[8]
+    #
+    #         with open(IFG_list, "r") as ifg_file:
+    #             for line_ifg in ifg_file:
+    #                 fields_ifg = line_ifg.split()
+    #                 IFG_name = fields_ifg[0]
+    #                 phs_file = RESULT_DIR + '/' + IFG_name + "_unwphs"
+    #
+    #                 ref_mean, r1, r2, r3 = read_phs_basedON_location(ref_lon1, ref_lat1, ref_lon2, ref_lat2, ref_lon3, ref_lat3, phs_file)
+    #
+    #                 out_file_name = str(RESULT_DIR) + "/REF.list"
+    #                 result = open(out_file_name, 'a')
+    #                 result.write(str(TARGET_name) + ' ' + str(IFG_name) + ' ' + str(ref_mean) \
+    #                              + ' ' + str(r1) + ' ' + str(r2) + ' ' + str(r3) + '\n')
+    #                 result.close()
 
 if __name__ == '__main__':
     usage = "usage: %prog [options] shp raster_file"
