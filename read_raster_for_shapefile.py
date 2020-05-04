@@ -396,8 +396,8 @@ def cal_polygon_phs_uncertainty(shp_file, phs_file, coh_file):
 
 def main(options, args):
 #########calculate line aspect###########
-    shp_file = "/home/huyan/huyan_data/khumbu_valley/shp/Khumbu_creep_lines_utm.shp"
-    dem_file = "/home/huyan/huyan_data/SRTM/khumbu_valley/khumbu_dem_utm.tif"
+    shp_file = "/home/huyan/huyan_data/khumbu_valley/shp/Khumbu_creep_lines_lonlat.shp"
+    dem_file = "/home/huyan/huyan_data/SRTM/khumbu_valley/khumbu_dem_deg.tif"
     save_path = "/home/huyan/huyan_data/khumbu_valley/alos/result"
 
     caluculate_geometry_from_creep_line(shp_file, dem_file, save_path)
