@@ -327,7 +327,6 @@ def cal_vel_error(ARG_name, PF_name, save_path, shp_file, coh_file, inc_file, az
                      + str(coh_mean) + ',' + str(ratio) + '\n')
         result.close()
 
-    pass
 
 def cal_polygon_phs_uncertainty(shp_file, phs_file, coh_file):
 
