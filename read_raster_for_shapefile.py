@@ -153,7 +153,7 @@ def read_attrbutes_from_shp(shp_file):
 
 def caluculate_geometry_from_creep_line(shp_file, dem_file, save_path):
 
-    # shp and dem files are in planar coordinates
+    # shp and dem files are in lon lat coordinates
 
     # read shape file
     lines = gpd.read_file(shp_file)
@@ -173,8 +173,12 @@ def caluculate_geometry_from_creep_line(shp_file, dem_file, save_path):
 
         h = end_value - start_value
 
-        x = math.fabs((start_point[idx][0] - end_point[idx][0]))
-        y = math.fabs((start_point[idx][1] - end_point[idx][1]))
+        # calculate bearing of line/aspect of RGs; from lon and lat
+        lat1 = math.radians(start_point[idx][1])
+        lat2 = math.radians(end_point[idx][1])
+        diffLong = math.radians(end_point[idx][0] - start_point[idx][0])
+        x = math.sin(diffLong) * math.cos(lat2)
+        y = math.cos(lat1) * math.sin(lat2) - (math.sin(lat1) * math.cos(lat2) * math.cos(diffLong))
         initial_bearing = math.atan2(x, y)
         initial_bearing = math.degrees(initial_bearing)
         asp_deg = (initial_bearing + 360) % 360
@@ -392,11 +396,12 @@ def cal_polygon_phs_uncertainty(shp_file, phs_file, coh_file):
 
 def main(options, args):
 #########calculate line aspect###########
-    shp_file = "/home/huyan/huyan_data/khumbu_valley/shp/Khumbu_creep_lines_lonlat.shp"
-    dem_file = "/home/huyan/huyan_data/SRTM/khumbu_valley/khumbu_dem_deg.tif"
+    shp_file = "/home/huyan/huyan_data/khumbu_valley/shp/Khumbu_creep_lines_utm.shp"
+    dem_file = "/home/huyan/huyan_data/SRTM/khumbu_valley/khumbu_dem_utm.tif"
     save_path = "/home/huyan/huyan_data/khumbu_valley/alos/result"
 
-    calculate_line_aspect(shp_file, dem_file, save_path)
+    caluculate_geometry_from_creep_line(shp_file, dem_file, save_path)
+
 
 #########
 
