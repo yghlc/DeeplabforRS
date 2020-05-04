@@ -28,6 +28,7 @@ import numpy as np
 import scipy.integrate as integrate
 from scipy.integrate import quad
 
+
 def read_start_end_point_length_of_a_line(shape_file):
     """
 
@@ -138,6 +139,59 @@ def calculate_polygon_velocity(polygons_shp, vel_file):
 
     return True
 
+def read_attrbutes_from_shp(shp_file):
+
+    sf = gpd.read_file(shp_file)
+    n_row = sf['Name'].count()
+
+    name = []
+
+    for r in range(n_row):
+        name.append(sf['Name'][r])
+
+    return name
+
+def caluculate_geometry_from_creep_line(shp_file, dem_file, save_path):
+
+    # shp and dem files are in planar coordinates
+
+    # read shape file
+    lines = gpd.read_file(shp_file)
+    line_count = lines['Name'].count()
+    name = []
+
+    # get value of points
+    start_point, end_point, length = read_start_end_point_length_of_a_line(shp_file)
+
+    for idx in range(line_count):
+
+        name.append(lines['Name'][idx])
+        # read value of start point
+        start_value = read_dem_basedON_location(start_point[idx][0], start_point[idx][1], dem_file)
+        # read value of end point
+        end_value = read_dem_basedON_location(end_point[idx][0], end_point[idx][1], dem_file)
+
+        h = end_value - start_value
+
+        x = math.fabs((start_point[idx][0] - end_point[idx][0]))
+        y = math.fabs((start_point[idx][1] - end_point[idx][1]))
+        initial_bearing = math.atan2(x, y)
+        initial_bearing = math.degrees(initial_bearing)
+        asp_deg = (initial_bearing + 360) % 360
+        asp_rad = math.radians(asp_deg)
+
+        d = math.sqrt(x ** 2 + y ** 2)
+        slp_rad = math.atan(h / d)
+        slp_deg = math.degrees(slp_rad)
+
+        print(name[idx],start_value, end_value, h, d, slp_deg, asp_deg)
+
+        # out_file_name = str(save_path) + "LINE_RESULT.csv"
+        # line_result = open(out_file_name, 'a')
+        # line_result.write(str(start_value) + ',' + str(end_value) + ',' + str(h) + ',' + str(d) + ',' + str(slp_rad) + ',' + str(slp_deg)\
+        #                 + ',' + str(asp_rad) + ',' + str(asp_deg) + '\n')
+        # line_result.close()
+
 def calculate_line_aspect(shp_file, dem_file, save_path):
     # read shape file
     start_point, end_point, length = read_start_end_point_length_of_a_line(shp_file)
@@ -154,7 +208,7 @@ def calculate_line_aspect(shp_file, dem_file, save_path):
 
         #print(start_value, end_value)
 
-        # calculate bearing of line/aspect of RGs
+        # calculate bearing of line/aspect of RGs; from lon and lat
         lat1 = math.radians(start_point[idx][1])
         lat2 = math.radians(end_point[idx][1])
         diffLong = math.radians(end_point[idx][0] - start_point[idx][0])
@@ -164,6 +218,7 @@ def calculate_line_aspect(shp_file, dem_file, save_path):
         initial_bearing = math.degrees(initial_bearing)
         compass_bearing = (initial_bearing + 360) % 360
         print(idx + 1,start_value, end_value, compass_bearing)
+
 
         out_file_name = str(save_path) + "LINE_RESULT.csv"
         line_result = open(out_file_name, 'a')
