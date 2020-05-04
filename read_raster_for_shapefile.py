@@ -27,6 +27,7 @@ from shapely.geometry import mapping
 import numpy as np
 import scipy.integrate as integrate
 from scipy.integrate import quad
+import geopy.distance
 
 
 def read_start_end_point_length_of_a_line(shape_file):
@@ -139,17 +140,6 @@ def calculate_polygon_velocity(polygons_shp, vel_file):
 
     return True
 
-def read_attrbutes_from_shp(shp_file):
-
-    sf = gpd.read_file(shp_file)
-    n_row = sf['Name'].count()
-
-    name = []
-
-    for r in range(n_row):
-        name.append(sf['Name'][r])
-
-    return name
 
 def caluculate_geometry_from_creep_line(shp_file, dem_file, save_path):
 
@@ -171,7 +161,7 @@ def caluculate_geometry_from_creep_line(shp_file, dem_file, save_path):
         # read value of end point
         end_value = read_dem_basedON_location(end_point[idx][0], end_point[idx][1], dem_file)
 
-        h = end_value - start_value
+        h = start_value - end_value
 
         # calculate bearing of line/aspect of RGs; from lon and lat
         lat1 = math.radians(start_point[idx][1])
@@ -184,17 +174,17 @@ def caluculate_geometry_from_creep_line(shp_file, dem_file, save_path):
         asp_deg = (initial_bearing + 360) % 360
         asp_rad = math.radians(asp_deg)
 
-        d = math.sqrt(x ** 2 + y ** 2)
+        d = geopy.distance.vincenty((start_point[idx][0], start_point[idx][1]), (end_point[idx][0], end_point[idx][1])).m
         slp_rad = math.atan(h / d)
         slp_deg = math.degrees(slp_rad)
 
         print(name[idx],start_value, end_value, h, d, slp_deg, asp_deg)
 
-        # out_file_name = str(save_path) + "LINE_RESULT.csv"
-        # line_result = open(out_file_name, 'a')
-        # line_result.write(str(start_value) + ',' + str(end_value) + ',' + str(h) + ',' + str(d) + ',' + str(slp_rad) + ',' + str(slp_deg)\
-        #                 + ',' + str(asp_rad) + ',' + str(asp_deg) + '\n')
-        # line_result.close()
+        out_file_name = str(save_path) + "/LINE_RESULT.csv"
+        line_result = open(out_file_name, 'a')
+        line_result.write(str(start_value) + ',' + str(end_value) + ',' + str(h) + ',' + str(d) + ',' + str(slp_rad) +\
+                          ',' + str(slp_deg) + ',' + str(asp_rad) + ',' + str(asp_deg) + '\n')
+        line_result.close()
 
 def calculate_line_aspect(shp_file, dem_file, save_path):
     # read shape file
@@ -230,7 +220,8 @@ def calculate_line_aspect(shp_file, dem_file, save_path):
         line_result.close()
     pass
 
-def cal_vel_error(ARG_name, PF_name, save_path, shp_file, coh_file, inc_file, azi_file, vel_los_file, unmasked_coh_file, vel_file, asp_ori, slp_angle, h, d, N, wavelen, span, position_error, dem_error):
+def cal_vel_error(ARG_name, PF_name, save_path, shp_file, coh_file, inc_file, azi_file, vel_los_file,
+                  unmasked_coh_file, vel_file, asp_ori, slp_angle, h, d, N, wavelen, span, position_error, dem_error):
 
     #read coh value of one shape from the coherence raster, inc raster, los azimuth raster into arrays
     shapefile = gpd.read_file(shp_file)
