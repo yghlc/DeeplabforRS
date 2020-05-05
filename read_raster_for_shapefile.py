@@ -219,7 +219,7 @@ def calculate_line_aspect(shp_file, dem_file, save_path):
         line_result.close()
     pass
 
-def cal_vel_error(file_path, shp_file, position_error, dem_error, IFG_name, wavelen, span, N):
+def cal_vel_error(file_path, shp_file, position_error, dem_error, PF_name, dates, wavelen, span, N):
 # produce (1) the clipped vel raster for each target
 #         (2) the csv file to record the statistics of each target
 
@@ -227,6 +227,7 @@ def cal_vel_error(file_path, shp_file, position_error, dem_error, IFG_name, wave
 # TARGET_name   slope_angle_rad    aspect_angle_rad   h     d
 # Kongma               0.3               0.5         100   1000
 
+    IFG_name = str(PF_name) + '.' + str(dates)
 
     shapefile = gpd.read_file(shp_file)
     geoms = shapefile.geometry.values
@@ -250,25 +251,25 @@ def cal_vel_error(file_path, shp_file, position_error, dem_error, IFG_name, wave
             unmasked_coh_file = file_path + "/" + str(IFG_name) + "_coh_map"
 
             #read coh value of one shape from the coherence raster, inc raster, los azimuth raster into arrays
-            geoms = [mapping(geoms[shp_count])]
+            geoms_shp = [mapping(geoms[shp_count])]
 
             with rasterio.open(coh_file) as src_coh:
-                out_coh, out_coh_transform = mask(src_coh, geoms, all_touched=True, crop=True)
+                out_coh, out_coh_transform = mask(src_coh, geoms_shp, all_touched=True, crop=True)
 
             with rasterio.open(inc_file) as src_inc:
-                out_inc, out_inc_transform = mask(src_inc, geoms, all_touched=True, crop=True)
+                out_inc, out_inc_transform = mask(src_inc, geoms_shp, all_touched=True, crop=True)
 
             with rasterio.open(azi_file) as src_azi:
-                out_azi, out_azi_transform = mask(src_azi, geoms, all_touched=True, crop=True)
+                out_azi, out_azi_transform = mask(src_azi, geoms_shp, all_touched=True, crop=True)
 
             with rasterio.open(vel_los_file) as src_vel_los:
-                out_vel_los, out_vel_los_transform = mask(src_vel_los, geoms, all_touched=True, crop=True)
+                out_vel_los, out_vel_los_transform = mask(src_vel_los, geoms_shp, all_touched=True, crop=True)
 
             with rasterio.open(unmasked_coh_file) as src_unmasked_coh:
-                out_unmasked_coh, out_unmasked_coh_transform = mask(src_unmasked_coh, geoms, all_touched=True, crop=True)
+                out_unmasked_coh, out_unmasked_coh_transform = mask(src_unmasked_coh, geoms_shp, all_touched=True, crop=True)
 
             with rasterio.open(vel_file) as src_vel:
-                out_vel, out_vel_transform = mask(src_vel, geoms, all_touched=True, crop=True)
+                out_vel, out_vel_transform = mask(src_vel, geoms_shp, all_touched=True, crop=True)
 
             out_meta = src_vel.meta.copy()
             out_meta.update({"driver": "GTiff",
@@ -339,12 +340,12 @@ def cal_vel_error(file_path, shp_file, position_error, dem_error, IFG_name, wave
 
             out_file_name = str(file_path) + "/VEL_RESULT.csv"
             result = open(out_file_name, 'a')
-            result.write(str(IFG_name) + '' + str(TARGET_name) + ''
-                         + str(vel_mean) + '' + str(error_mean_vel) + ''
-                         + str(vel_max) + '+/-' + str(error_max_vel) + ''
-                         + str(vel_median) + '+/-' + str(error_median_vel) + ''
-                         + str(vel_std) + ''
-                         + str(coh_mean) + '' + str(ratio) + '\n')
+            result.write(str(PF_name) + ',' + str(dates) + ',' + str(TARGET_name) + ','
+                         + str(vel_mean) + ',' + str(error_mean_vel) + ','
+                         + str(vel_max) + '+/-' + str(error_max_vel) + ','
+                         + str(vel_median) + '+/-' + str(error_median_vel) + ','
+                         + str(vel_std) + ','
+                         + str(coh_mean) + ',' + str(ratio) + '\n')
             result.close()
             shp_count = shp_count + 1
 
@@ -461,13 +462,22 @@ def main(options, args):
     # SRTM: 16; TANDEM: 10
     dem_error = 16
 
+    out_file_name = str(file_path) + "/VEL_RESULT.csv"
+    result = open(out_file_name, 'a')
+    result.write('Path_Frame' + ',' + 'Dates' + ',' + 'Target_name' + ','
+                 + 'Mean_velocity' + ',' + 'Mean_velocity_error' + ','
+                 + 'Max_velocity' + '+/-' + 'Max_velocity_error' + ','
+                 + 'Median_velocity' + '+/-' + 'Median_velocity_error' + ','
+                 + 'Std' + ','
+                 + 'Mean_coherence' + ',' + 'Ratio' + '\n')
+    result.close()
+
     with open(file_path + "/IFG.list", "r") as ifg_file:
         for line_ifg in ifg_file:
 
             fields_ifg = line_ifg.split()
             PF_name = fields_ifg[0]
             dates = fields_ifg[1]
-            IFG_name = str(PF_name) + '.' + str(dates)
             span = int(fields_ifg[2])
             wavelen = float(fields_ifg[3])
             n_azi = int(fields_ifg[4])
@@ -475,7 +485,7 @@ def main(options, args):
 
             N = n_azi * n_range
 
-            cal_vel_error(file_path, shp_file, position_error, dem_error, IFG_name, wavelen, span, N)
+            cal_vel_error(file_path, shp_file, position_error, dem_error, PF_name, dates, wavelen, span, N)
 
 #################cal ref value###################
     # RESULT_DIR = "/home/huyan/huyan_data/khumbu_valley/alos/result"
