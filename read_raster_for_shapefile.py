@@ -219,7 +219,7 @@ def calculate_line_aspect(shp_file, dem_file, save_path):
         line_result.close()
     pass
 
-def cal_vel_error(file_path, shp_file, position_error, dem_error, PF_name, dates, wavelen, span, N):
+def cal_vel_error(file_path, shp_file, position_error, dem_error, sensor, PF_name, dates, wavelen, span, N):
 # produce (1) the clipped vel raster for each target
 #         (2) the csv file to record the statistics of each target
 
@@ -340,7 +340,7 @@ def cal_vel_error(file_path, shp_file, position_error, dem_error, PF_name, dates
 
             out_file_name = str(file_path) + "/VEL_RESULT.csv"
             result = open(out_file_name, 'a')
-            result.write(str(PF_name) + ',' + str(dates) + ',' + str(TARGET_name) + ','
+            result.write(str(sensor) + ',' + str(PF_name) + ',' + str(dates) + ',' + str(TARGET_name) + ','
                          + str(vel_mean) + ',' + str(error_mean_vel) + ','
                          + str(vel_max) + '+/-' + str(error_max_vel) + ','
                          + str(vel_median) + '+/-' + str(error_median_vel) + ','
@@ -453,8 +453,8 @@ def main(options, args):
 
 ##########jingxian lobe/time series instead of snapshot############
 ## a sample IFG.list
-# PF_name            dates       span  wavelen  number_of_azimuth_looks  number_of_range_looks
-# P507_F540   20071213_20080128   46   23.0571             4                    9
+# Sensor    PF_name            dates       span  wavelen  number_of_azimuth_looks  number_of_range_looks
+# ALOS      P507_F540   20071213_20080128   46   23.0571             4                    9
     file_path = "/home/huyan/huyan_data/khumbu_valley/alos/result"
     shp_file = "/home/huyan/huyan_data/khumbu_valley/shp/Khumbu_targets_lonlat.shp"
     position_error = 50
@@ -463,7 +463,7 @@ def main(options, args):
 
     out_file_name = str(file_path) + "/VEL_RESULT.csv"
     result = open(out_file_name, 'a')
-    result.write('Path_Frame' + ',' + 'Dates' + ',' + 'Target_name' + ','
+    result.write('Sensor' + ',' + 'Path_Frame' + ',' + 'Dates' + ',' + 'Target_name' + ','
                  + 'Mean_velocity' + ',' + 'Mean_velocity_error' + ','
                  + 'Max_velocity' + '+/-' + 'Error' + ','
                  + 'Median_velocity' + '+/-' + 'Error' + ','
@@ -474,16 +474,17 @@ def main(options, args):
         for line_ifg in ifg_file:
 
             fields_ifg = line_ifg.split()
-            PF_name = fields_ifg[0]
-            dates = fields_ifg[1]
-            span = int(fields_ifg[2])
-            wavelen = float(fields_ifg[3])
-            n_azi = int(fields_ifg[4])
-            n_range = int(fields_ifg[5])
+            sensor = fields_ifg[0]
+            PF_name = fields_ifg[1]
+            dates = fields_ifg[2]
+            span = int(fields_ifg[3])
+            wavelen = float(fields_ifg[4])
+            n_azi = int(fields_ifg[5])
+            n_range = int(fields_ifg[6])
 
             N = n_azi * n_range
 
-            cal_vel_error(file_path, shp_file, position_error, dem_error, PF_name, dates, wavelen, span, N)
+            cal_vel_error(file_path, shp_file, position_error, dem_error, sensor, PF_name, dates, wavelen, span, N)
 
 #################cal ref value###################
     # RESULT_DIR = "/home/huyan/huyan_data/khumbu_valley/alos/result"
