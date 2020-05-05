@@ -220,6 +220,8 @@ def calculate_line_aspect(shp_file, dem_file, save_path):
     pass
 
 def cal_vel_error(file_path, shp_file, position_error, dem_error, IFG_name, wavelen, span, N):
+# produce (1) the clipped vel raster for each target
+#         (2) the csv file to record the statistics of each target
 
     shapefile = gpd.read_file(shp_file)
     geoms = shapefile.geometry.values
