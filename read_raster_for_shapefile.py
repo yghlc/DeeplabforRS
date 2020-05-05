@@ -344,8 +344,7 @@ def cal_vel_error(file_path, shp_file, position_error, dem_error, PF_name, dates
                          + str(vel_mean) + ',' + str(error_mean_vel) + ','
                          + str(vel_max) + '+/-' + str(error_max_vel) + ','
                          + str(vel_median) + '+/-' + str(error_median_vel) + ','
-                         + str(vel_std) + ','
-                         + str(coh_mean) + ',' + str(ratio) + '\n')
+                         + str(vel_std) + ',' + str(coh_mean) + ',' + str(ratio) + '\n')
             result.close()
             shp_count = shp_count + 1
 
@@ -466,10 +465,9 @@ def main(options, args):
     result = open(out_file_name, 'a')
     result.write('Path_Frame' + ',' + 'Dates' + ',' + 'Target_name' + ','
                  + 'Mean_velocity' + ',' + 'Mean_velocity_error' + ','
-                 + 'Max_velocity' + '+/-' + 'Max_velocity_error' + ','
-                 + 'Median_velocity' + '+/-' + 'Median_velocity_error' + ','
-                 + 'Std' + ','
-                 + 'Mean_coherence' + ',' + 'Ratio' + '\n')
+                 + 'Max_velocity' + '+/-' + 'Error' + ','
+                 + 'Median_velocity' + '+/-' + 'Error' + ','
+                 + 'Std' + ',' + 'Mean_coherence' + ',' + 'Ratio' + '\n')
     result.close()
 
     with open(file_path + "/IFG.list", "r") as ifg_file:
