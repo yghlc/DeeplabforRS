@@ -223,6 +223,11 @@ def cal_vel_error(file_path, shp_file, position_error, dem_error, IFG_name, wave
 # produce (1) the clipped vel raster for each target
 #         (2) the csv file to record the statistics of each target
 
+## a sample TARGET_info.list is produced by caluculate_geometry_from_creep_line
+# TARGET_name   slope_angle_rad    aspect_angle_rad   h     d
+# Kongma               0.3               0.5         100   1000
+
+
     shapefile = gpd.read_file(shp_file)
     geoms = shapefile.geometry.values
 
