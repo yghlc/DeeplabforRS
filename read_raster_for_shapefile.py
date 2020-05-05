@@ -443,12 +443,12 @@ def main(options, args):
                 TARGET_name = fields_t[0]
                 print(TARGET_name)
 
-                vel_file = file_path + "/" + IFG_name + "_VEL_rasters/" + str(TARGET_name) + "_vel"
-                coh_file = file_path + "/" + IFG_name + "_COH_rasters/" + str(TARGET_name) + "_coh"
-                inc_file = file_path + "/" + IFG_name + "_INC_rasters/" + str(TARGET_name) + "_inc"
-                azi_file = file_path + "/" + IFG_name + "_AZI_rasters/" + str(TARGET_name) + "_azi"
-                vel_los_file = file_path + "/" + IFG_name + "_LOS_rasters/" + str(TARGET_name) + "_los"
-                unmasked_coh_file = file_path + "/" + IFG_name + "_coh_map"
+                vel_file = file_path + "/" + str(IFG_name) + "_VEL_rasters/" + str(TARGET_name) + "_vel"
+                coh_file = file_path + "/" + str(IFG_name) + "_COH_rasters/" + str(TARGET_name) + "_coh"
+                inc_file = file_path + "/" + str(IFG_name) + "_INC_rasters/" + str(TARGET_name) + "_inc"
+                azi_file = file_path + "/" + str(IFG_name)+ "_AZI_rasters/" + str(TARGET_name) + "_azi"
+                vel_los_file = file_path + "/" + str(IFG_name) + "_LOS_rasters/" + str(TARGET_name) + "_los"
+                unmasked_coh_file = file_path + "/" + str(IFG_name) + "_coh_map"
                 slp_angle = float(fields_t[1])
                 asp_ori = float(fields_t[2])
                 h = float(fields_t[3])
