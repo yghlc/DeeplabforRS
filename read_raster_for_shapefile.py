@@ -232,12 +232,23 @@ def cal_vel_error(file_path, shp_file, position_error, dem_error, sensor, PF_nam
     shapefile = gpd.read_file(shp_file)
     geoms = shapefile.geometry.values
 
+    n_row = shapefile['Name'].count()
+    name = []
+
+    for r in range(n_row):
+        name.append(shapefile['Name'][r])
+
+    print(name)
+
+    name_list = []
     with open(file_path + "/TARGET_info.list", "r") as info_file:
         shp_count = 0
         for line_t in info_file:
             fields_t = line_t.split()
             TARGET_name = fields_t[0]
-            print(TARGET_name)
+            # print(TARGET_name)
+            name_list.append(TARGET_name)
+            print(name_list)
             slp_angle = float(fields_t[1])
             asp_ori = float(fields_t[2])
             h = float(fields_t[3])
@@ -455,6 +466,7 @@ def main(options, args):
 ## a sample IFG.list
 # Sensor    PF_name            dates       span  wavelen  number_of_azimuth_looks  number_of_range_looks
 # ALOS      P507_F540   20071213_20080128   46   23.0571             4                    9
+
     file_path = "/home/huyan/huyan_data/khumbu_valley/alos/result"
     shp_file = "/home/huyan/huyan_data/khumbu_valley/shp/Khumbu_targets_lonlat.shp"
     position_error = 50
@@ -487,23 +499,23 @@ def main(options, args):
             cal_vel_error(file_path, shp_file, position_error, dem_error, sensor, PF_name, dates, wavelen, span, N)
 
 #################cal ref value###################
-    # RESULT_DIR = "/home/huyan/huyan_data/khumbu_valley/alos/result"
+    # RESULT_DIR = "/home/huyan/huyan_data/khumbu_valley/alos2/result"
     #
-    # IFG_list = RESULT_DIR + "/IFG.list"
-    # TARGET_info_list = RESULT_DIR + "/TARGET_info.list"
+    # IFG_list = RESULT_DIR + "/IFG_1.list"
+    # position_list = RESULT_DIR + "/ref_position.list"
     #
     #
-    # with open(TARGET_info_list, "r") as info_file:
+    # with open(position_list, "r") as info_file:
     #     for line_target in info_file:
     #         fields_target = line_target.split()
     #         TARGET_name = fields_target[0]
     #         print(TARGET_name)
-    #         ref_lon1 = fields_target[3]
-    #         ref_lat1 = fields_target[4]
-    #         ref_lon2 = fields_target[5]
-    #         ref_lat2 = fields_target[6]
-    #         ref_lon3 = fields_target[7]
-    #         ref_lat3 = fields_target[8]
+    #         ref_lon1 = fields_target[1]
+    #         ref_lat1 = fields_target[2]
+    #         ref_lon2 = fields_target[3]
+    #         ref_lat2 = fields_target[4]
+    #         ref_lon3 = fields_target[5]
+    #         ref_lat3 = fields_target[6]
     #
     #         with open(IFG_list, "r") as ifg_file:
     #             for line_ifg in ifg_file:
