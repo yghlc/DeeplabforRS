@@ -240,14 +240,14 @@ def cal_vel_error(file_path, shp_file, position_error, dem_error, sensor, PF_nam
     #
     # print('From shp:', name)
 
-    name_list = []
+    # name_list = []
     with open(file_path + "/TARGET_info.list", "r") as info_file:
         shp_count = 0
         for line_t in info_file:
             fields_t = line_t.split()
             TARGET_name = fields_t[0]
-            # print(TARGET_name)
-            name_list.append(TARGET_name)
+            print(TARGET_name)
+            # name_list.append(TARGET_name)
 
 
             slp_angle = float(fields_t[1])
@@ -315,6 +315,7 @@ def cal_vel_error(file_path, shp_file, position_error, dem_error, sensor, PF_nam
             unmasked_coh = np.extract(data_unmasked_coh != no_data_unmasked_coh, data_unmasked_coh)
             vel = np.extract(data_vel != no_data_vel, data_vel)
 
+
             #calculate downslope velocity error for each pixel and store into array
             error_d = position_error * math.sqrt(2)
             error_h = dem_error * math.sqrt(2)
@@ -332,25 +333,30 @@ def cal_vel_error(file_path, shp_file, position_error, dem_error, sensor, PF_nam
             error_vel_slp = np.sqrt((np.power((d_vel_los * error_vel_los), 2)) + (np.power((d_slp_angle * error_slp_angle), 2)) + (np.power((d_asp_ori * error_asp_ori), 2)))
 
             #calculate the error of the mean velocity for all the pixels
+            if vel == []:
+                vel_mean = vel_median = vel_max = vel_std = error_mean_vel = error_max_vel = error_median_vel = -9999
+                coh_mean = ratio = 0
+                print(vel_mean, error_mean_vel, vel_median, error_median_vel, vel_max, error_max_vel, vel_std)
+                print(coh_mean, ratio)
+            else:
+                vel_mean = np.around(np.mean(vel), 2)
+                vel_median = np.around(np.median(vel), 2)
+                vel_max = np.around(np.max(vel), 2)
+                vel_std = np.around(np.std(vel), 2)
 
-            vel_mean = np.around(np.mean(vel), 2)
-            vel_median = np.around(np.median(vel), 2)
-            vel_max = np.around(np.max(vel), 2)
-            vel_std = np.around(np.std(vel), 2)
+                error_mean_vel = np.around((1 / vel_los.size) * np.sqrt(np.sum(error_vel_slp ** 2)), 2)
+                #index_median = np.argsort(vel)[len(vel)//2]
+                index_median = np.argmin(np.abs(np.median(vel)-vel))
+                error_median_vel = np.around(error_vel_slp[index_median], 2)
+                index_max = vel.argmax()
+                error_max_vel = np.around(error_vel_slp[index_max], 2)
+                print(vel_mean, error_mean_vel, vel_median, error_median_vel, vel_max, error_max_vel, vel_std)
 
-            error_mean_vel = np.around((1 / vel_los.size) * np.sqrt(np.sum(error_vel_slp ** 2)), 2)
-            #index_median = np.argsort(vel)[len(vel)//2]
-            index_median = np.argmin(np.abs(np.median(vel)-vel))
-            error_median_vel = np.around(error_vel_slp[index_median], 2)
-            index_max = vel.argmax()
-            error_max_vel = np.around(error_vel_slp[index_max], 2)
-            print(vel_mean, error_mean_vel, vel_median, error_median_vel, vel_max, error_max_vel, vel_std)
+                coh_mean = np.around(np.mean(unmasked_coh), 2)
+                ratio = np.around(np.size(coh) / np.size(unmasked_coh), 2)
+                print(coh_mean, ratio)
 
-            coh_mean = np.around(np.mean(unmasked_coh), 2)
-            ratio = np.around(np.size(coh) / np.size(unmasked_coh), 2)
-            print(coh_mean, ratio)
-
-            out_file_name = str(file_path) + "/VEL_RESULT.csv"
+            out_file_name = str(file_path) + "/VEL_RESULT_1.csv"
             result = open(out_file_name, 'a')
             result.write(str(sensor) + ',' + str(PF_name) + ',' + str(dates) + ',' + str(TARGET_name) + ','
                          + str(vel_mean) + ',' + str(error_mean_vel) + ','
@@ -359,6 +365,7 @@ def cal_vel_error(file_path, shp_file, position_error, dem_error, sensor, PF_nam
                          + str(vel_std) + ',' + str(coh_mean) + ',' + str(ratio) + '\n')
             result.close()
             shp_count = shp_count + 1
+        # print('From list:', name_list)
 
 
 def cal_polygon_phs_uncertainty(shp_file, phs_file, coh_file):
@@ -468,71 +475,72 @@ def main(options, args):
 # Sensor    PF_name            dates       span  wavelen  number_of_azimuth_looks  number_of_range_looks
 # ALOS      P507_F540   20071213_20080128   46   23.0571             4                    9
 #
-#     file_path = "/home/huyan/huyan_data/khumbu_valley/alos/result"
-#     shp_file = "/home/huyan/huyan_data/khumbu_valley/shp/Khumbu_targets_lonlat.shp"
-#     position_error = 50
-#     # SRTM: 16; TANDEM: 10
-#     dem_error = 16
-#
-#     out_file_name = str(file_path) + "/VEL_RESULT.csv"
-#     result = open(out_file_name, 'a')
-#     result.write('Sensor' + ',' + 'Path_Frame' + ',' + 'Dates' + ',' + 'Target_name' + ','
-#                  + 'Mean_velocity' + ',' + 'Mean_velocity_error' + ','
-#                  + 'Max_velocity' + '+/-' + 'Error' + ','
-#                  + 'Median_velocity' + '+/-' + 'Error' + ','
-#                  + 'Std' + ',' + 'Mean_coherence' + ',' + 'Ratio' + '\n')
-#     result.close()
-#
-#     with open(file_path + "/IFG.list", "r") as ifg_file:
-#         for line_ifg in ifg_file:
-#
-#             fields_ifg = line_ifg.split()
-#             sensor = fields_ifg[0]
-#             PF_name = fields_ifg[1]
-#             dates = fields_ifg[2]
-#             span = int(fields_ifg[3])
-#             wavelen = float(fields_ifg[4])
-#             n_azi = int(fields_ifg[5])
-#             n_range = int(fields_ifg[6])
-#
-#             N = n_azi * n_range
-#
-#             cal_vel_error(file_path, shp_file, position_error, dem_error, sensor, PF_name, dates, wavelen, span, N)
+    file_path = "/home/huyan/huyan_data/khumbu_valley/alos2/result"
+    shp_file = "/home/huyan/huyan_data/khumbu_valley/shp/Khumbu_targets_lonlat.shp"
+    ifg_list = "/home/huyan/huyan_data/khumbu_valley/alos2/result/IFG_1.list"
+    position_error = 50
+    # SRTM: 16; TANDEM: 10
+    dem_error = 16
+
+    out_file_name = str(file_path) + "/VEL_RESULT_1.csv"
+    result = open(out_file_name, 'a')
+    result.write('Sensor' + ',' + 'Path_Frame' + ',' + 'Dates' + ',' + 'Target_name' + ','
+                 + 'Mean_velocity' + ',' + 'Mean_velocity_error' + ','
+                 + 'Max_velocity' + '+/-' + 'Error' + ','
+                 + 'Median_velocity' + '+/-' + 'Error' + ','
+                 + 'Std' + ',' + 'Mean_coherence' + ',' + 'Ratio' + '\n')
+    result.close()
+
+    with open(ifg_list, "r") as ifg_file:
+        for line_ifg in ifg_file:
+
+            fields_ifg = line_ifg.split()
+            sensor = fields_ifg[0]
+            PF_name = fields_ifg[1]
+            dates = fields_ifg[2]
+            span = int(fields_ifg[3])
+            wavelen = float(fields_ifg[4])
+            n_azi = int(fields_ifg[5])
+            n_range = int(fields_ifg[6])
+
+            N = n_azi * n_range
+
+            cal_vel_error(file_path, shp_file, position_error, dem_error, sensor, PF_name, dates, wavelen, span, N)
 #
 # #################cal ref value###################
-    RESULT_DIR = "/home/huyan/huyan_data/khumbu_valley/alos2/result"
-
-    IFG_list = RESULT_DIR + "/IFG_1.list"
-    position_list = RESULT_DIR + "/ref_position.list"
-
-
-    with open(position_list, "r") as info_file:
-        for line_target in info_file:
-            fields_target = line_target.split()
-            TARGET_name = fields_target[0]
-            print(TARGET_name)
-            ref_lon1 = fields_target[1]
-            ref_lat1 = fields_target[2]
-            ref_lon2 = fields_target[3]
-            ref_lat2 = fields_target[4]
-            ref_lon3 = fields_target[5]
-            ref_lat3 = fields_target[6]
-
-            with open(IFG_list, "r") as ifg_file:
-                for line_ifg in ifg_file:
-                    fields_ifg = line_ifg.split()
-                    PF_name = fields_ifg[1]
-                    dates = fields_ifg[2]
-                    IFG_name = PF_name + '.' + dates
-                    phs_file = RESULT_DIR + '/' + IFG_name + "_unwphs"
-
-                    ref_mean, r1, r2, r3 = read_phs_basedON_location(ref_lon1, ref_lat1, ref_lon2, ref_lat2, ref_lon3, ref_lat3, phs_file)
-
-                    out_file_name = str(RESULT_DIR) + "/REF_1.list"
-                    result = open(out_file_name, 'a')
-                    result.write(str(TARGET_name) + ' ' + str(IFG_name) + ' ' + str(ref_mean) \
-                                 + ' ' + str(r1) + ' ' + str(r2) + ' ' + str(r3) + '\n')
-                    result.close()
+#     RESULT_DIR = "/home/huyan/huyan_data/khumbu_valley/alos2/result"
+#
+#     IFG_list = RESULT_DIR + "/IFG_1.list"
+#     position_list = RESULT_DIR + "/ref_position.list"
+#
+#
+#     with open(position_list, "r") as info_file:
+#         for line_target in info_file:
+#             fields_target = line_target.split()
+#             TARGET_name = fields_target[0]
+#             print(TARGET_name)
+#             ref_lon1 = fields_target[1]
+#             ref_lat1 = fields_target[2]
+#             ref_lon2 = fields_target[3]
+#             ref_lat2 = fields_target[4]
+#             ref_lon3 = fields_target[5]
+#             ref_lat3 = fields_target[6]
+#
+#             with open(IFG_list, "r") as ifg_file:
+#                 for line_ifg in ifg_file:
+#                     fields_ifg = line_ifg.split()
+#                     PF_name = fields_ifg[1]
+#                     dates = fields_ifg[2]
+#                     IFG_name = PF_name + '.' + dates
+#                     phs_file = RESULT_DIR + '/' + IFG_name + "_unwphs"
+#
+#                     ref_mean, r1, r2, r3 = read_phs_basedON_location(ref_lon1, ref_lat1, ref_lon2, ref_lat2, ref_lon3, ref_lat3, phs_file)
+#
+#                     out_file_name = str(RESULT_DIR) + "/REF_1.list"
+#                     result = open(out_file_name, 'a')
+#                     result.write(str(TARGET_name) + ' ' + str(IFG_name) + ' ' + str(ref_mean) \
+#                                  + ' ' + str(r1) + ' ' + str(r2) + ' ' + str(r3) + '\n')
+#                     result.close()
 
 if __name__ == '__main__':
     usage = "usage: %prog [options] shp raster_file"
