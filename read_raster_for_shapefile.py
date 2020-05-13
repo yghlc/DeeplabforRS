@@ -521,7 +521,9 @@ def main(options, args):
             with open(IFG_list, "r") as ifg_file:
                 for line_ifg in ifg_file:
                     fields_ifg = line_ifg.split()
-                    IFG_name = fields_ifg[0]
+                    PF_name = fields_ifg[1]
+                    dates = fields_ifg[2]
+                    IFG_name = PF_name + '.' + dates
                     phs_file = RESULT_DIR + '/' + IFG_name + "_unwphs"
 
                     ref_mean, r1, r2, r3 = read_phs_basedON_location(ref_lon1, ref_lat1, ref_lon2, ref_lat2, ref_lon3, ref_lat3, phs_file)
