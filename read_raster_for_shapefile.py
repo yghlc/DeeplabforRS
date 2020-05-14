@@ -219,7 +219,7 @@ def calculate_line_aspect(shp_file, dem_file, save_path):
         line_result.close()
     pass
 
-def cal_vel_error(file_path, shp_file, position_error, dem_error, sensor, PF_name, dates, wavelen, span, N, out_file_name):
+def cal_vel_error(file_path, shp_file, target_info_list, position_error, dem_error, sensor, PF_name, dates, wavelen, span, N, out_file_name):
 # produce (1) the clipped vel raster for each target
 #         (2) the csv file to record the statistics of each target
 
@@ -241,7 +241,7 @@ def cal_vel_error(file_path, shp_file, position_error, dem_error, sensor, PF_nam
     # print('From shp:', name)
 
     # name_list = []
-    with open(file_path + "/TARGET_info.list", "r") as info_file:
+    with open(target_info_list, "r") as info_file:
         shp_count = 0
         for line_t in info_file:
             fields_t = line_t.split()
@@ -477,7 +477,8 @@ def main(options, args):
 #
     file_path = "/home/huyan/huyan_data/khumbu_valley/alos2/result"
     shp_file = "/home/huyan/huyan_data/khumbu_valley/shp/Khumbu_targets_lonlat_rs.shp"
-    ifg_list = "/home/huyan/huyan_data/khumbu_valley/alos2/result/IFG_2.list"
+    ifg_list = file_path + "/IFG_2.list"
+    target_info_list = file_path + "/TARGET_info_2.list"
     out_file_name = file_path + "/VEL_RESULT_2.csv"
     position_error = 50
     # SRTM: 16; TANDEM: 10
@@ -505,7 +506,7 @@ def main(options, args):
 
             N = n_azi * n_range
 
-            cal_vel_error(file_path, shp_file, position_error, dem_error, sensor, PF_name, dates, wavelen, span, N, out_file_name)
+            cal_vel_error(file_path, shp_file, target_info_list, position_error, dem_error, sensor, PF_name, dates, wavelen, span, N, out_file_name)
 #
 # #################cal ref value###################
 #     RESULT_DIR = "/home/huyan/huyan_data/khumbu_valley/alos2/result"
