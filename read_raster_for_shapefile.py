@@ -219,7 +219,7 @@ def calculate_line_aspect(shp_file, dem_file, save_path):
         line_result.close()
     pass
 
-def cal_vel_error(file_path, shp_file, position_error, dem_error, sensor, PF_name, dates, wavelen, span, N):
+def cal_vel_error(file_path, shp_file, position_error, dem_error, sensor, PF_name, dates, wavelen, span, N, out_file_name):
 # produce (1) the clipped vel raster for each target
 #         (2) the csv file to record the statistics of each target
 
@@ -357,7 +357,6 @@ def cal_vel_error(file_path, shp_file, position_error, dem_error, sensor, PF_nam
                 ratio = np.around(np.size(coh) / np.size(unmasked_coh), 2)
                 print(coh_mean, ratio)
 
-            out_file_name = str(file_path) + "/VEL_RESULT.csv"
             result = open(out_file_name, 'a')
             result.write(str(sensor) + ',' + str(PF_name) + ',' + str(dates) + ',' + str(TARGET_name) + ','
                          + str(vel_mean) + ',' + str(error_mean_vel) + ','
@@ -476,71 +475,71 @@ def main(options, args):
 # Sensor    PF_name            dates       span  wavelen  number_of_azimuth_looks  number_of_range_looks
 # ALOS      P507_F540   20071213_20080128   46   23.0571             4                    9
 #
-    # file_path = "/home/huyan/huyan_data/khumbu_valley/alos/result"
-    # shp_file = "/home/huyan/huyan_data/khumbu_valley/shp/Khumbu_targets_lonlat.shp"
-    # ifg_list = "/home/huyan/huyan_data/khumbu_valley/alos/result/IFG.list"
-    # position_error = 50
-    # # SRTM: 16; TANDEM: 10
-    # dem_error = 16
-    #
-    # out_file_name = str(file_path) + "/VEL_RESULT.csv"
-    # result = open(out_file_name, 'a')
-    # result.write('Sensor' + ',' + 'Path_Frame' + ',' + 'Dates' + ',' + 'Target_name' + ','
-    #              + 'Mean_velocity' + ',' + 'Error_Vmean' + ','
-    #              + 'Max_velocity' + ',' + 'Error_Vmax' + ','
-    #              + 'Median_velocity' + ',' + 'Error_Vmed' + ','
-    #              + 'Std' + ',' + 'Mean_coherence' + ',' + 'Ratio' + '\n')
-    # result.close()
-    #
-    # with open(ifg_list, "r") as ifg_file:
-    #     for line_ifg in ifg_file:
-    #
-    #         fields_ifg = line_ifg.split()
-    #         sensor = fields_ifg[0]
-    #         PF_name = fields_ifg[1]
-    #         dates = fields_ifg[2]
-    #         span = int(fields_ifg[3])
-    #         wavelen = float(fields_ifg[4])
-    #         n_azi = int(fields_ifg[5])
-    #         n_range = int(fields_ifg[6])
-    #
-    #         N = n_azi * n_range
-    #
-    #         cal_vel_error(file_path, shp_file, position_error, dem_error, sensor, PF_name, dates, wavelen, span, N)
+    file_path = "/home/huyan/huyan_data/khumbu_valley/alos2/result"
+    shp_file = "/home/huyan/huyan_data/khumbu_valley/shp/Khumbu_targets_lonlat_rs.shp"
+    ifg_list = "/home/huyan/huyan_data/khumbu_valley/alos/result/IFG_2.list"
+    out_file_name = file_path + "/VEL_RESULT_2.csv"
+    position_error = 50
+    # SRTM: 16; TANDEM: 10
+    dem_error = 16
+
+    result = open(out_file_name, 'a')
+    result.write('Sensor' + ',' + 'Path_Frame' + ',' + 'Dates' + ',' + 'Target_name' + ','
+                 + 'Mean_velocity' + ',' + 'Error_Vmean' + ','
+                 + 'Max_velocity' + ',' + 'Error_Vmax' + ','
+                 + 'Median_velocity' + ',' + 'Error_Vmed' + ','
+                 + 'Std' + ',' + 'Mean_coherence' + ',' + 'Ratio' + '\n')
+    result.close()
+
+    with open(ifg_list, "r") as ifg_file:
+        for line_ifg in ifg_file:
+
+            fields_ifg = line_ifg.split()
+            sensor = fields_ifg[0]
+            PF_name = fields_ifg[1]
+            dates = fields_ifg[2]
+            span = int(fields_ifg[3])
+            wavelen = float(fields_ifg[4])
+            n_azi = int(fields_ifg[5])
+            n_range = int(fields_ifg[6])
+
+            N = n_azi * n_range
+
+            cal_vel_error(file_path, shp_file, position_error, dem_error, sensor, PF_name, dates, wavelen, span, N, out_file_name)
 #
 # #################cal ref value###################
-    RESULT_DIR = "/home/huyan/huyan_data/khumbu_valley/alos2/result"
-
-    IFG_list = RESULT_DIR + "/IFG_2.list"
-    position_list = RESULT_DIR + "/ref_position_2.list"
-    out_file_name = RESULT_DIR + "/REF_2.list"
-
-    with open(position_list, "r") as info_file:
-        for line_target in info_file:
-            fields_target = line_target.split()
-            TARGET_name = fields_target[0]
-            print(TARGET_name)
-            ref_lon1 = fields_target[1]
-            ref_lat1 = fields_target[2]
-            ref_lon2 = fields_target[3]
-            ref_lat2 = fields_target[4]
-            ref_lon3 = fields_target[5]
-            ref_lat3 = fields_target[6]
-
-            with open(IFG_list, "r") as ifg_file:
-                for line_ifg in ifg_file:
-                    fields_ifg = line_ifg.split()
-                    PF_name = fields_ifg[1]
-                    dates = fields_ifg[2]
-                    IFG_name = PF_name + '.' + dates
-                    phs_file = RESULT_DIR + '/' + IFG_name + "_unwphs"
-
-                    ref_mean, r1, r2, r3 = read_phs_basedON_location(ref_lon1, ref_lat1, ref_lon2, ref_lat2, ref_lon3, ref_lat3, phs_file)
-
-                    result = open(out_file_name, 'a')
-                    result.write(str(TARGET_name) + ' ' + str(IFG_name) + ' ' + str(ref_mean) \
-                                 + ' ' + str(r1) + ' ' + str(r2) + ' ' + str(r3) + '\n')
-                    result.close()
+#     RESULT_DIR = "/home/huyan/huyan_data/khumbu_valley/alos2/result"
+#
+#     IFG_list = RESULT_DIR + "/IFG_2.list"
+#     position_list = RESULT_DIR + "/ref_position_2.list"
+#     out_file_name = RESULT_DIR + "/REF_2.list"
+#
+#     with open(position_list, "r") as info_file:
+#         for line_target in info_file:
+#             fields_target = line_target.split()
+#             TARGET_name = fields_target[0]
+#             print(TARGET_name)
+#             ref_lon1 = fields_target[1]
+#             ref_lat1 = fields_target[2]
+#             ref_lon2 = fields_target[3]
+#             ref_lat2 = fields_target[4]
+#             ref_lon3 = fields_target[5]
+#             ref_lat3 = fields_target[6]
+#
+#             with open(IFG_list, "r") as ifg_file:
+#                 for line_ifg in ifg_file:
+#                     fields_ifg = line_ifg.split()
+#                     PF_name = fields_ifg[1]
+#                     dates = fields_ifg[2]
+#                     IFG_name = PF_name + '.' + dates
+#                     phs_file = RESULT_DIR + '/' + IFG_name + "_unwphs"
+#
+#                     ref_mean, r1, r2, r3 = read_phs_basedON_location(ref_lon1, ref_lat1, ref_lon2, ref_lat2, ref_lon3, ref_lat3, phs_file)
+#
+#                     result = open(out_file_name, 'a')
+#                     result.write(str(TARGET_name) + ' ' + str(IFG_name) + ' ' + str(ref_mean) \
+#                                  + ' ' + str(r1) + ' ' + str(r2) + ' ' + str(r3) + '\n')
+#                     result.close()
 
 if __name__ == '__main__':
     usage = "usage: %prog [options] shp raster_file"
