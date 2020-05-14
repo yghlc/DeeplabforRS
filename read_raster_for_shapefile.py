@@ -477,7 +477,7 @@ def main(options, args):
 #
     file_path = "/home/huyan/huyan_data/khumbu_valley/alos2/result"
     shp_file = "/home/huyan/huyan_data/khumbu_valley/shp/Khumbu_targets_lonlat_rs.shp"
-    ifg_list = "/home/huyan/huyan_data/khumbu_valley/alos/result/IFG_2.list"
+    ifg_list = "/home/huyan/huyan_data/khumbu_valley/alos2/result/IFG_2.list"
     out_file_name = file_path + "/VEL_RESULT_2.csv"
     position_error = 50
     # SRTM: 16; TANDEM: 10
