@@ -314,6 +314,7 @@ def cal_vel_error(file_path, shp_file, position_error, dem_error, sensor, PF_nam
             vel_los = np.extract(data_vel_los != no_data_vel_los, data_vel_los)
             unmasked_coh = np.extract(data_unmasked_coh != no_data_unmasked_coh, data_unmasked_coh)
             vel = np.extract(data_vel != no_data_vel, data_vel)
+            # print(vel)
 
 
             #calculate downslope velocity error for each pixel and store into array
@@ -333,7 +334,7 @@ def cal_vel_error(file_path, shp_file, position_error, dem_error, sensor, PF_nam
             error_vel_slp = np.sqrt((np.power((d_vel_los * error_vel_los), 2)) + (np.power((d_slp_angle * error_slp_angle), 2)) + (np.power((d_asp_ori * error_asp_ori), 2)))
 
             #calculate the error of the mean velocity for all the pixels
-            if vel == []:
+            if len(vel) == 0:
                 vel_mean = vel_median = vel_max = vel_std = error_mean_vel = error_max_vel = error_median_vel = -9999
                 coh_mean = ratio = 0
                 print(vel_mean, error_mean_vel, vel_median, error_median_vel, vel_max, error_max_vel, vel_std)
@@ -356,12 +357,12 @@ def cal_vel_error(file_path, shp_file, position_error, dem_error, sensor, PF_nam
                 ratio = np.around(np.size(coh) / np.size(unmasked_coh), 2)
                 print(coh_mean, ratio)
 
-            out_file_name = str(file_path) + "/VEL_RESULT_1.csv"
+            out_file_name = str(file_path) + "/VEL_RESULT.csv"
             result = open(out_file_name, 'a')
             result.write(str(sensor) + ',' + str(PF_name) + ',' + str(dates) + ',' + str(TARGET_name) + ','
                          + str(vel_mean) + ',' + str(error_mean_vel) + ','
-                         + str(vel_max) + '+/-' + str(error_max_vel) + ','
-                         + str(vel_median) + '+/-' + str(error_median_vel) + ','
+                         + str(vel_max) + ',' + str(error_max_vel) + ','
+                         + str(vel_median) + ',' + str(error_median_vel) + ','
                          + str(vel_std) + ',' + str(coh_mean) + ',' + str(ratio) + '\n')
             result.close()
             shp_count = shp_count + 1
@@ -475,19 +476,19 @@ def main(options, args):
 # Sensor    PF_name            dates       span  wavelen  number_of_azimuth_looks  number_of_range_looks
 # ALOS      P507_F540   20071213_20080128   46   23.0571             4                    9
 #
-    file_path = "/home/huyan/huyan_data/khumbu_valley/alos2/result"
+    file_path = "/home/huyan/huyan_data/khumbu_valley/alos/result"
     shp_file = "/home/huyan/huyan_data/khumbu_valley/shp/Khumbu_targets_lonlat.shp"
-    ifg_list = "/home/huyan/huyan_data/khumbu_valley/alos2/result/IFG_1.list"
+    ifg_list = "/home/huyan/huyan_data/khumbu_valley/alos/result/IFG.list"
     position_error = 50
     # SRTM: 16; TANDEM: 10
     dem_error = 16
 
-    out_file_name = str(file_path) + "/VEL_RESULT_1.csv"
+    out_file_name = str(file_path) + "/VEL_RESULT.csv"
     result = open(out_file_name, 'a')
     result.write('Sensor' + ',' + 'Path_Frame' + ',' + 'Dates' + ',' + 'Target_name' + ','
-                 + 'Mean_velocity' + ',' + 'Mean_velocity_error' + ','
-                 + 'Max_velocity' + '+/-' + 'Error' + ','
-                 + 'Median_velocity' + '+/-' + 'Error' + ','
+                 + 'Mean_velocity' + ',' + 'Error_Vmean' + ','
+                 + 'Max_velocity' + ',' + 'Error_Vmax' + ','
+                 + 'Median_velocity' + ',' + 'Error_Vmed' + ','
                  + 'Std' + ',' + 'Mean_coherence' + ',' + 'Ratio' + '\n')
     result.close()
 
