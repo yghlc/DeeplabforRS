@@ -236,7 +236,10 @@ def precision_recall_curve_iou(input_shp,groud_truth_shp):
 def plot_precision_recall_curve(input_shp,groud_truth_shp,save_path):
     # from sklearn.metrics import precision_recall_curve
 
-    from sklearn.utils.fixes import signature
+    try:
+        from sklearn.utils.fixes import signature
+    except ImportError:
+        from funcsigs import signature
 
     precision, recall, _ = precision_recall_curve_iou(input_shp,groud_truth_shp)
 
@@ -269,7 +272,7 @@ def plot_precision_recall_curve(input_shp,groud_truth_shp,save_path):
     plt.savefig(save_path,dpi=300)
     basic.outputlogMessage("Output figures to %s" % os.path.abspath(save_path))
 
-def plot_precision_recall_curve_multi(input_shp_list,groud_truth_shp,save_path):
+def plot_precision_recall_curve_multi(input_shp_list,groud_truth_shp,save_path,legend_loc='best'):
     """
     plot precision_recall of multi shapefiles to a figure
     Args:
@@ -342,7 +345,11 @@ def plot_precision_recall_curve_multi(input_shp_list,groud_truth_shp,save_path):
     plt.ylim([-0.01, 1.05])
     plt.xlim([-0.01, 1.01])
     plt.title('Precision-Recall curve')
-    plt.legend(loc='best', bbox_to_anchor=(1, 0.5), title="Average Precision", fontsize=9)
+    print('********legend_loc*************', legend_loc)
+    if legend_loc=='best':
+        plt.legend(loc='best', bbox_to_anchor=(1, 0.5), title="Average Precision", fontsize=9)
+    else:
+        plt.legend(loc=legend_loc, title="Average Precision", fontsize=9)
 
     # plt.show()
     plt.savefig(save_path, dpi=300)
