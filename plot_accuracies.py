@@ -277,7 +277,7 @@ def plot_precision_recall_curve_multi(input_shp_list,groud_truth_shp,save_path,l
     plot precision_recall of multi shapefiles to a figure
     Args:
         input_shp_list: a list of shapefiles
-        groud_truth_shp: the ground truth fiel
+        groud_truth_shp: the ground truth file
         save_path: output figure path
 
     Returns:
