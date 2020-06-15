@@ -177,6 +177,25 @@ def get_file_list_by_ext(ext,folder,bsub_folder):
 
     return files
 
+def get_file_list_by_pattern_ls(folder,pattern):
+    """
+    get the file list by file pattern
+    :param folder: /home/hlc
+    :param pattern: eg. '*imgAug*.ini'
+    :return: the file list
+    """
+    # get the path of all the porosity profile
+    file_pattern = os.path.join(folder, pattern)
+    # basic.outputlogMessage('find pattern for: '+ file_pattern)
+
+    ## on ITSC service, the following code is not working, output empty, which is strange (9 Dec 2019)
+    proc = subprocess.Popen('ls ' + file_pattern, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    profiles, err = proc.communicate()
+    file_list = profiles.split()
+    # to string, not byte
+    file_list = [item.decode() for item in file_list]
+    return file_list
+
 def get_file_list_by_pattern(folder,pattern):
     """
     get the file list by file pattern
