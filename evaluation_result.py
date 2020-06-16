@@ -11,6 +11,7 @@ add time: 13 December, 2019
 from optparse import OptionParser
 import os,sys
 import basic_src.basic as basic
+import basic_src.io_function as io_function
 import parameters
 
 import vector_features
@@ -135,10 +136,7 @@ def main(options, args):
 
         val_path = lines[index]
         # try to change the home folder path if the file does not exist
-        if os.path.isfile(val_path) is False:
-            tmp_str = val_path.split('/')
-            new_tmp = '~/' + '/'.join(tmp_str[3:])
-            val_path = os.path.expanduser(new_tmp)
+        val_path = io_function.get_file_path_new_home_folder(val_path)
 
     if os.path.isfile(val_path):
         basic.outputlogMessage('Start evaluation, input: %s, validation file: %s'%(input, val_path))
