@@ -342,6 +342,53 @@ def remove_narrow_parts_of_a_polygon(shapely_polygon, rm_narrow_thr):
 
     return remain_polygon_parts
 
+def remove_narrow_parts_of_polygons_shp_NOmultiPolygon(input_shp,out_shp,rm_narrow_thr):
+    # read polygons as shapely objects
+    shapefile = gpd.read_file(input_shp)
+
+    attribute_names = None
+    new_polygon_list = []
+    polygon_attributes_list = []  # 2d list
+
+    for idx, row in shapefile.iterrows():
+        if idx==0:
+            attribute_names = row.keys().to_list()[:-1]  # the last one is 'geometry'
+        print('removing narrow parts of %dth polygon (total: %d)'%(idx+1,len(shapefile.geometry.values)))
+        shapely_polygon = row['geometry']
+        out_geometry = remove_narrow_parts_of_a_polygon(shapely_polygon, rm_narrow_thr)
+        # if out_polygon.is_empty is True:
+        #     print(idx, out_polygon)
+        if out_geometry.is_empty is True:
+            basic.outputlogMessage('Warning, remove %dth (0 index) polygon in %s because it is empty after removing narrow parts'%
+                                   (idx, os.path.basename(input_shp)))
+            # continue, don't save
+            # shapefile.drop(idx, inplace=True),
+        else:
+            out_polygon_list = MultiPolygon_to_polygons(idx, out_geometry)
+            if len(out_polygon_list) < 1:
+                continue
+            new_polygon_list.extend(out_polygon_list)
+            attributes = [row[key] for key in attribute_names]
+            for idx in range(len(out_polygon_list)):
+                # copy the attributes (Not area and perimeter, etc)
+                polygon_attributes_list.append(attributes)        # last one is 'geometry'
+            # copy attributes
+
+    save_polyons_attributes = {}
+    for idx, attribute in enumerate(attribute_names):
+        # print(idx, attribute)
+        values = [item[idx] for item in polygon_attributes_list]
+        save_polyons_attributes[attribute] = values
+
+    save_polyons_attributes["Polygons"] = new_polygon_list
+    polygon_df = pd.DataFrame(save_polyons_attributes)
+
+    basic.outputlogMessage('After removing the narrow parts, obtaining %d polygons'%len(new_polygon_list))
+    print(out_shp, isinstance(out_shp,list))
+    basic.outputlogMessage('will be saved to %s'%out_shp)
+    wkt_string = map_projection.get_raster_or_vector_srs_info_wkt(input_shp)
+    return save_polygons_to_files(polygon_df, 'Polygons', wkt_string, out_shp)
+
 def remove_narrow_parts_of_polygons_shp(input_shp,out_shp,rm_narrow_thr):
     # read polygons as shapely objects
     shapefile = gpd.read_file(input_shp)
@@ -390,6 +437,47 @@ def polygons_to_a_MultiPolygon(polygon_list):
     if len(polygon_list) < 1:
         raise ValueError('There is no polygon in the input')
     return MultiPolygon(polygon_list)
+
+def MultiPolygon_to_polygons(idx, multiPolygon, attributes=None):
+    ''''''
+
+    if multiPolygon.geom_type == 'GeometryCollection':
+        polygons = []
+        # print(multiPolygon)
+        # geometries = list(multiPolygon)
+        # print(geometries)
+        for geometry in multiPolygon:
+            # print(geometry)
+            if geometry.geom_type == 'Polygon':
+                polygons.append(geometry)
+            elif geometry.geom_type == 'MultiPolygon':
+                polygons.extend(list(geometry))
+            else:
+                basic.outputlogMessage("Warning, abandon a %s derived from the %d th polygon "%(geometry.geom_type,idx))
+
+    elif multiPolygon.geom_type == 'MultiPolygon':
+        polygons = list(multiPolygon)
+    elif multiPolygon.geom_type == 'Polygon':
+        polygons = [multiPolygon]
+    else:
+        raise ValueError('Currently, only support Polygon and MultiPolygon, but input is %s' % multiPolygon.geom_type)
+
+
+    # # TODO: calculate new information each polygon
+    # polygon_attributes_list = []        # 2D list for polygons
+    # for p_idx, polygon in enumerate(polygons):
+    #     # print(polyon.area)
+    #     # calculate area, circularity, oriented minimum bounding box
+    #     polygon_shape = calculate_polygon_shape_info(polygon)
+    #     if idx == 0 and p_idx == 0:
+    #         [attribute_names.append(item) for item in polygon_shape.keys()]
+    #
+    #     [polygon_attributes.append(polygon_shape[item]) for item in polygon_shape.keys()]
+    #     polygon_attributes_list.append(polygon_attributes)
+    #     polygon_list.append(polygon)
+
+    return polygons
+
 
 def main(options, args):
 

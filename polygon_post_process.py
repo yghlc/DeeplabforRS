@@ -280,9 +280,11 @@ def main(options, args):
     if polygon_narrow_part_thr is not None and polygon_narrow_part_thr > 0:
         # use the buffer operation to remove narrow parts of polygons
         basic.outputlogMessage("start removing narrow parts (thr %.2f) in polygons"%(polygon_narrow_part_thr*2))
-        if vector_gpd.remove_narrow_parts_of_polygons_shp(input, output, polygon_narrow_part_thr):
+        if vector_gpd.remove_narrow_parts_of_polygons_shp_NOmultiPolygon(input, output, polygon_narrow_part_thr):
             message = "Finished removing narrow parts (thr %.2f) in polygons and save to %s"%(polygon_narrow_part_thr*2,output)
             basic.outputlogMessage(message)
+    else:
+        basic.outputlogMessage("warning, mapped_polygon_narrow_threshold is not in the parameter file, skip removing narrow parts")
 
     # calcuate area, perimeter of polygons
     if cal_add_area_length_of_polygon(output) is False:
