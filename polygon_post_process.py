@@ -279,6 +279,7 @@ def main(options, args):
     #  if it is not None, then it will try to remove narrow parts of polygons
     if polygon_narrow_part_thr is not None and polygon_narrow_part_thr > 0:
         # use the buffer operation to remove narrow parts of polygons
+        basic.outputlogMessage("start removing narrow parts (thr %.2f) in polygons"%(polygon_narrow_part_thr*2))
         if vector_gpd.remove_narrow_parts_of_polygons_shp(input, output, polygon_narrow_part_thr):
             message = "Finished removing narrow parts (thr %.2f) in polygons and save to %s"%(polygon_narrow_part_thr*2,output)
             basic.outputlogMessage(message)
