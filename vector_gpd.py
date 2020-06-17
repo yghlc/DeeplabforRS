@@ -167,6 +167,42 @@ def remove_polygon_equal(shapefile,field_name, expect_value, b_equal, output):
     # save results
     shapefile.to_file(output, driver='ESRI Shapefile')
 
+def remove_polygon_index_string(shapefile,field_name, index_list, output):
+    '''
+    remove polygons the the attribute value is not equal to a specific value
+    :param shapefile:
+    :param field_name:
+    :param threshold:
+    :param b_equal: if True, remove records not equal to expect_value, otherwise, remove the one equal to expect_value
+    :param output:
+    :return:
+    '''
+    if len(index_list) < 1:
+        raise ValueError('Wrong input index_list, it size is zero')
+
+    shapefile = gpd.read_file(shapefile)
+
+    remove_count = 0
+
+    for idx,row in shapefile.iterrows():
+
+        # polygon = row['geometry']
+        # go through post-processing to decide to keep or remove it
+        idx_string = row[field_name]
+        num_list =  [ int(item) for item in idx_string.split('_')]
+
+        # if all the index in index_list found in num_list, then keep it, otherwise, remove it
+        for index in index_list:
+            if index not in num_list:
+                shapefile.drop(idx, inplace=True)
+                remove_count += 1
+                break
+
+    basic.outputlogMessage('remove %d polygons based on %s, remain %d ones saving to %s' %
+                           (remove_count, field_name, len(shapefile.geometry.values), output))
+    # save results
+    shapefile.to_file(output, driver='ESRI Shapefile')
+
 def remove_polygons_not_in_range(shapefile,field_name, min_value, max_value,output):
     '''
     remove polygon not in range (min, max]
