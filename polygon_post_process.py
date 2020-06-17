@@ -15,6 +15,7 @@ import math
 
 # import  parameters
 import vector_features
+import vector_gpd
 from vector_features import shape_opeation
 import parameters
 
@@ -272,6 +273,15 @@ def main(options, args):
     else:
         # remove "_shapeInfo.shp" to make it calculate shape information again
         os.system('rm *_shapeInfo.shp')
+
+    # remove narrow parts of mapped polygons
+    polygon_narrow_part_thr = parameters.get_digit_parameters_None_if_absence('', 'mapped_polygon_narrow_threshold', 'float')
+    #  if it is not None, then it will try to remove narrow parts of polygons
+    if polygon_narrow_part_thr is not None and polygon_narrow_part_thr > 0:
+        # use the buffer operation to remove narrow parts of polygons
+        if vector_gpd.remove_narrow_parts_of_polygons_shp(input, output, polygon_narrow_part_thr):
+            message = "Finished removing narrow parts (thr %.2f) in polygons and save to %s"%(polygon_narrow_part_thr*2,output)
+            basic.outputlogMessage(message)
 
     # calcuate area, perimeter of polygons
     if cal_add_area_length_of_polygon(output) is False:
