@@ -378,6 +378,7 @@ def remove_narrow_parts_of_polygons_shp(input_shp,out_shp,rm_narrow_thr):
     save_polyons_attributes["Polygons"] = new_polygon_list
     polygon_df = pd.DataFrame(save_polyons_attributes)
 
+    basic.outputlogMessage('After removing the narrow parts, obtaining %d polygons'%len(new_polygon_list))
     wkt_string = map_projection.get_raster_or_vector_srs_info_wkt(input_shp)
     return save_polygons_to_files(polygon_df, 'Polygons', wkt_string, out_shp)
 
