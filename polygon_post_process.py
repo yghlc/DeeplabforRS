@@ -201,7 +201,11 @@ def calculate_gully_information(gullies_shp):
     if perimeter_area_list is not False:
         ratio_p_a = []
         for perimeter_area in perimeter_area_list:
-            r_value = (perimeter_area[0])**2 / perimeter_area[1]
+            try:
+                r_value = (perimeter_area[0])**2 / perimeter_area[1]
+            except ZeroDivisionError:
+                basic.outputlogMessage('warning, ZeroDivisionError: float division by zero')
+                r_value = 0
             ratio_p_a.append(r_value)
         operation_obj.add_one_field_records_to_shapefile(gullies_shp, ratio_p_a, 'ratio_p_a')
 
