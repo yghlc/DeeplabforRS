@@ -112,7 +112,7 @@ def calculate_gully_topography(polygons_shp,dem_file,slope_file,aspect_file=None
     # #slope
     slope_file = io_function.get_file_path_new_home_folder(slope_file)
     if os.path.isfile(slope_file):
-        stats_list = ['min', 'max','mean', 'median' 'std']
+        stats_list = ['min', 'max','mean', 'median', 'std']
         if operation_obj.add_fields_from_raster(polygons_shp, slope_file, "slo", band=1,stats_list=stats_list,all_touched=all_touched) is False:
             return False
     else:
