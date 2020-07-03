@@ -289,6 +289,8 @@ def plot_precision_recall_curve_multi(input_shp_list,groud_truth_shp,save_path,l
     average_precision_list = []
     line_labels = []
 
+    # label_set = ['2017','2018','2019']
+
     for idx,input_shp in enumerate(input_shp_list):
         if isinstance(groud_truth_shp, list):
             precision, recall, _ = precision_recall_curve_iou(input_shp, groud_truth_shp[idx])
@@ -312,6 +314,7 @@ def plot_precision_recall_curve_multi(input_shp_list,groud_truth_shp,save_path,l
             label = tmp[-1]
         else:
             label = str(idx)
+            # label = label_set[idx]
 
         line_labels.append('%s: AP=%.2f'%(label,average_precision))
 
