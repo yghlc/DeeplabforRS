@@ -224,7 +224,7 @@ def get_absolute_path(path):
 
 def get_file_path_new_home_folder(in_path):
     # try to change the home folder path if the file does not exist
-    if os.path.isfile(in_path) is False:
+    if os.path.isfile(in_path) or os.path.isdir(in_path) is False:
         tmp_str = in_path.split('/')
         new_tmp = '~/' + '/'.join(tmp_str[3:])
         new_path = os.path.expanduser(new_tmp)
