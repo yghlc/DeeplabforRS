@@ -475,11 +475,11 @@ def main(options, args):
 # Sensor    PF_name            dates       span  wavelen  number_of_azimuth_looks  number_of_range_looks
 # ALOS      P507_F540   20071213_20080128   46   23.0571             4                    9
 #
-    file_path = "/home/huyan/huyan_data/khumbu_valley/alos2/result"
-    shp_file = "/home/huyan/huyan_data/khumbu_valley/shp/Khumbu_targets_lonlat_rs.shp"
-    ifg_list = file_path + "/IFG_2.list"
-    target_info_list = file_path + "/TARGET_info_2.list"
-    out_file_name = file_path + "/VEL_RESULT_2_ap.csv"
+    file_path = "/home/huyan/huyan_data/khumbu_valley/alos/result"
+    shp_file = "/home/huyan/huyan_data/khumbu_valley/shp/Khumbu_targets_lonlat.shp"
+    ifg_list = file_path + "/IFG.list"
+    target_info_list = file_path + "/TARGET_info.list"
+    out_file_name = file_path + "/VEL_RESULT_ap.csv"
     threshold = 5
     position_error = 50
     # SRTM: 16; TANDEM: 10
