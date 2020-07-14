@@ -288,7 +288,7 @@ def cal_vel_error(file_path, shp_file, target_info_list, position_error, dem_err
                               "height": out_vel.shape[1],
                               "width": out_vel.shape[2],
                               "transform": out_vel_transform})
-            image_name = str(file_path) + "/" + str(IFG_name) +"_VEL_clipped_" + str(threshold) + "/" + str(TARGET_name) + '_' + str(IFG_name) + "_vel_ap.tif"
+            image_name = str(file_path) + "/" + str(IFG_name) +"_VEL_clipped_" + str(threshold) + "/" + str(TARGET_name) + '_' + str(IFG_name) + "_vel.tif"
             with rasterio.open(image_name, "w", **out_meta) as dest:
                 dest.write(out_vel)
 
