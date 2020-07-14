@@ -219,7 +219,7 @@ def calculate_line_aspect(shp_file, dem_file, save_path):
         line_result.close()
     pass
 
-def cal_vel_error(file_path, shp_file, target_info_list, position_error, dem_error, sensor, PF_name, dates, wavelen, span, N, out_file_name):
+def cal_vel_error(file_path, shp_file, target_info_list, position_error, dem_error, sensor, PF_name, dates, wavelen, span, N, out_file_name, threshold):
 # produce (1) the clipped vel raster for each target
 #         (2) the csv file to record the statistics of each target
 
@@ -255,11 +255,11 @@ def cal_vel_error(file_path, shp_file, target_info_list, position_error, dem_err
             h = float(fields_t[3])
             d = float(fields_t[4])
 
-            vel_file = file_path + "/" + str(IFG_name) + "_VEL_rasters/" + str(TARGET_name) + "_vel"
-            coh_file = file_path + "/" + str(IFG_name) + "_COH_rasters/" + str(TARGET_name) + "_coh"
-            inc_file = file_path + "/" + str(IFG_name) + "_INC_rasters/" + str(TARGET_name) + "_inc"
-            azi_file = file_path + "/" + str(IFG_name)+ "_AZI_rasters/" + str(TARGET_name) + "_azi"
-            vel_los_file = file_path + "/" + str(IFG_name) + "_LOS_rasters/" + str(TARGET_name) + "_los"
+            vel_file = file_path + "/" + str(IFG_name) + "_VEL_rasters_" + str(threshold) + "/" + str(TARGET_name) + "_vel"
+            coh_file = file_path + "/" + str(IFG_name) + "_COH_rasters_" + str(threshold) + "/" + str(TARGET_name) + "_coh"
+            inc_file = file_path + "/" + str(IFG_name) + "_INC_rasters_" + str(threshold) + "/" + str(TARGET_name) + "_inc"
+            azi_file = file_path + "/" + str(IFG_name)+ "_AZI_rasters_" + str(threshold) + "/" + str(TARGET_name) + "_azi"
+            vel_los_file = file_path + "/" + str(IFG_name) + "_LOS_rasters_" + str(threshold) + "/" + str(TARGET_name) + "_los"
             unmasked_coh_file = file_path + "/" + str(IFG_name) + "_coh_map"
 
             #read coh value of one shape from the coherence raster, inc raster, los azimuth raster into arrays
@@ -288,7 +288,7 @@ def cal_vel_error(file_path, shp_file, target_info_list, position_error, dem_err
                               "height": out_vel.shape[1],
                               "width": out_vel.shape[2],
                               "transform": out_vel_transform})
-            image_name = str(file_path) + "/" + str(IFG_name) +"_VEL_clipped/" + str(TARGET_name) + '_' + str(IFG_name) + "_vel.tif"
+            image_name = str(file_path) + "/" + str(IFG_name) +"_VEL_clipped_" + str(threshold) + "/" + str(TARGET_name) + '_' + str(IFG_name) + "_vel_ap.tif"
             with rasterio.open(image_name, "w", **out_meta) as dest:
                 dest.write(out_vel)
 
@@ -479,7 +479,8 @@ def main(options, args):
     shp_file = "/home/huyan/huyan_data/khumbu_valley/shp/Khumbu_targets_lonlat_rs.shp"
     ifg_list = file_path + "/IFG_2.list"
     target_info_list = file_path + "/TARGET_info_2.list"
-    out_file_name = file_path + "/VEL_RESULT_2.csv"
+    out_file_name = file_path + "/VEL_RESULT_2_ap.csv"
+    threshold = 5
     position_error = 50
     # SRTM: 16; TANDEM: 10
     dem_error = 16
@@ -506,7 +507,7 @@ def main(options, args):
 
             N = n_azi * n_range
 
-            cal_vel_error(file_path, shp_file, target_info_list, position_error, dem_error, sensor, PF_name, dates, wavelen, span, N, out_file_name)
+            cal_vel_error(file_path, shp_file, target_info_list, position_error, dem_error, sensor, PF_name, dates, wavelen, span, N, out_file_name, threshold)
 #
 # #################cal ref value###################
 #     RESULT_DIR = "/home/huyan/huyan_data/khumbu_valley/alos2/result"
