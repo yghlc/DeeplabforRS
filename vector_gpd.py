@@ -53,7 +53,7 @@ def read_polygons_json(polygon_shp, no_json=False):
     #     raise ValueError('error, polygons %s (index start from 1) in %s are invalid, please fix them first '%(str(invalid_polygon_idx),polygon_shp))
 
     # fix invalid polygons
-    polygons = fix_invalid_polygons(polygons,polygon_shp)
+    polygons = fix_invalid_polygons(polygons)
 
     if no_json:
         return polygons
@@ -63,11 +63,10 @@ def read_polygons_json(polygon_shp, no_json=False):
 
     return polygons_json
 
-def fix_invalid_polygons(polygons, polygon_shp, buffer_size = 0.000001):
+def fix_invalid_polygons(polygons, buffer_size = 0.000001):
     '''
     fix invalid polygon by using buffer operation.
     :param polygons: polygons in shapely format
-    :param polygon_shp: shapefile path where the polygons are from
     :param buffer_size: buffer size
     :return: polygons after checking invalidity
     '''
@@ -96,6 +95,29 @@ def find_one_line_intersect_Polygon(polygon, line_list, line_check_list):
             return line
     return None
 
+
+def read_shape_gpd_to_NewPrj(shp_path, prj_str):
+    '''
+    read polyogns using geopandas, and reproejct to a projection.
+    :param polygon_shp: polygon in projection of EPSG:4326
+    :param no_json: True indicate not json format
+    :return:
+    '''
+    shapefile = gpd.read_file(shp_path)
+    # print(shapefile.crs)
+
+    # shapefile  = shapefile.to_crs(prj_str)
+    if gpd.__version__ >= '0.7.0':
+        shapefile = shapefile.to_crs(prj_str)
+    else:
+        shapefile  = shapefile.to_crs({'init':prj_str})
+    # print(shapefile.crs)
+    polygons = shapefile.geometry.values
+    # fix invalid polygons
+    polygons = fix_invalid_polygons(polygons)
+
+    return polygons
+
 def read_polygons_gpd(polygon_shp):
     '''
     read polyogns using geopandas
@@ -116,7 +138,7 @@ def read_polygons_gpd(polygon_shp):
     #     raise ValueError('error, polygons %s (index start from 1) in %s are invalid, please fix them first '%(str(invalid_polygon_idx),polygon_shp))
 
     # fix invalid polygons
-    polygons = fix_invalid_polygons(polygons,polygon_shp)
+    polygons = fix_invalid_polygons(polygons)
 
     return polygons
 
