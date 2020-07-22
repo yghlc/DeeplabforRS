@@ -377,6 +377,9 @@ def remove_narrow_parts_of_polygons_shp_NOmultiPolygon(input_shp,out_shp,rm_narr
             attribute_names = row.keys().to_list()[:-1]  # the last one is 'geometry'
         print('removing narrow parts of %dth polygon (total: %d)'%(idx+1,len(shapefile.geometry.values)))
         shapely_polygon = row['geometry']
+        if shapely_polygon.is_valid is False:
+            shapely_polygon = shapely_polygon.buffer(0.000001)
+            basic.outputlogMessage('warning, %d th polygon is is_valid, fix it by the buffer operation'%idx)
         out_geometry = remove_narrow_parts_of_a_polygon(shapely_polygon, rm_narrow_thr)
         # if out_polygon.is_empty is True:
         #     print(idx, out_polygon)
