@@ -399,6 +399,10 @@ def remove_narrow_parts_of_polygons_shp_NOmultiPolygon(input_shp,out_shp,rm_narr
                 polygon_attributes_list.append(attributes)        # last one is 'geometry'
             # copy attributes
 
+    if len(new_polygon_list) < 1:
+        basic.outputlogMessage('Warning, no polygons in %s'%input_shp)
+        return False
+
     save_polyons_attributes = {}
     for idx, attribute in enumerate(attribute_names):
         # print(idx, attribute)

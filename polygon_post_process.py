@@ -290,6 +290,8 @@ def main(options, args):
         if vector_gpd.remove_narrow_parts_of_polygons_shp_NOmultiPolygon(input, output, polygon_narrow_part_thr):
             message = "Finished removing narrow parts (thr %.2f) in polygons and save to %s"%(polygon_narrow_part_thr*2,output)
             basic.outputlogMessage(message)
+        else:
+            pass
     else:
         basic.outputlogMessage("warning, mapped_polygon_narrow_threshold is not in the parameter file, skip removing narrow parts")
 
