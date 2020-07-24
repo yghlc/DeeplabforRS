@@ -151,10 +151,12 @@ def read_attribute_values_list(polygon_shp, field_name):
     '''
 
     shapefile = gpd.read_file(polygon_shp)
-    attribute_values = shapefile[field_name]
-
-    return attribute_values.tolist()
-
+    if field_name in shapefile.keys():
+        attribute_values = shapefile[field_name]
+        return attribute_values.tolist()
+    else:
+        basic.outputlogMessage('Warning: %s not in the shape file, will return None')
+        return None
 
 def remove_polygon_equal(shapefile,field_name, expect_value, b_equal, output):
     '''
