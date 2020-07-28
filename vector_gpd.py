@@ -76,7 +76,7 @@ def fix_invalid_polygons(polygons, buffer_size = 0.000001):
             invalid_polygon_idx.append(idx + 1)
             polygons[idx] = polygons[idx].buffer(buffer_size)  # trying to solve self-intersection
     if len(invalid_polygon_idx) > 0:
-        basic.outputlogMessage('Warning, polygons %s (index start from 1) in %s are invalid, fix them by the buffer operation '%(str(invalid_polygon_idx),polygon_shp))
+        basic.outputlogMessage('Warning, polygons %s (index start from 1) in are invalid, fix them by the buffer operation '%(str(invalid_polygon_idx)))
 
     return polygons
 
