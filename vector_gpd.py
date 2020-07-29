@@ -95,6 +95,17 @@ def find_one_line_intersect_Polygon(polygon, line_list, line_check_list):
             return line
     return None
 
+def find_polygon_intersec_polygons(shp_path):
+    polygons = read_polygons_gpd(shp_path)
+
+    count = len(polygons)
+
+    for idx, poly in enumerate(polygons):
+        for kk in range(idx+1,count):
+            inter = poly.intersection(polygons[kk])
+            if inter.is_empty is False:
+                basic.outputlogMessage('warning, %d th polygon has intersection with %d th polygon'%(idx, kk))
+                # break
 
 def read_shape_gpd_to_NewPrj(shp_path, prj_str):
     '''
