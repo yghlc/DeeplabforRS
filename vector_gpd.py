@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# Filename: vector_gpd 
+# Filename: vector_gpd
 """
 introduction: similar to vector_features.py, by use geopandas to read and write shapefile
 
@@ -114,8 +114,8 @@ def find_polygon_intersec_polygons(shp_path):
 def read_shape_gpd_to_NewPrj(shp_path, prj_str):
     '''
     read polyogns using geopandas, and reproejct to a projection.
-    :param polygon_shp: polygon in projection of EPSG:4326
-    :param no_json: True indicate not json format
+    :param polygon_shp:
+    :param prj_str:  project string, like EPSG:4326
     :return:
     '''
     shapefile = gpd.read_file(shp_path)
@@ -132,6 +132,25 @@ def read_shape_gpd_to_NewPrj(shp_path, prj_str):
     polygons = fix_invalid_polygons(polygons)
 
     return polygons
+
+def reproject_shapefile(shp_path, prj_str,save_path):
+    '''
+    reprject a shapefile and save to another path
+    :param shp_path: EPSG:4326
+    :param prj_str: e.g., EPSG:4326
+    :param save_path: save path
+    :return:
+    '''
+    shapefile = gpd.read_file(shp_path)
+    # print(shapefile.crs)
+
+    # shapefile  = shapefile.to_crs(prj_str)
+    if gpd.__version__ >= '0.7.0':
+        shapefile = shapefile.to_crs(prj_str)
+    else:
+        shapefile = shapefile.to_crs({'init': prj_str})
+
+    return shapefile.to_file(save_path, driver = 'ESRI Shapefile')
 
 def read_polygons_gpd(polygon_shp):
     '''
