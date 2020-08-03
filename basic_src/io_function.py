@@ -309,7 +309,7 @@ def move_file_to_dst(file_path, dst_name,overwrite=False):
     except IOError:
         raise IOError('move file failed: '+ file_path)
 
-    if not os.path.isfile(dst_name):
+    if os.path.isfile(dst_name) is False or os.path.isdir(dst_name) is False:
         basic.outputlogMessage('move file failed, from %s to %s.'%(file_path,dst_name))
         return False
     else:
