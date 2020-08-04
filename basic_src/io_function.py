@@ -12,6 +12,8 @@ import os,shutil
 import basic_src.basic as basic
 import subprocess
 
+from datetime import datetime
+
 def mkdir(path):
     """
     create a folder
@@ -221,6 +223,9 @@ def get_file_list_by_pattern(folder,pattern):
 
 def get_absolute_path(path):
     return os.path.abspath(path)
+
+def get_file_modified_time(path):
+    return datetime.fromtimestamp(os.path.getmtime(path))
 
 def get_file_path_new_home_folder(in_path):
     # try to change the home folder path if the file does not exist
