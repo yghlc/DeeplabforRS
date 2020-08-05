@@ -229,14 +229,14 @@ def get_file_modified_time(path):
 
 def get_file_path_new_home_folder(in_path):
     # try to change the home folder path if the file does not exist
-    if os.path.isfile(in_path) or os.path.isdir(in_path) is False:
+    if os.path.isfile(in_path) or os.path.isdir(in_path):
+        return in_path
+    else:
         tmp_str = in_path.split('/')
         new_tmp = '~/' + '/'.join(tmp_str[3:])
         new_path = os.path.expanduser(new_tmp)
-        basic.outputlogMessage('Warning, change to a new path under the new home folder')
+        basic.outputlogMessage('Warning, change to a new path under the new home folder: %s'%new_path)
         return new_path
-    else:
-        return in_path
 
 def get_name_by_adding_tail(basename,tail):
     """
