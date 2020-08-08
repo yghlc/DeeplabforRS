@@ -16,6 +16,7 @@ from optparse import OptionParser
 import shapely
 from shapely.geometry import mapping # transform to GeJSON format
 from shapely.geometry import MultiPolygon
+from shapely.geometry import Polygon
 import geopandas as gpd
 from shapely.geometry import Point
 import pandas as pd
@@ -543,6 +544,16 @@ def MultiPolygon_to_polygons(idx, multiPolygon, attributes=None):
 
     return polygons
 
+def fill_holes_in_a_polygon(polygon):
+    '''
+    fill holes in a polygon
+    :param polygon: a polygon object (shapely)
+    :return:
+    '''
+    if polygon.interiors:
+        return Polygon(list(polygon.exterior.coords))
+    else:
+        return polygon
 
 def main(options, args):
 
