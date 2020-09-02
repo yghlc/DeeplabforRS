@@ -22,6 +22,7 @@ from shapely.geometry import Point
 import pandas as pd
 
 import math
+import numpy as np
 
 import basic_src.basic as basic
 
@@ -225,6 +226,30 @@ def remove_polygon_equal(shapefile,field_name, expect_value, b_equal, output):
                            (remove_count, field_name, len(shapefile.geometry.values), output))
     # save results
     shapefile.to_file(output, driver='ESRI Shapefile')
+
+def remove_polygon_time_index(shapefile,field_name, output):
+    '''
+    remove polygons if the time index is not monotonically increasing
+    :param shapefile:
+    :param field_name:
+    :param output:
+    :return:
+    '''
+    remove_count = 0
+
+    for idx, row in shapefile.iterrows():
+        idx_string = row[field_name]
+        num_list = [int(item) for item in idx_string.split('_')]
+        if np.all(np.diff(num_list) >= 1):
+            pass
+        else:
+            shapefile.drop(idx, inplace=True)
+            remove_count += 1
+
+    basic.outputlogMessage('remove %d polygons based on %s, remain %d ones saving to %s' %
+                           (remove_count, field_name, len(shapefile.geometry.values), output))
+    # save results
+    return shapefile.to_file(output, driver='ESRI Shapefile')
 
 def remove_polygon_index_string(shapefile,field_name, index_list, output):
     '''
