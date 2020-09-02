@@ -236,6 +236,7 @@ def remove_polygon_time_index(shapefile,field_name, output):
     :return:
     '''
     remove_count = 0
+    shapefile = gpd.read_file(shapefile)
 
     for idx, row in shapefile.iterrows():
         idx_string = row[field_name]
