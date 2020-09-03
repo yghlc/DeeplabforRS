@@ -321,6 +321,34 @@ def remove_polygons_not_in_range(shapefile,field_name, min_value, max_value,outp
     # save results
     shapefile.to_file(output, driver='ESRI Shapefile')
 
+def remove_polygons_based_values(shapefile,value_list, threshold, bsmaller,output):
+    '''
+    remove polygons based on attribute values
+    :param shapefile:
+    :param value_list: values for removing polygons, its number should be the same polygon numbers in shapefile
+    :param threshold:
+    :param bsmaller:
+    :param output:
+    :return:
+    '''
+    # read polygons as shapely objects
+    shapefile = gpd.read_file(shapefile)
+
+    remove_count = 0
+    for (idx,row), value in zip(shapefile.iterrows(),value_list):
+        if bsmaller:
+            if value < threshold:
+                shapefile.drop(idx, inplace=True)
+                remove_count += 1
+        else:
+            if value >= threshold:
+                shapefile.drop(idx, inplace=True)
+                remove_count += 1
+
+    basic.outputlogMessage('remove %d polygons, remain %d ones saving to %s' %
+                           (remove_count, len(shapefile.geometry.values), output))
+    # save results
+    shapefile.to_file(output, driver='ESRI Shapefile')
 
 def remove_polygons(shapefile,field_name, threshold, bsmaller,output):
     '''
