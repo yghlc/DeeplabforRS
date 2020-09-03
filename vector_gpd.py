@@ -227,11 +227,12 @@ def remove_polygon_equal(shapefile,field_name, expect_value, b_equal, output):
     # save results
     shapefile.to_file(output, driver='ESRI Shapefile')
 
-def remove_polygon_time_index(shapefile,field_name, output):
+def remove_polygon_time_index(shapefile,field_name, time_count, output):
     '''
-    remove polygons if the time index is not monotonically increasing
+    remove polygons if the time index is not monotonically increasing and not follow the pattern
     :param shapefile:
     :param field_name:
+    :param time_count:
     :param output:
     :return:
     '''
@@ -241,7 +242,11 @@ def remove_polygon_time_index(shapefile,field_name, output):
     for idx, row in shapefile.iterrows():
         idx_string = row[field_name]
         num_list = [int(item) for item in idx_string.split('_')]
-        if np.all(np.diff(num_list) >= 1):
+        # the number list should be one of the pattern: 0, 1, 2...n  or 1, 2,...n or n, not only monotonically increasing
+        pattern_int = [str(item) for item in range(num_list[0],time_count)]
+        pattern_str = '_'.join(pattern_int)
+        # if np.all(np.diff(num_list) >= 1):
+        if idx_string == pattern_str:
             pass
         else:
             shapefile.drop(idx, inplace=True)
