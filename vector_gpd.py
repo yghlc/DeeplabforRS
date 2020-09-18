@@ -191,7 +191,7 @@ def read_attribute_values_list(polygon_shp, field_name):
         attribute_values = shapefile[field_name]
         return attribute_values.tolist()
     else:
-        basic.outputlogMessage('Warning: %s not in the shape file, will return None')
+        basic.outputlogMessage('Warning: %s not in the shape file, will return None'%field_name)
         return None
 
 def remove_polygon_equal(shapefile,field_name, expect_value, b_equal, output):
