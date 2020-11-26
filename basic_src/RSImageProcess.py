@@ -139,6 +139,52 @@ class RSImgProclass(object):
 
         return outputfile
 
+def mosaic_crop_images_gdalwarp(raster_files,outputfile,src_nodata=None,dst_nodata=None,min_x=None,min_y=None, max_x=None, max_y=None,
+                                xres=None,yres=None,resampling_method='min'):
+    '''
+    create a mosaic from multiple input raster using gdalwarp, crop if min_x, min_y, max_x, max_y are valid
+    Args:
+        raster_files: input raster list
+        outputfile: output file
+        src_nodata:
+        dst_nodata:
+        min_x:
+        min_y:
+        max_x:
+        max_y:
+        xres:
+        yres:
+        resampling_method: including, average, mode, max, min, med, q1, q3, sum  https://gdal.org/programs/gdalwarp.html
+
+    Returns:
+
+    '''
+
+    if isinstance(raster_files,list) is False:
+        raise ValueError('the type of raster_files must be list')
+
+    if len(raster_files)<2:
+        raise ValueError('file count less than 2')
+
+    CommandString = 'gdalwarp -r ' + resampling_method
+
+    if src_nodata != None:
+        CommandString += ' -srcnodata ' +  str(src_nodata)
+    if dst_nodata != None:
+        CommandString += ' -dstnodata ' + str(dst_nodata)
+
+    if min_x != None and min_y != None and max_x != None and max_y!= None:
+        CommandString += ' -te ' + str(min_x)+' '+str(min_y)+' '+str(max_x)+' '+str(max_y)
+
+    if xres !=None and yres!=None:
+        CommandString += ' -tr ' + str(xres) + ' ' +str(yres)
+
+    inputfiles = ' '.join(raster_files)
+    CommandString += ' ' + inputfiles + ' ' + outputfile
+
+    return basic.exec_command_string_one_file(CommandString,outputfile)
+
+
 def mosaics_images(raster_files,outputfile,nodata):
     """
     mosaic a set of images. All the images must be in the same coordinate system and have a matching number of bands,
