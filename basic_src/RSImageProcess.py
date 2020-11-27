@@ -161,10 +161,14 @@ def mosaic_crop_images_gdalwarp(raster_files,outputfile,src_nodata=None,dst_noda
     '''
 
     if isinstance(raster_files,list) is False:
-        raise ValueError('the type of raster_files must be list')
+        # raise ValueError('the type of raster_files must be list')
+        basic.outputlogMessage('the type of raster_files must be list')
+        return False
 
     if len(raster_files)<2:
-        raise ValueError('file count less than 2')
+        # raise ValueError('file count less than 2')
+        basic.outputlogMessage('file count less than 2')
+        return False
 
     CommandString = 'gdalwarp -r ' + resampling_method
 
