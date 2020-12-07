@@ -164,14 +164,16 @@ def get_file_list_by_ext(ext,folder,bsub_folder):
     while len(sub_folders) > 0:
         current_sear_dir = sub_folders[0]
         file_names = os.listdir(current_sear_dir)
+        file_names = [os.path.join(current_sear_dir,item) for item in file_names]
         for str_file in file_names:
             if os.path.isdir(str_file):
-                sub_folders.append(os.path.join(current_sear_dir,str_file))
+                sub_folders.append(str_file)
                 continue
             ext_name = os.path.splitext(str_file)[1]
             for temp in extension:
                 if ext_name == temp:
-                    files.append(os.path.abspath(os.path.join(current_sear_dir,str_file)))
+                    # files.append(os.path.abspath(os.path.join(current_sear_dir,str_file)))
+                    files.append(str_file)
                     break
         if bsub_folder is False:
             break
