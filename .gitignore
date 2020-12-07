@@ -98,3 +98,4 @@ ENV/
 # Rope project settings
 .ropeproject
 
+test.sh
