@@ -580,6 +580,8 @@ def get_image_latlon_centre(imagepath):
 #codes from http://gis.stackexchange.com/
 def GetCornerCoordinates(FileName):
     GdalInfo = subprocess.check_output('gdalinfo {}'.format(FileName), shell=True)
+    # to string, not byte
+    GdalInfo = GdalInfo.decode()
     GdalInfo = GdalInfo.splitlines() #split('/n') # Creates a line by line list.
     CornerLats, CornerLons = numpy.zeros(5), numpy.zeros(5)
     GotUL, GotUR, GotLL, GotLR, GotC = False, False, False, False, False
