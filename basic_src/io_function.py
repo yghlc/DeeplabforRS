@@ -451,5 +451,10 @@ def copy_shape_file(input, output):
 
     return True
 
+def save_list_to_txt(file_name, save_list):
+    with open(file_name, 'w') as f_obj:
+        for item in save_list:
+            f_obj.writelines(item + '\n')
+
 if __name__=='__main__':
     pass

@@ -425,6 +425,30 @@ def calculate_polygon_shape_info(polygon_shapely):
 
     return shape_info
 
+def save_shapefile_subset_as(data_poly_indices, org_shp, save_path):
+    '''
+    save subset of shapefile
+    :param data_poly_indices: polygon index
+    :param org_shp: orignal shapefile
+    :param save_path: save path
+    :return: True if successful
+    '''
+    if len(data_poly_indices) < 1:
+        raise ValueError('no input index')
+
+    save_count = len(data_poly_indices)
+    shapefile = gpd.read_file(org_shp)
+    nrow, ncol = shapefile.shape
+
+    selected_list = [False]*nrow
+    for idx in data_poly_indices:
+        selected_list[idx] = True
+
+    shapefile_sub = shapefile[selected_list]
+    shapefile_sub.to_file(save_path, driver='ESRI Shapefile')
+    basic.outputlogMessage('save subset (%d geometry) of shapefile to %s'%(save_count,save_path))
+
+    return True
 
 def save_polygons_to_files(data_frame, geometry_name, wkt_string, save_path):
     '''
@@ -613,6 +637,22 @@ def fill_holes_in_a_polygon(polygon):
         return Polygon(list(polygon.exterior.coords))
     else:
         return polygon
+
+def get_poly_index_within_extent(polygon_list, extent_poly):
+    '''
+    get id of polygons intersecting with an extent
+    (may also consider using ogr2ogr to crop the shapefile, also can use remove functions)
+    :param polygon_list: polygons list (polygon is in shapely format)
+    :param extent_poly: extent polygon (shapely format)
+    :return: id list
+    '''
+    idx_list = []
+    for idx, poly in enumerate(polygon_list):
+        inter = extent_poly.intersection(poly)
+        if inter.is_empty is False:
+            idx_list.append(idx)
+
+    return idx_list
 
 def main(options, args):
 
