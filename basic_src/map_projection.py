@@ -214,6 +214,17 @@ def get_raster_or_vector_srs_info_proj4(spatial_data):
     """
     return get_raster_or_vector_srs_info(spatial_data, 'proj4')
 
+def get_raster_or_vector_srs_info_epsg(spatial_data):
+    """
+    get SRS(Spatial Reference System) information from raster or vector data
+    Args:
+        spatial_data: the path of raster or vector data
+
+    Returns:the string of srs info in proj4 format, False otherwise
+
+    """
+    return get_raster_or_vector_srs_info(spatial_data, 'epsg')
+
 
 def transforms_vector_srs(shapefile,t_srs,t_file):
     """

@@ -456,5 +456,11 @@ def save_list_to_txt(file_name, save_list):
         for item in save_list:
             f_obj.writelines(item + '\n')
 
+def read_txt_from_list(file_name):
+    with open(file_name,'r') as f_obj:
+        lines = f_obj.readlines()
+        lines = [item.strip() for item in lines]
+        return lines
+
 if __name__=='__main__':
     pass
