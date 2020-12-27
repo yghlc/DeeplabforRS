@@ -282,7 +282,7 @@ def subset_image_srcwin(output,imagefile,xoff,yoff,xsize,ysize):
 def subsetLandsat7_Jakobshavn_shape(imagefile,shapefile,bkeepmidfile):
     return subset_image_by_shapefile(imagefile,shapefile,bkeepmidfile)
 
-def subset_image_by_shapefile(imagefile,shapefile,bkeepmidfile=True):
+def subset_image_by_shapefile(imagefile,shapefile,bkeepmidfile=True, overwrite=False):
     """
     subset an image by polygons contained in the shapefile
     the shapefile and imagefile may have different projections, the gdalwarp can handle
@@ -308,6 +308,10 @@ def subset_image_by_shapefile(imagefile,shapefile,bkeepmidfile=True):
 
     # subprocess.call(['gdalwarp', imagefile, Outfilename, '-cutline', shapefile,\
     #                       '-crop_to_cutline'])
+
+    if overwrite is False and os.path.isfile(Outfilename):
+        basic.outputlogMessage('warning, crop file: %s already exist, skip'%Outfilename)
+        return Outfilename
 
     orgimg_obj = RSImageclass()
     if orgimg_obj.open(imagefile) is False:
