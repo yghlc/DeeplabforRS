@@ -372,7 +372,7 @@ def unpack_tar_gz_file(file_path,work_dir):
     # decompression file and remove it
     dst_folder = os.path.join(work_dir,file_basename)
     if os.path.isdir(dst_folder) and len(os.listdir(dst_folder)) > 1:  # on Mac, .DS_Store count one file.
-        basic.outputlogMessage('%s exists and it not empty, skip unpacking'%dst_folder)
+        basic.outputlogMessage('%s exists and is not empty, skip unpacking'%dst_folder)
         return dst_folder
     else:
         mkdir(dst_folder)
