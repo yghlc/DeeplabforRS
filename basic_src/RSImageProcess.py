@@ -282,9 +282,10 @@ def subset_image_srcwin(output,imagefile,xoff,yoff,xsize,ysize):
 def subsetLandsat7_Jakobshavn_shape(imagefile,shapefile,bkeepmidfile):
     return subset_image_by_shapefile(imagefile,shapefile,bkeepmidfile)
 
-def subset_image_by_shapefile(imagefile,shapefile,bkeepmidfile):
+def subset_image_by_shapefile(imagefile,shapefile,bkeepmidfile=True):
     """
     subset an image by polygons contained in the shapefile
+    the shapefile and imagefile should have the same projection.
     Args:
         imagefile:input image file path
         shapefile:input shapefile contains polygon
