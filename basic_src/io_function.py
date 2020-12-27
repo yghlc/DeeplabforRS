@@ -354,9 +354,42 @@ def copyfiletodir(file_path, dir_name,overwrite=False):
     dst_name =  os.path.join(dir_name,os.path.split(file_path)[1])
     return copy_file_to_dst(file_path,dst_name,overwrite=overwrite)
 
+def unpack_tar_gz_file(file_path,work_dir):
+    '''
+    unpack a *.tar.gz package, the same to decompress_gz_file (has a bug)
+    :param file_path:
+    :param work_dir:
+    :return:  the absolute path of a folder which contains the decompressed files
+    '''
+    if os.path.isdir(work_dir) is False:
+        raise IOError('dir %s not exist'%os.path.abspath(work_dir))
+
+    if file_path.endswith('.tar.gz') is False:
+        raise ValueError('input %s do not end with .tar.gz')
+
+    file_basename = os.path.basename(file_path)[:-7]
+
+    # decompression file and remove it
+    dst_folder = os.path.join(os.path.abspath(work_dir),file_basename)
+    if os.path.isdir(dst_folder) and len(os.listdir(dst_folder)) > 1:  # on Mac, .DS_Store count one file.
+        basic.outputlogMessage('%s exists and it not empty, skip unpacking'%dst_folder)
+        return dst_folder
+    else:
+        mkdir(dst_folder)
+    # CommandString = 'tar -xvf  ' + file_tar + ' -C ' + dst_folder
+    args_list = ['tar', '-zxvf', file_path,'-C',dst_folder]
+    # (status, result) = basic.exec_command_string(CommandString)
+    returncode = basic.exec_command_args_list(args_list)
+    # print(returncode)
+    if returncode != 0:
+        return False
+
+    return dst_folder
+
+
 def decompress_gz_file(file_path,work_dir,bkeepmidfile):
     """
-    decompress a compressed file with gz extension
+    decompress a compressed file with gz extension (has a bug if end with *.*.tar.gz)
     Args:
         file_path:the path of gz file
         bkeepmidfile: indicate whether keep the middle file(eg *.tar file)
