@@ -466,6 +466,26 @@ def get_valid_pixel_count(image_path):
         valid_pixel_count += count
     return valid_pixel_count
 
+def get_valid_pixel_percentage(image_path):
+    """
+    get the percentage of valid pixels (exclude no_data pixel)
+    assume that the nodata value already be set
+    Args:
+        image_path: path
+
+    Returns: the percentage (%)
+
+    """
+    valid_pixel_count = get_valid_pixel_count(image_path)
+    # get image width and height
+    img_obj = RSImageclass()
+    if img_obj.open(image_path):
+        width = img_obj.GetWidth()
+        height = img_obj.GetHeight()
+        valid_per = 100.0 * valid_pixel_count/ (width * height)
+        return valid_per
+    return False
+
 def get_image_location_value(imagepath,x,y,xy_srs,bandindex):
     """
     get the image value of given location(x,y) in bandindex
