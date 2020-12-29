@@ -62,6 +62,39 @@ def delete_file_or_dir(path):
 
     return True
 
+def is_file_exist_subfolder(folder, file_name,bsub_folder=True):
+    """
+    determine whether the file_path is a in a folder or its subfolder
+    Args:
+        file_name: the file name
+
+    Returns:True if file path, False otherwise
+
+    """
+    if os.path.isfile(os.path.join(folder,file_name)):
+        return os.path.join(folder,file_name)
+
+    if bsub_folder is False:
+        return False
+
+    sub_folders = [os.path.join(folder,item) for item in os.listdir(folder)]
+    sub_folders = [item for item in sub_folders if os.path.isdir(item)]
+
+    while len(sub_folders) > 0:
+        current_sear_dir = sub_folders[0]
+        t_path = os.path.join(current_sear_dir, file_name)
+        if os.path.isfile(t_path):
+            return t_path
+
+        file_names = [ os.path.join(current_sear_dir,item) for item in os.listdir(current_sear_dir)]
+        dir_paths = [item for item in file_names if os.path.isdir(item)]
+        sub_folders.extend(dir_paths)
+
+        sub_folders.pop(0)
+
+    return False
+
+
 def is_file_exist(file_path):
     """
     determine whether the file_path is a exist file
