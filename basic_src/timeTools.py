@@ -51,11 +51,29 @@ def get_yeardate_yyyymmdd(in_string):
         return None
     return datetime_list[0]
 
+def diff_yeardate(in_date1, in_date2):
+    '''
+    calculate the difference between two date
+    Args:
+        in_date1:
+        in_date2:
+
+    Returns: absolute of days
+
+    '''
+    diff = in_date1 - in_date2
+    # print(diff)
+    diff_days = diff.days + diff.seconds / (3600*24)
+    # print(diff_days)
+    return abs(diff_days)
 
 
 def test():
-    out = get_yeardate_yyyymmdd('20170301_10300100655B5A00_1030010066B4AA00.tif')
+    # out = get_yeardate_yyyymmdd('20170301_10300100655B5A00_1030010066B4AA00.tif')
+    out = get_yeardate_yyyymmdd('20201230_10300100655B5A00_1030010066B4AA00.tif')
     print(out)
+    diffdays = diff_yeardate(out,datetime.now())
+    print(diffdays)
 
 
 if __name__=='__main__':

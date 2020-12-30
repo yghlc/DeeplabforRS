@@ -14,6 +14,8 @@ import subprocess
 
 from datetime import datetime
 
+import json
+
 def mkdir(path):
     """
     create a folder
@@ -527,6 +529,27 @@ def read_txt_from_list(file_name):
         lines = f_obj.readlines()
         lines = [item.strip() for item in lines]
         return lines
+
+def save_dict_to_txt_json(file_name, save_dict):
+
+    # check key is string, int, float, bool or None,
+    for key in save_dict.keys():
+        # print(type(key))
+        if type(key) not in [str, int, float, bool, None]:
+            try:
+                save_dict[str(key)] = save_dict[key]
+            except:
+                try:
+                    save_dict[repr(key)] = save_dict[key]
+                except:
+                    pass
+            del save_dict[key]
+
+    # ,indent=2 makes the output more readable
+    json_data = json.dumps(save_dict,indent=2)
+    with open(file_name, "w") as f_obj:
+        f_obj.write(json_data)
+
 
 if __name__=='__main__':
     pass
