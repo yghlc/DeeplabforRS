@@ -140,7 +140,7 @@ class RSImgProclass(object):
         return outputfile
 
 def mosaic_crop_images_gdalwarp(raster_files,outputfile,src_nodata=None,dst_nodata=None,min_x=None,min_y=None, max_x=None, max_y=None,
-                                xres=None,yres=None,resampling_method='min'):
+                                xres=None,yres=None,resampling_method='min', o_format='GTiff'):
     '''
     create a mosaic from multiple input raster using gdalwarp, crop if min_x, min_y, max_x, max_y are valid
     Args:
@@ -155,6 +155,7 @@ def mosaic_crop_images_gdalwarp(raster_files,outputfile,src_nodata=None,dst_noda
         xres:
         yres:
         resampling_method: including, average, mode, max, min, med, q1, q3, sum  https://gdal.org/programs/gdalwarp.html
+        o_format: output format, default is GTiff, GeoTIFF File Format. Use "VRT": GDAL Virtual Format to save disk storage
 
     Returns:
 
@@ -170,7 +171,7 @@ def mosaic_crop_images_gdalwarp(raster_files,outputfile,src_nodata=None,dst_noda
         basic.outputlogMessage('file count less than 1')
         return False
 
-    CommandString = 'gdalwarp -r ' + resampling_method
+    CommandString = 'gdalwarp -r ' + resampling_method + ' -of ' + o_format
 
     if src_nodata != None:
         CommandString += ' -srcnodata ' +  str(src_nodata)
@@ -284,7 +285,7 @@ def subset_image_srcwin(output,imagefile,xoff,yoff,xsize,ysize):
 def subsetLandsat7_Jakobshavn_shape(imagefile,shapefile,bkeepmidfile):
     return subset_image_by_shapefile(imagefile,shapefile,bkeepmidfile)
 
-def subset_image_by_shapefile(imagefile,shapefile,bkeepmidfile=True, overwrite=False):
+def subset_image_by_shapefile(imagefile,shapefile,bkeepmidfile=True, overwrite=False, format='GTiff'):
     """
     subset an image by polygons contained in the shapefile
     the shapefile and imagefile may have different projections, the gdalwarp can handle
@@ -292,6 +293,7 @@ def subset_image_by_shapefile(imagefile,shapefile,bkeepmidfile=True, overwrite=F
         imagefile:input image file path
         shapefile:input shapefile contains polygon
         bkeepmidfile:indicate whether keep middle file
+        format: output format,  default is GTiff, GeoTIFF File Format. Use "VRT": GDAL Virtual Format to save disk storage
 
     Returns:output file name if succussful, False Otherwise
 
@@ -321,7 +323,7 @@ def subset_image_by_shapefile(imagefile,shapefile,bkeepmidfile=True, overwrite=F
     x_res = abs(orgimg_obj.GetXresolution())
     y_res = abs(orgimg_obj.GetYresolution())
 
-    CommandString = 'gdalwarp '+' -tr ' + str(x_res) + '  '+ str(y_res)+ ' '+ imagefile +' ' + Outfilename +' -cutline ' +shapefile +' -crop_to_cutline ' + ' -overwrite '
+    CommandString = 'gdalwarp '+' -tr ' + str(x_res) + '  '+ str(y_res)+ ' -of ' + format + ' ' + imagefile +' ' + Outfilename +' -cutline ' +shapefile +' -crop_to_cutline ' + ' -overwrite '
     if basic.exec_command_string_one_file(CommandString,Outfilename) is False:
         return False
 
