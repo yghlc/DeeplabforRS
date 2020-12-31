@@ -15,6 +15,7 @@ import subprocess
 from datetime import datetime
 
 import json
+import urllib
 
 def mkdir(path):
     """
@@ -263,6 +264,17 @@ def get_absolute_path(path):
 
 def get_file_modified_time(path):
     return datetime.fromtimestamp(os.path.getmtime(path))
+
+def get_url_file_size(url_path):
+    # curl -I url_path
+    req = urllib.request.Request(url_path,method='HEAD')
+    f = urllib.request.urlopen(req)
+    if f.status == 200:
+        size = f.headers['Content-Length']      # in Bytes
+        return int(size)
+
+    basic.outputlogMessage('error, get size of %s failed'%url_path)
+    return False
 
 def get_file_path_new_home_folder(in_path):
     # try to change the home folder path if the file does not exist
