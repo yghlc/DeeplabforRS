@@ -285,6 +285,30 @@ def subset_image_srcwin(output,imagefile,xoff,yoff,xsize,ysize):
 def subsetLandsat7_Jakobshavn_shape(imagefile,shapefile,bkeepmidfile):
     return subset_image_by_shapefile(imagefile,shapefile,bkeepmidfile)
 
+def subset_image_by_polygon_box(output, imagefile, polygon, xres=None, yres=None):
+    '''
+    crop a image using the box of a shapely polygon. The polygon and image should in the same projection, not check here
+    Args:
+        output:
+        imagefile:
+        polygon:
+        xres:
+        yres:
+
+    Returns: output path if successful, False otherwise
+
+    '''
+
+    # #  polygon.exterior.coords
+    minx, miny, maxx, maxy =  polygon.bounds    # (minx, miny, maxx, maxy)
+    # print(minx, miny, maxx, maxy)
+    result = subset_image_projwin(output,imagefile,minx, maxy, maxx, miny, xres=xres,yres=yres)
+
+    if result is False:
+        basic.outputlogMessage('Warning, Crop %s failed'%imagefile)
+        return False
+    return result
+
 def subset_image_by_shapefile(imagefile,shapefile,bkeepmidfile=True, overwrite=False, format='GTiff'):
     """
     subset an image by polygons contained in the shapefile
