@@ -285,6 +285,41 @@ def subset_image_srcwin(output,imagefile,xoff,yoff,xsize,ysize):
 def subsetLandsat7_Jakobshavn_shape(imagefile,shapefile,bkeepmidfile):
     return subset_image_by_shapefile(imagefile,shapefile,bkeepmidfile)
 
+def subset_image_by_polygon_box_image_min(output, imagefile, polygon, resample_m='bilinear', xres=None, yres=None):
+    '''
+    crop a image using the box of a shapely polygon. The polygon and image should in the same projection, not check here
+    # if the image extent is small then box, then use image extent
+    Args:
+        output:
+        imagefile:
+        polygon:
+        xres:
+        yres:
+
+    Returns: output path if successful, False otherwise
+
+    '''
+
+    # #  polygon.exterior.coords
+    minx, miny, maxx, maxy =  polygon.bounds    # (minx, miny, maxx, maxy)
+    # print(minx, miny, maxx, maxy)
+    img_extent = RSImage.get_image_proj_extent(imagefile)  # (ulx,uly,lrx,lry)
+    im_minx, im_maxy, im_maxx, im_miny = img_extent
+
+    # chose the smallest extent
+    minx = max(minx,im_minx)
+    maxx = min(maxx,im_maxx)
+    miny = max(miny,im_miny)
+    maxy = min(maxy,im_maxy)
+
+    result = subset_image_projwin(output,imagefile,minx, maxy, maxx, miny, resample_m=resample_m, xres=xres,yres=yres)
+
+    if result is False:
+        basic.outputlogMessage('Warning, Crop %s failed'%imagefile)
+        return False
+    return result
+
+
 def subset_image_by_polygon_box(output, imagefile, polygon, resample_m='bilinear', xres=None, yres=None):
     '''
     crop a image using the box of a shapely polygon. The polygon and image should in the same projection, not check here
