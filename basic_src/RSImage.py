@@ -487,7 +487,7 @@ def get_valid_pixel_percentage(image_path,total_pixel_num=None):
             valid_per = 100.0 * valid_pixel_count/ (width * height)
             return valid_per
     else:
-        valid_per = 100.0 * valid_pixel_count / valid_pixel_count
+        valid_per = 100.0 * valid_pixel_count / total_pixel_num
         return valid_per
     return False
 
