@@ -421,7 +421,9 @@ def get_image_histogram_oneband(image_path, band_idx=1):
     Returns: hist_count (bucket count) ,hist_min, hist_max,hist_buckets
 
     """
-    CommandString = 'gdalinfo -json -hist -mm ' + image_path
+    # -stats: Force computation if no statistics are stored in an image
+    # -mm: Force computation of the actual min/max values for each band in the dataset.
+    CommandString = 'gdalinfo -json -hist -mm -stats ' + image_path
     imginfo = basic.exec_command_string_output_string(CommandString)
     if imginfo is False:
         return False
