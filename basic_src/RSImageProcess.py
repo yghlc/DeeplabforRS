@@ -190,7 +190,7 @@ def mosaic_crop_images_gdalwarp(raster_files,outputfile,src_nodata=None,dst_noda
     if tiled != None:
         CommandString += ' -co ' + 'TILED=%s'%tiled     # yes
     if bigtiff != None:
-        CommandString += ' -co ' + 'bigtiff=%s' % tiled  # IF_SAFER
+        CommandString += ' -co ' + 'bigtiff=%s' % bigtiff  # IF_SAFER
 
     inputfiles = ' '.join(raster_files)
     CommandString += ' ' + inputfiles + ' ' + outputfile
