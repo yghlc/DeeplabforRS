@@ -260,7 +260,8 @@ def subset_image_baseimage(output_file,input_file,baseimage,same_res=False):
         return False
     return True
 
-def subset_image_projwin(output,imagefile,ulx,uly,lrx,lry,resample_m='bilinear',dst_nondata=0,xres=None,yres=None):
+def subset_image_projwin(output,imagefile,ulx,uly,lrx,lry,resample_m='bilinear',dst_nondata=0,xres=None,yres=None,
+                         o_format='GTiff',compress=None, tiled=None, bigtiff=None):
     #bug fix: the origin (x,y) has a difference between setting one when using gdal_translate to subset image 2016.7.20
     # CommandString = 'gdal_translate  -r bilinear  -eco -projwin ' +' '+str(ulx)+' '+str(uly)+' '+str(lrx)+' '+str(lry)\
     # + ' '+imagefile + ' '+output
@@ -276,12 +277,26 @@ def subset_image_projwin(output,imagefile,ulx,uly,lrx,lry,resample_m='bilinear',
     #                     + ' -tr ' +str(xres) + ' ' +str(yres) +' ' + ' -dstnodata '+ str(dst_nondata) + ' '+ imagefile + ' ' + output
 
     # update on 2018 Oct 20, we should not set nodata in subset opertion. It will copy from the source dataset
-    if xres is None or yres is None:
-        CommandString = 'gdalwarp -r %s -te  '%resample_m +' '+str(xmin)+' '+str(ymin)+' '+str(xmax)+' '+str(ymax)\
-        + ' ' + ' '+imagefile + ' '+output
-    else:
-        CommandString = 'gdalwarp -r %s -te  '%resample_m + ' ' + str(xmin) + ' ' + str(ymin) + ' ' + str(xmax) + ' ' + str(ymax) \
-                        + ' -tr ' +str(xres) + ' ' +str(yres) +' ' + ' '+ imagefile + ' ' + output
+
+    CommandString = 'gdalwarp -r %s '%resample_m + ' -of ' + o_format
+    CommandString += ' -te ' + str(xmin) + ' ' + str(ymin) + ' ' + str(xmax) + ' ' + str(ymax)
+
+    # if src_nodata != None:
+    #     CommandString += ' -srcnodata ' +  str(src_nodata)
+    # if dst_nodata != None:
+    #     CommandString += ' -dstnodata ' + str(dst_nodata)
+
+    if xres !=None and yres!=None:
+        CommandString += ' -tr ' + str(xres) + ' ' +str(yres)
+
+    if compress != None:
+        CommandString += ' -co ' + 'compress=%s'%compress       # lzw
+    if tiled != None:
+        CommandString += ' -co ' + 'TILED=%s'%tiled     # yes
+    if bigtiff != None:
+        CommandString += ' -co ' + 'bigtiff=%s' % bigtiff  # IF_SAFER
+
+    CommandString += ' '+ imagefile + ' ' + output
 
     return basic.exec_command_string_one_file(CommandString,output)
 
@@ -293,7 +308,8 @@ def subset_image_srcwin(output,imagefile,xoff,yoff,xsize,ysize):
 def subsetLandsat7_Jakobshavn_shape(imagefile,shapefile,bkeepmidfile):
     return subset_image_by_shapefile(imagefile,shapefile,bkeepmidfile)
 
-def subset_image_by_polygon_box_image_min(output, imagefile, polygon, resample_m='bilinear', xres=None, yres=None):
+def subset_image_by_polygon_box_image_min(output, imagefile, polygon, resample_m='bilinear', xres=None, yres=None,
+                                          o_format='GTiff',compress=None, tiled=None, bigtiff=None):
     '''
     crop a image using the box of a shapely polygon. The polygon and image should in the same projection, not check here
     # if the image extent is small then box, then use image extent
@@ -320,7 +336,8 @@ def subset_image_by_polygon_box_image_min(output, imagefile, polygon, resample_m
     miny = max(miny,im_miny)
     maxy = min(maxy,im_maxy)
 
-    result = subset_image_projwin(output,imagefile,minx, maxy, maxx, miny, resample_m=resample_m, xres=xres,yres=yres)
+    result = subset_image_projwin(output,imagefile,minx, maxy, maxx, miny, resample_m=resample_m, xres=xres,yres=yres,
+                                  o_format=o_format,compress=compress, tiled=tiled, bigtiff=bigtiff)
 
     if result is False:
         basic.outputlogMessage('Warning, Crop %s failed'%imagefile)
@@ -328,7 +345,8 @@ def subset_image_by_polygon_box_image_min(output, imagefile, polygon, resample_m
     return result
 
 
-def subset_image_by_polygon_box(output, imagefile, polygon, resample_m='bilinear', xres=None, yres=None):
+def subset_image_by_polygon_box(output, imagefile, polygon, resample_m='bilinear', xres=None, yres=None,
+                                o_format='GTiff',compress=None, tiled=None, bigtiff=None):
     '''
     crop a image using the box of a shapely polygon. The polygon and image should in the same projection, not check here
     Args:
@@ -345,7 +363,8 @@ def subset_image_by_polygon_box(output, imagefile, polygon, resample_m='bilinear
     # #  polygon.exterior.coords
     minx, miny, maxx, maxy =  polygon.bounds    # (minx, miny, maxx, maxy)
     # print(minx, miny, maxx, maxy)
-    result = subset_image_projwin(output,imagefile,minx, maxy, maxx, miny, resample_m=resample_m, xres=xres,yres=yres)
+    result = subset_image_projwin(output,imagefile,minx, maxy, maxx, miny, resample_m=resample_m, xres=xres,yres=yres,
+                                  o_format=o_format,compress=compress, tiled=tiled, bigtiff=bigtiff)
 
     if result is False:
         basic.outputlogMessage('Warning, Crop %s failed'%imagefile)
