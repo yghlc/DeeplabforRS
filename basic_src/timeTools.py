@@ -51,6 +51,9 @@ def get_yeardate_yyyymmdd(in_string):
         return None
     return datetime_list[0]
 
+def date2str(date, format='%Y%m%d'):
+    return date.strftime(format)
+
 def diff_yeardate(in_date1, in_date2):
     '''
     calculate the difference between two date
