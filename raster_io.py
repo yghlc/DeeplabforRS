@@ -34,7 +34,8 @@ def read_raster_one_band_np(raster_path):
             data[ data == src.nodata ] = np.nan
         return data
 
-def save_numpy_array_to_rasterfile(numpy_array, save_path, ref_raster, format='GTiff', nodata=None):
+def save_numpy_array_to_rasterfile(numpy_array, save_path, ref_raster, format='GTiff', nodata=None,
+                                   compress=None, tiled=None, bigtiff=None):
     '''
     save a numpy to file, the numpy has the same projection and extent with ref_raster
     Args:
@@ -74,9 +75,18 @@ def save_numpy_array_to_rasterfile(numpy_array, save_path, ref_raster, format='G
                          })
         if nodata is not None:
             out_meta.update({"nodata": nodata})
+
+        if compress is not None:
+            out_meta.update(compress=compress)
+        if tiled is not None:
+            out_meta.update(tiled=tiled)
+        if bigtiff is not None:
+            out_meta.update(bigtiff=bigtiff)
+
         with rasterio.open(save_path, "w", **out_meta) as dest:
             dest.write(numpy_array)
 
+    print('save to %s'%save_path)
 
     return True
 
