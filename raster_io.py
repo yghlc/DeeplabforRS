@@ -57,7 +57,7 @@ def save_numpy_array_to_rasterfile(numpy_array, save_path, ref_raster, format='G
         raise ValueError('only accept ndim is 2 or 3')
 
     dt = np.dtype(numpy_array.dtype)
-    
+
     print('dtype:', dt.name)
     print(numpy_array.dtype)
     print('band_count,height,width',band_count,height,width)
@@ -78,8 +78,43 @@ def save_numpy_array_to_rasterfile(numpy_array, save_path, ref_raster, format='G
             dest.write(numpy_array)
 
 
-    pass
+    return True
 
+def image_numpy_to_8bit(img_np, max_value, min_value, src_nodata=None, dst_nodata=None):
+    '''
+    convert float or 16 bit to 8bit,
+    Args:
+        img_np:  numpy array
+        max_value:
+        min_value:
+        src_nodata:
+        dst_nodata:  if output nodata is 0, then covert data to 1-255, if it's 255, then to 0-254
+
+    Returns: new numpy array
+
+    '''
+    print('Convert to 8bit, old max, min: %.4f, %.4f'%(max_value, min_value))
+
+    img_np[img_np > max_value] = max_value
+    img_np[img_np < min_value] = min_value
+
+    if dst_nodata == 0:
+        n_max, n_min = 255, 1
+    elif dst_nodata == 255:
+        n_max, n_min = 254, 0
+    else:
+        n_max, n_min = 255, 0
+
+    # scale the grey values to 0 - 255 for better display
+    k = (n_max - n_min)*1.0/(max_value - min_value)
+    new_img_np = (img_np - min_value) * k + n_min
+    new_img_np = new_img_np.astype(np.uint8)
+
+    # replace nan data as nodata
+    if dst_nodata is not None:
+        new_img_np[np.isnan(img_np)] = dst_nodata
+
+    return new_img_np
 
 def main():
     pass
