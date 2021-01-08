@@ -20,6 +20,31 @@ def open_raster_read(raster_path):
 def get_width_heigth_bandnum(opened_src):
     return opened_src.height,  opened_src.width,  opened_src.count
 
+def read_oneband_image_to_1dArray(image_path,nodata=None, ignore_small=None):
+
+    if os.path.isfile(image_path) is False:
+        raise IOError("error, file not exist: " + image_path)
+
+    with rasterio.open(image_path) as img_obj:
+        # read the all bands (only have one band)
+        indexes = img_obj.indexes
+        if len(indexes) != 1:
+            raise IOError('error, only support one band')
+
+        data = img_obj.read(indexes)
+        data_1d = data.flatten()  # convert to one 1d, row first.
+
+        # input nodata
+        if nodata is not None:
+            data_1d = data_1d[data_1d != nodata]
+        # the nodata in the image meta.
+        if img_obj.nodata is not None:
+            data_1d = data_1d[data_1d != img_obj.nodata]
+
+        if ignore_small is not None:
+            data_1d = data_1d[data_1d >= ignore_small ]
+
+        return data_1d
 
 def read_raster_all_bands_np(raster_path):
 
