@@ -20,6 +20,21 @@ def open_raster_read(raster_path):
 def get_width_heigth_bandnum(opened_src):
     return opened_src.height,  opened_src.width,  opened_src.count
 
+
+def read_raster_all_bands_np(raster_path):
+
+    with rasterio.open(raster_path) as src:
+        indexes = src.indexes
+
+        data = src.read(indexes)   # output (1, 8249, 13524), (band_count, height, width)
+
+        # print(data.shape)
+        # print(src.nodata)
+        if src.nodata is not None and src.dtypes[0] == 'float32':
+            data[ data == src.nodata ] = np.nan
+
+        return data, src.nodata
+
 def read_raster_one_band_np(raster_path):
     with rasterio.open(raster_path) as src:
         indexes = src.indexes
