@@ -558,6 +558,44 @@ def save_dict_to_txt_json(file_name, save_dict):
     with open(file_name, "w") as f_obj:
         f_obj.write(json_data)
 
+def get_path_from_txt_list_index(txt_name,input=''):
+    '''
+    get the a line (path or file pattern) for a txt files, the index is in the file name
+    Args:
+        txt_name:
+        input:
+
+    Returns:
+
+    '''
+
+    # current folder path
+    cwd_path = os.getcwd()
+    if os.path.isfile(txt_name) is False:
+        # if the txt does not exist, then cd ../.., find the file againn
+        txt_name = os.path.join(os.path.dirname(os.path.dirname(cwd_path)), txt_name)
+    with open(txt_name, 'r') as f_obj:
+        lines = f_obj.readlines()
+        lines = [item.strip() for item in lines]
+
+    # find the index
+    folder = os.path.basename(cwd_path)
+    import re
+    I_idx_str = re.findall('I\d+', folder)
+    if len(I_idx_str) == 1:
+        index = int(I_idx_str[0][1:])
+    else:
+        # try to find the image idx from file name
+        file_name = os.path.basename(input)
+        I_idx_str = re.findall('I\d+', file_name)
+        if len(I_idx_str) == 1:
+            index = int(I_idx_str[0][1:])
+        else:
+            raise ValueError('Cannot find the I* which represents image index')
+
+    val_path = lines[index]
+
+    return val_path
 
 if __name__=='__main__':
     pass

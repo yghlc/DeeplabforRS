@@ -113,28 +113,7 @@ def main(options, args):
     if multi_val_files is None:
         val_path = parameters.get_validation_shape()
     else:
-        cwd_path = os.getcwd()
-        if os.path.isfile(multi_val_files) is False:
-            multi_val_files = os.path.join(os.path.dirname(os.path.dirname(cwd_path)), multi_val_files)
-        with open(multi_val_files, 'r') as f_obj:
-            lines = f_obj.readlines()
-            lines = [item.strip() for item in lines]
-
-        folder = os.path.basename(cwd_path)
-        import re
-        I_idx_str = re.findall('I\d+',folder)
-        if len(I_idx_str) == 1:
-            index = int(I_idx_str[0][1:])
-        else:
-            # try to find the image idx from file name
-            file_name = os.path.basename(input)
-            I_idx_str = re.findall('I\d+', file_name)
-            if len(I_idx_str) == 1:
-                index = int(I_idx_str[0][1:])
-            else:
-                raise ValueError('Cannot find the I* which represents image index')
-
-        val_path = lines[index]
+        val_path = io_function.get_path_from_txt_list_index(multi_val_files)
         # try to change the home folder path if the file does not exist
         val_path = io_function.get_file_path_new_home_folder(val_path)
 

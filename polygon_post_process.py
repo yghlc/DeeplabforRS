@@ -261,8 +261,24 @@ def remove_small_round_polygons(input_shp,output_shp,area_thr,ratio_thr):
 
     return True
 
+def get_file_path_parameter(parafile,multi_files, one_file):
 
+    multi_files = parameters.get_string_parameters_None_if_absence(parafile, multi_files)
+    if multi_files is None:
+        one_file = parameters.get_string_parameters_None_if_absence(parafile, one_file)
+    else:
+        one_file = io_function.get_path_from_txt_list_index(multi_files)
+        one_file = io_function.get_file_path_new_home_folder(one_file)
+    return one_file
 
+def get_topographic_files():
+
+    dem_file = get_file_path_parameter('','multi_dem_files', 'dem_file')
+    slope_file = get_file_path_parameter('','multi_slope_files', 'slope_file')
+    aspect_file = get_file_path_parameter('', 'multi_aspect_files', 'aspect_file')
+    dem_diff_file = get_file_path_parameter('', 'multi_dem_diff_files', 'dem_diff_file')
+
+    return dem_file, slope_file, aspect_file,dem_diff_file
 
 def main(options, args):
     input = args[0]
@@ -325,16 +341,8 @@ def main(options, args):
     # if remove_small_round_polygons(ouput_merged,output,area_thr,ratio_thr) is False:
     #     return False
 
-
     # add topography of each polygons
-    # dem_file = parameters.get_dem_file()
-    # slope_file = parameters.get_slope_file()
-    # aspect_file=parameters.get_aspect_file()
-    dem_file = parameters.get_string_parameters_None_if_absence('', 'dem_file')
-    slope_file = parameters.get_string_parameters_None_if_absence('','slope_file')
-    aspect_file = parameters.get_string_parameters_None_if_absence('','aspect_file')
-    dem_diff_file = parameters.get_string_parameters_None_if_absence('','dem_diff_file')
-
+    dem_file, slope_file, aspect_file, dem_diff_file = get_topographic_files()
     if calculate_polygon_topography(output,dem_file,slope_file,aspect_file=aspect_file,dem_diff=dem_diff_file) is False:
         basic.outputlogMessage('Warning: calculate information of topography failed')
         # return False   #  don't return
