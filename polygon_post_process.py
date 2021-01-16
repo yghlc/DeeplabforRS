@@ -53,7 +53,7 @@ def cal_add_area_length_of_polygon(input_shp):
     """
     return vector_features.cal_area_length_of_polygon(input_shp )
 
-def calculate_gully_topography(polygons_shp,dem_file,slope_file,aspect_file=None):
+def calculate_polygon_topography(polygons_shp,dem_file,slope_file,aspect_file=None):
     """
     calculate the topography information such elevation and slope of each polygon
     Args:
@@ -295,7 +295,7 @@ def main(options, args):
     else:
         basic.outputlogMessage("warning, mapped_polygon_narrow_threshold is not in the parameter file, skip removing narrow parts")
 
-    # calcuate area, perimeter of polygons
+    # calculate area, perimeter of polygons
     if cal_add_area_length_of_polygon(output) is False:
         return False
 
@@ -322,7 +322,7 @@ def main(options, args):
     dem_file = parameters.get_dem_file()
     slope_file = parameters.get_slope_file()
     aspect_file=parameters.get_aspect_file()
-    if calculate_gully_topography(output,dem_file,slope_file,aspect_file) is False:
+    if calculate_polygon_topography(output,dem_file,slope_file,aspect_file) is False:
         basic.outputlogMessage('Warning: calculate information of topography failed')
         # return False   #  don't return
 
@@ -378,7 +378,7 @@ if __name__=='__main__':
     # ouput_merged = args[0]
     # dem_file = parameters.get_dem_file()
     # slope_file = parameters.get_slope_file()
-    # calculate_gully_topography(ouput_merged,dem_file,slope_file)
+    # calculate_polygon_topography(ouput_merged,dem_file,slope_file)
 
 
 

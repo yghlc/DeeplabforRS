@@ -120,6 +120,6 @@ if __name__=='__main__':
     # ouput_merged = args[0]
     # dem_file = parameters.get_dem_file()
     # slope_file = parameters.get_slope_file()
-    # calculate_gully_topography(ouput_merged,dem_file,slope_file)
+    # calculate_polygon_topography(ouput_merged,dem_file,slope_file)
 
     main(options, args)
