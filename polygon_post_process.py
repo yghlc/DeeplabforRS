@@ -53,7 +53,7 @@ def cal_add_area_length_of_polygon(input_shp):
     """
     return vector_features.cal_area_length_of_polygon(input_shp )
 
-def calculate_polygon_topography(polygons_shp,dem_file,slope_file,aspect_file=None):
+def calculate_polygon_topography(polygons_shp,dem_file,slope_file,aspect_file=None, dem_diff=None):
     """
     calculate the topography information such elevation and slope of each polygon
     Args:
@@ -128,6 +128,14 @@ def calculate_polygon_topography(polygons_shp,dem_file,slope_file,aspect_file=No
             return False
     else:
         basic.outputlogMessage('warning, aspect file not exist, ignore adding aspect information')
+
+    # elevation difference
+    if dem_diff is not None and os.path.isfile(dem_diff):
+        stats_list = ['min', 'max', 'mean', 'median', 'std']
+        if operation_obj.add_fields_from_raster(polygons_shp, dem_diff, "demD", band=1,stats_list=stats_list,all_touched=all_touched) is False:
+            return False
+    else:
+        basic.outputlogMessage('warning, dem difference file not exist, ignore adding dem diff information')
 
     # # hillshape
 
@@ -319,10 +327,15 @@ def main(options, args):
 
 
     # add topography of each polygons
-    dem_file = parameters.get_dem_file()
-    slope_file = parameters.get_slope_file()
-    aspect_file=parameters.get_aspect_file()
-    if calculate_polygon_topography(output,dem_file,slope_file,aspect_file) is False:
+    # dem_file = parameters.get_dem_file()
+    # slope_file = parameters.get_slope_file()
+    # aspect_file=parameters.get_aspect_file()
+    dem_file = parameters.get_string_parameters_None_if_absence('', 'dem_file')
+    slope_file = parameters.get_string_parameters_None_if_absence('','slope_file')
+    aspect_file = parameters.get_string_parameters_None_if_absence('','aspect_file')
+    dem_diff_file = parameters.get_string_parameters_None_if_absence('','dem_diff_file')
+
+    if calculate_polygon_topography(output,dem_file,slope_file,aspect_file=aspect_file,dem_diff=dem_diff_file) is False:
         basic.outputlogMessage('Warning: calculate information of topography failed')
         # return False   #  don't return
 
