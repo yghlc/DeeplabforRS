@@ -238,13 +238,14 @@ def transforms_vector_srs(shapefile,t_srs,t_file):
 
     """
     if io_function.is_file_exist(shapefile) is False:
-        return False;
+        return False
     CommandString = 'ogr2ogr  -t_srs  ' +  t_srs + ' '+ t_file + ' '+ shapefile
     # if result.find('ERROR') >=0 or result.find('FAILURE'):
     #     return False
     return basic.exec_command_string_one_file(CommandString,t_file)
 
-def transforms_raster_srs(rasterfile,t_srs,t_file,x_res,y_res):
+def transforms_raster_srs(rasterfile,t_srs,t_file,x_res,y_res,resample_m='bilinear',
+                          o_format='GTiff',compress=None, tiled=None, bigtiff=None):
     """
     convert raster file to target SRS(Spatial Reference System)
     Args:
@@ -261,8 +262,17 @@ def transforms_raster_srs(rasterfile,t_srs,t_file,x_res,y_res):
         return False
     x_res  = abs(x_res)
     y_res = abs(y_res)
-    CommandString = 'gdalwarp  -r bilinear  -t_srs ' + t_srs  +' -tr ' +str(x_res)+ ' ' + str(y_res) \
-                    +' '+ rasterfile +' '+ t_file
+    CommandString = 'gdalwarp  -r %s  -t_srs '%resample_m + t_srs  +' -tr ' +str(x_res)+ ' ' + str(y_res)
+
+    if compress != None:
+        CommandString += ' -co ' + 'compress=%s'%compress       # lzw
+    if tiled != None:
+        CommandString += ' -co ' + 'TILED=%s'%tiled     # yes
+    if bigtiff != None:
+        CommandString += ' -co ' + 'bigtiff=%s' % bigtiff  # IF_SAFER
+
+    CommandString += ' ' + rasterfile + ' ' + t_file
+
     return basic.exec_command_string_one_file(CommandString,t_file)
 
 def transforms_raster_srs_to_base_image(rasterfile,baseimage,target_file,x_res,y_res):

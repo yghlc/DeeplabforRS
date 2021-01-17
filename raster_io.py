@@ -20,6 +20,17 @@ def open_raster_read(raster_path):
 def get_width_heigth_bandnum(opened_src):
     return opened_src.height,  opened_src.width,  opened_src.count
 
+# def get_xres_yres(opened_src):
+#     return opened_src.height,  opened_src.width,  opened_src.count
+
+def get_xres_yres_file(file_path):
+    with rasterio.open(file_path) as src:
+        gt = src.affine
+        xres = gt[0]
+        yres = gt[4]
+        return xres, yres
+
+
 def read_oneband_image_to_1dArray(image_path,nodata=None, ignore_small=None):
 
     if os.path.isfile(image_path) is False:
