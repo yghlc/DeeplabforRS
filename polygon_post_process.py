@@ -302,8 +302,7 @@ def main(options, args):
     if io_function.copy_shape_file(input, output) is False:
         raise IOError('copy shape file %s failed'%input)
     else:
-        # remove "_shapeInfo.shp" to make it calculate shape information again
-        os.system('rm *_shapeInfo.shp')
+        pass
 
     # remove narrow parts of mapped polygons
     polygon_narrow_part_thr = parameters.get_digit_parameters_None_if_absence('', 'mapped_polygon_narrow_threshold', 'float')
@@ -320,8 +319,12 @@ def main(options, args):
         basic.outputlogMessage("warning, mapped_polygon_narrow_threshold is not in the parameter file, skip removing narrow parts")
 
     # calculate area, perimeter of polygons
-    if cal_add_area_length_of_polygon(output) is False:
-        return False
+    b_calculate_shape_info = parameters.get_bool_parameters_None_if_absence('','b_calculate_shape_info')
+    if b_calculate_shape_info:
+        # remove "_shapeInfo.shp" to make it calculate shape information again
+        os.system('rm *_shapeInfo.shp')
+        if cal_add_area_length_of_polygon(output) is False:
+            return False
 
     # calculate the polygon information
     if calculate_gully_information(output) is False:
