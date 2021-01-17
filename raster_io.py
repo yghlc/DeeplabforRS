@@ -25,9 +25,7 @@ def get_width_heigth_bandnum(opened_src):
 
 def get_xres_yres_file(file_path):
     with rasterio.open(file_path) as src:
-        gt = src.affine
-        xres = gt[0]
-        yres = gt[4]
+        xres, yres  = src.res       # Returns the (width, height) of pixels in the units of its coordinate reference system.
         return xres, yres
 
 
