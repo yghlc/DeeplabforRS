@@ -277,6 +277,8 @@ def get_url_file_size(url_path):
     return False
 
 def get_file_path_new_home_folder(in_path):
+    if in_path is None:
+        return None
     # try to change the home folder path if the file does not exist
     if os.path.isfile(in_path) or os.path.isdir(in_path):
         return in_path
