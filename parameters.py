@@ -92,7 +92,6 @@ def get_string_parameters(parafile,name):
         parafile = saved_parafile_path
     result = read_Parameters_file(parafile,name)
     if result is False:
-        basic.outputlogMessage('get %s parameter failed'%name)
         raise ValueError('get %s parameter failed'%name)
     else:
         return result
@@ -112,7 +111,6 @@ def get_bool_parameters(parafile,name,default):
     result = read_Parameters_file(parafile,name)
     if result is False:
         if default is None:
-            basic.outputlogMessage('get %s parameter failed'%name)
             raise ValueError('get %s parameter failed'%name)
             # sys.exit(-1);
         else:
@@ -144,7 +142,6 @@ def get_digit_parameters(parafile,name,default,datatype):
             basic.outputlogMessage('get %s parameter failed, the  %s will be set as %f'%(name,name,default))
             return default
         else:
-            basic.outputlogMessage('get %s parameter failed, exit'%(name))
             raise ValueError('get %s parameter failed, exit'%(name))
             # return False
     try:
@@ -158,7 +155,6 @@ def get_digit_parameters(parafile,name,default,datatype):
             basic.outputlogMessage('convert %s to digit failed , it be set as %f'%(name,default))
             return default
         else:
-            basic.outputlogMessage('convert %s to digit failed , exit'%(name))
             raise ValueError('convert %s to digit failed , exit'%(name))
 
     return digit_value
@@ -175,7 +171,6 @@ def get_digit_parameters_None_if_absence(parafile,name,datatype):
         else:
             digit_value = float(result)
     except ValueError:
-            basic.outputlogMessage('convert %s to digit failed , exit'%(name))
             raise ValueError('convert %s to digit failed , exit'%(name))
 
     return digit_value
