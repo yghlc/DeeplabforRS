@@ -105,6 +105,12 @@ def get_string_parameters_None_if_absence(parafile,name):
     else:
         return result
 
+def get_directory_None_if_absence(parafile,name):
+    value = get_string_parameters_None_if_absence(parafile,name)
+    if value is None:
+        return None
+    return os.path.expanduser(value)
+
 def get_bool_parameters(parafile,name,default):
     if parafile =='':
         parafile = saved_parafile_path
@@ -174,6 +180,22 @@ def get_digit_parameters_None_if_absence(parafile,name,datatype):
             raise ValueError('convert %s to digit failed , exit'%(name))
 
     return digit_value
+
+def get_string_list__parameters_None_if_absence(parafile,name):
+    str_value = get_string_parameters(parafile, name)
+    attributes_list = []
+    attributes_init = str_value.split(',')
+    if len(attributes_init) < 1:
+        return None
+    else:
+        for att_str in attributes_init:
+            str_temp = att_str.strip()  # remove certain characters (such as whitespace) from the left and right parts of strings
+            if len(str_temp) > 0:
+                attributes_list.append(str_temp)
+        if len(attributes_list) < 1:
+            return None
+        else:
+            return attributes_list
 
 #endregion
 
