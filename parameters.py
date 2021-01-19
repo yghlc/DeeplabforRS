@@ -111,6 +111,12 @@ def get_directory_None_if_absence(parafile,name):
         return None
     return os.path.expanduser(value)
 
+def get_file_path_parameters_None_if_absence(parafile,name):
+    value = get_string_parameters_None_if_absence(parafile, name)
+    if value is None:
+        return None
+    return os.path.expanduser(value)
+
 def get_bool_parameters(parafile,name,default):
     if parafile =='':
         parafile = saved_parafile_path
@@ -181,7 +187,7 @@ def get_digit_parameters_None_if_absence(parafile,name,datatype):
 
     return digit_value
 
-def get_string_list__parameters_None_if_absence(parafile,name):
+def get_string_list_parameters_None_if_absence(parafile,name):
     str_value = get_string_parameters(parafile, name)
     attributes_list = []
     attributes_init = str_value.split(',')
