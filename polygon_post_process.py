@@ -271,12 +271,12 @@ def get_file_path_parameter(parafile,multi_files, one_file):
         one_file = io_function.get_file_path_new_home_folder(one_file)
     return one_file
 
-def get_topographic_files():
+def get_topographic_files(data_para_file):
 
-    dem_file = get_file_path_parameter('','multi_dem_files', 'dem_file')
-    slope_file = get_file_path_parameter('','multi_slope_files', 'slope_file')
-    aspect_file = get_file_path_parameter('', 'multi_aspect_files', 'aspect_file')
-    dem_diff_file = get_file_path_parameter('', 'multi_dem_diff_files', 'dem_diff_file')
+    dem_file = get_file_path_parameter(data_para_file,'multi_dem_files', 'dem_file')
+    slope_file = get_file_path_parameter(data_para_file,'multi_slope_files', 'slope_file')
+    aspect_file = get_file_path_parameter(data_para_file, 'multi_aspect_files', 'aspect_file')
+    dem_diff_file = get_file_path_parameter(data_para_file, 'multi_dem_diff_files', 'dem_diff_file')
 
     return dem_file, slope_file, aspect_file,dem_diff_file
 
@@ -287,6 +287,9 @@ def main(options, args):
     if io_function.is_file_exist(input) is False:
         return False
 
+    data_para_file = options.data_para
+    if data_para_file is None:
+        data_para_file = options.para_file
     ## remove non-gully polygons
     # output_rm_nonclass = io_function.get_name_by_adding_tail(input, 'rm_nonclass')
     # if remove_nonclass_polygon(input,output_rm_nonclass,field_name='svmclass') is False:
@@ -345,7 +348,7 @@ def main(options, args):
     #     return False
 
     # add topography of each polygons
-    dem_file, slope_file, aspect_file, dem_diff_file = get_topographic_files()
+    dem_file, slope_file, aspect_file, dem_diff_file = get_topographic_files(data_para_file)
     if calculate_polygon_topography(output,dem_file,slope_file,aspect_file=aspect_file,dem_diff=dem_diff_file) is False:
         basic.outputlogMessage('Warning: calculate information of topography failed')
         # return False   #  don't return
@@ -378,6 +381,10 @@ if __name__=='__main__':
     parser.add_option("-p", "--para",
                       action="store", dest="para_file",
                       help="the parameters file")
+
+    parser.add_option("-d", "--data_para",
+                      action="store", dest="data_para",
+                      help="the parameters file for data")
 
     parser.add_option("-a", "--min_area",
                       action="store", dest="min_area",type=float,
