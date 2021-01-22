@@ -123,7 +123,7 @@ def get_bool_parameters(parafile,name,default):
     result = read_Parameters_file(parafile,name)
     if result is False:
         if default is None:
-            raise ValueError('get %s parameter failed'%name)
+            raise ValueError('get %s parameter (from %s) failed '%(name,parafile))
             # sys.exit(-1);
         else:
             basic.outputlogMessage('get %s parameter failed, the  %s will be set as %s'%(name,name,default))
