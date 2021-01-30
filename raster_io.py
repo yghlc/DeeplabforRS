@@ -13,6 +13,8 @@ from optparse import OptionParser
 import rasterio
 import numpy as np
 
+from rasterio.coords import BoundingBox
+
 def open_raster_read(raster_path):
     src = rasterio.open(raster_path)
     return src
@@ -27,6 +29,39 @@ def get_xres_yres_file(file_path):
     with rasterio.open(file_path) as src:
         xres, yres  = src.res       # Returns the (width, height) of pixels in the units of its coordinate reference system.
         return xres, yres
+
+def get_area_image_box(file_path):
+    # get the area of an image coverage (including nodata area)
+    with rasterio.open(file_path) as src:
+        # the extent of the raster
+        raster_bounds = src.bounds  # (left, bottom, right, top)
+        height = raster_bounds.top - raster_bounds.bottom
+        width = raster_bounds.right - raster_bounds.left
+        return height*width
+
+def get_image_bound_box(file_path, buffer=None):
+    # get the bounding box: (left, bottom, right, top)
+    with rasterio.open(file_path) as src:
+        # the extent of the raster
+        raster_bounds = src.bounds
+        if buffer is not None:
+            # Create new instance of BoundingBox(left, bottom, right, top)
+            new_box_obj = BoundingBox(raster_bounds.left-buffer, raster_bounds.bottom-buffer,
+                       raster_bounds.right+buffer, raster_bounds.top+ buffer)
+            print(raster_bounds, new_box_obj)
+            return new_box_obj
+        return raster_bounds
+
+def is_two_bound_disjoint(box1, box2):
+    # box1 and box2: bounding box: (left, bottom, right, top)
+    # Compare two bounds and determine if they are disjoint.
+    # return True if bounds are disjoint, False if they are overlap
+    return rasterio.coords.disjoint_bounds(box1,box2)
+
+def is_two_image_disjoint(img1, img2, buffer=None):
+    box1 = get_image_bound_box(img1, buffer=buffer)
+    box2 = get_image_bound_box(img2, buffer=buffer)
+    return is_two_bound_disjoint(box1,box2)
 
 
 def read_oneband_image_to_1dArray(image_path,nodata=None, ignore_small=None):
