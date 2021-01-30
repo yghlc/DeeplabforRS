@@ -48,7 +48,7 @@ def get_image_bound_box(file_path, buffer=None):
             # Create new instance of BoundingBox(left, bottom, right, top)
             new_box_obj = BoundingBox(raster_bounds.left-buffer, raster_bounds.bottom-buffer,
                        raster_bounds.right+buffer, raster_bounds.top+ buffer)
-            print(raster_bounds, new_box_obj)
+            # print(raster_bounds, new_box_obj)
             return new_box_obj
         return raster_bounds
 
