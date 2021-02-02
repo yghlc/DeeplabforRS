@@ -180,6 +180,19 @@ def exec_command_string_output_string(command_str):
     #     return False
     return result
 
+def b_all_process_finish(processes):
+    for task in processes:
+        if task.is_alive():
+            return False
+    return True
+
+def alive_process_count(processes):
+    count = 0
+    for task in processes:
+        if task.is_alive():
+            count += 1
+    return count
+
 
 if __name__=='__main__':
     pass
