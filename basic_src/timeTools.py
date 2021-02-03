@@ -51,6 +51,10 @@ def get_yeardate_yyyymmdd(in_string):
         return None
     return datetime_list[0]
 
+def str2date(date_str,format = '%Y%m%d'):
+    date_obj = datetime.strptime(date_str, format)
+    return date_obj
+
 def date2str(date, format='%Y%m%d'):
     return date.strftime(format)
 
