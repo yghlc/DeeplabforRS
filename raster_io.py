@@ -174,6 +174,57 @@ def save_numpy_array_to_rasterfile(numpy_array, save_path, ref_raster, format='G
 
     return True
 
+def image_numpy_allBands_to_8bit(img_np_allbands, scales, src_nodata=None, dst_nodata=None):
+    '''
+    linear scretch and save to 8 bit.
+    Args:
+        img_np:
+        scales: one or multiple list of (src_min src_max dst_min dst_max)
+        src_nodata:
+        dst_nodata:
+
+    Returns: new numpy array
+
+    '''
+    nodata_loc = None
+    if src_nodata is not None:
+        nodata_loc = np.where(img_np_allbands==src_nodata)
+    band_count, height, width = img_np_allbands.shape
+    print(band_count, height, width)
+    # if we input multiple scales, it should has the same size the band count
+    if len(scales) > 1 and len(scales) != band_count:
+        raise ValueError('The number of scales is not the same with band account')
+    # if only input one scale, then duplicate for multiple band account.
+    if len(scales)==1 and len(scales) != band_count:
+        scales = scales*band_count
+
+    new_img_np = np.zeros_like(img_np_allbands,dtype=np.uint8)
+
+    for idx, (scale, img_oneband) in enumerate(zip(scales,img_np_allbands)):
+        # print(scale)
+        # print(img_oneband.shape)
+
+        src_min = float(scale[0])
+        scr_max = float(scale[1])
+        dst_min = float(scale[2])
+        dst_max = float(scale[3])
+        img_oneband[img_oneband > scr_max] = scr_max
+        img_oneband[img_oneband < src_min] = src_min
+
+        # scale the grey values to dst_min - dst_max
+        k = (dst_max - dst_min) * 1.0 / (scr_max - src_min)
+        new_img_np[idx,:] = (img_oneband - src_min) * k + dst_min
+
+    # replace nodata
+    if nodata_loc is not None and nodata_loc[0].size >0:
+        if dst_nodata is not None:
+            new_img_np[nodata_loc] = dst_nodata
+        else:
+            new_img_np[nodata_loc] = src_nodata
+
+    return new_img_np
+
+
 def image_numpy_to_8bit(img_np, max_value, min_value, src_nodata=None, dst_nodata=None):
     '''
     convert float or 16 bit to 8bit,
