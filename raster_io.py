@@ -15,6 +15,9 @@ import numpy as np
 
 from rasterio.coords import BoundingBox
 
+#Color interpretation https://rasterio.readthedocs.io/en/latest/topics/color.html
+from rasterio.enums import ColorInterp
+
 def open_raster_read(raster_path):
     src = rasterio.open(raster_path)
     return src
@@ -149,6 +152,7 @@ def save_numpy_array_to_rasterfile(numpy_array, save_path, ref_raster, format='G
     # print('saved numpy_array.shape',numpy_array.shape)
 
     with rasterio.open(ref_raster) as src:
+        # [print(src.colorinterp[idx]) for idx in range(src.count)]
         # test: save it to disk
         out_meta = src.meta.copy()
         out_meta.update({"driver": format,
@@ -167,8 +171,16 @@ def save_numpy_array_to_rasterfile(numpy_array, save_path, ref_raster, format='G
         if bigtiff is not None:
             out_meta.update(bigtiff=bigtiff)
 
+        colorinterp = [src.colorinterp[idx] for idx in range(src.count)]
+        # print(colorinterp)
+
         with rasterio.open(save_path, "w", **out_meta) as dest:
             dest.write(numpy_array)
+            # Get/set raster band color interpretation: https://github.com/mapbox/rasterio/issues/100
+            if src.count == band_count:
+                dest.colorinterp = colorinterp
+            else:
+                dest.colorinterp = [ColorInterp.undefined] * band_count
 
     print('save to %s'%save_path)
 
