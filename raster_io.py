@@ -33,6 +33,10 @@ def get_xres_yres_file(file_path):
         xres, yres  = src.res       # Returns the (width, height) of pixels in the units of its coordinate reference system.
         return xres, yres
 
+def get_height_width_bandnum_dtype(file_path):
+    with rasterio.open(file_path) as src:
+        return src.height, src.width, src.count, src.dtypes[0]
+
 def get_area_image_box(file_path):
     # get the area of an image coverage (including nodata area)
     with rasterio.open(file_path) as src:
@@ -154,7 +158,7 @@ def read_raster_one_band_np(raster_path,band=1):
 
         # data = src.read(indexes)   # output (1, 8249, 13524)
         data = src.read(band)       # output (8249, 13524)
-        print(data.shape)
+        # print(data.shape)
         # print(src.nodata)
         if src.nodata is not None and src.dtypes[0] == 'float32':
             data[ data == src.nodata ] = np.nan
