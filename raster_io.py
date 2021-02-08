@@ -55,6 +55,45 @@ def get_image_bound_box(file_path, buffer=None):
             return new_box_obj
         return raster_bounds
 
+def get_valid_pixel_count(image_path):
+    """
+    get the count of valid pixels (exclude no_data pixel)
+    assume that the nodata value already be set
+    Args:
+        image_path: path
+
+    Returns: the count
+
+    """
+
+    oneband_data, nodata = read_raster_one_band_np(image_path, band=1)
+    if nodata is None:
+        raise ValueError('nodata is not set in %s, cannot tell valid pixel'%image_path)
+
+    valid_loc = np.where(oneband_data != nodata)
+    valid_pixel_count = valid_loc[0].size
+
+    # return valid count and total count
+    return valid_pixel_count, oneband_data.size
+
+def get_valid_pixel_percentage(image_path,total_pixel_num=None):
+    """
+    get the percentage of valid pixels (exclude no_data pixel)
+    assume that the nodata value already be set
+    Args:
+        image_path: path
+        total_pixel_num: total pixel count, for example, the image only cover a portion of the area
+
+    Returns: the percentage (%)
+
+    """
+    valid_pixel_count, total_count = get_valid_pixel_count(image_path)
+    if total_pixel_num is None:
+        total_pixel_num =total_count
+
+    valid_per = 100.0 * valid_pixel_count / total_pixel_num
+    return valid_per
+
 def is_two_bound_disjoint(box1, box2):
     # box1 and box2: bounding box: (left, bottom, right, top)
     # Compare two bounds and determine if they are disjoint.
@@ -107,19 +146,19 @@ def read_raster_all_bands_np(raster_path):
 
         return data, src.nodata
 
-def read_raster_one_band_np(raster_path):
+def read_raster_one_band_np(raster_path,band=1):
     with rasterio.open(raster_path) as src:
         indexes = src.indexes
-        if len(indexes) != 1:
-            raise IOError('error, only support one band')
+        # if len(indexes) != 1:
+        #     raise IOError('error, only support one band')
 
         # data = src.read(indexes)   # output (1, 8249, 13524)
-        data = src.read(1)       # output (8249, 13524)
+        data = src.read(band)       # output (8249, 13524)
         print(data.shape)
         # print(src.nodata)
-        if src.nodata is not None:
+        if src.nodata is not None and src.dtypes[0] == 'float32':
             data[ data == src.nodata ] = np.nan
-        return data
+        return data, src.nodata
 
 def save_numpy_array_to_rasterfile(numpy_array, save_path, ref_raster, format='GTiff', nodata=None,
                                    compress=None, tiled=None, bigtiff=None):
