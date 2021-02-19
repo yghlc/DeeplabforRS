@@ -1,5 +1,7 @@
 # DeeplabforRS
 
+We currently develop our codes for large areas in another repo: [Landuse_DL](https://github.com/yghlc/Landuse_DL), please check this repo for updates.
+
 ## Introduction
 This repo contains codes for mapping thermokarst landform on remote sensing images based on [DeepLab V2](http://liangchiehchen.com/projects/DeepLab.html), which is a segmentation algorithm using Deep Convolutional Neural Network. If any code here is useful for your project, please consider citing [our paper](https://www.mdpi.com/2072-4292/10/12/2067):
 
