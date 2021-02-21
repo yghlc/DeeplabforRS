@@ -336,6 +336,10 @@ def subset_image_by_polygon_box_image_min(output, imagefile, polygon, resample_m
     miny = max(miny,im_miny)
     maxy = min(maxy,im_maxy)
 
+    if minx >= maxx or miny >= maxy:
+        basic.outputlogMessage('Warning, out of extent, Crop %s failed' % imagefile)
+        return False
+
     result = subset_image_projwin(output,imagefile,minx, maxy, maxx, miny, resample_m=resample_m, xres=xres,yres=yres,
                                   o_format=o_format,compress=compress, tiled=tiled, bigtiff=bigtiff)
 
