@@ -195,6 +195,41 @@ def read_attribute_values_list(polygon_shp, field_name):
         basic.outputlogMessage('Warning: %s not in the shape file, will return None'%field_name)
         return None
 
+def read_polygons_attributes_list(polygon_shp, field_nameS, b_fix_invalid_polygon = True):
+    '''
+    read polygons and attribute value (list)
+    :param polygon_shp:
+    :param field_nameS: a string file name or a list of field_name
+    :return: Polygons and attributes
+    '''
+    shapefile = gpd.read_file(polygon_shp)
+    polygons = shapefile.geometry.values
+    # fix invalid polygons
+    if b_fix_invalid_polygon:
+        polygons = fix_invalid_polygons(polygons)
+
+    # read attributes
+    if isinstance(field_nameS,str): # only one field name
+        if field_nameS in shapefile.keys():
+            attribute_values = shapefile[field_nameS]
+            return polygons, attribute_values.tolist()
+        else:
+            basic.outputlogMessage('Warning: %s not in the shape file, get None' % field_nameS)
+            return polygons, None
+    elif isinstance(field_nameS,list):  # a list of field name
+        attribute_2d = []
+        for field_name in field_nameS:
+            if field_name in shapefile.keys():
+                attribute_values = shapefile[field_name]
+                attribute_2d.append(attribute_values.tolist())
+            else:
+                basic.outputlogMessage('Warning: %s not in the shape file, get None' % field_nameS)
+                attribute_2d.append(None)
+        return polygons, attribute_2d
+    else:
+        raise ValueError('unknown type of %s'%str(field_nameS))
+
+
 def remove_polygon_equal(shapefile,field_name, expect_value, b_equal, output):
     '''
     remove polygons the the attribute value is not equal to a specific value
