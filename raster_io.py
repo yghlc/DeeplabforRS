@@ -78,6 +78,9 @@ def get_valid_pixel_count(image_path):
 
     valid_loc = np.where(oneband_data != nodata)
     valid_pixel_count = valid_loc[0].size
+    if oneband_data.dtype == 'float32':
+        nan_loc = np.where(np.isnan(oneband_data))
+        valid_pixel_count -=  nan_loc[0].size
 
     # return valid count and total count
     return valid_pixel_count, oneband_data.size
