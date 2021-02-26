@@ -154,7 +154,7 @@ def reproject_shapefile(shp_path, prj_str,save_path):
 
     return shapefile.to_file(save_path, driver = 'ESRI Shapefile')
 
-def read_polygons_gpd(polygon_shp):
+def read_polygons_gpd(polygon_shp, b_fix_invalid_polygon = True):
     '''
     read polyogns using geopandas
     :param polygon_shp: polygon in projection of EPSG:4326
@@ -174,7 +174,8 @@ def read_polygons_gpd(polygon_shp):
     #     raise ValueError('error, polygons %s (index start from 1) in %s are invalid, please fix them first '%(str(invalid_polygon_idx),polygon_shp))
 
     # fix invalid polygons
-    polygons = fix_invalid_polygons(polygons)
+    if b_fix_invalid_polygon:
+        polygons = fix_invalid_polygons(polygons)
 
     return polygons
 
