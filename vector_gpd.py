@@ -690,6 +690,16 @@ def get_poly_index_within_extent(polygon_list, extent_poly):
 
     return idx_list
 
+def convert_image_bound_to_shapely_polygon(img_bound_box):
+    # convert bounding box  to shapely polygon
+    # img_bound_box: bounding box: (left, bottom, right, top) read from rasterio
+    letftop1 = (img_bound_box[0],img_bound_box[3])
+    righttop1 = (img_bound_box[2],img_bound_box[3])
+    rightbottom1 = (img_bound_box[2],img_bound_box[1])
+    leftbottom1 = (img_bound_box[0],img_bound_box[1])
+    polygon = Polygon([letftop1, righttop1,rightbottom1,leftbottom1])
+    return polygon
+
 def get_overlap_area_two_boxes(box1, box2, buffer=None):
     '''
     get overlap areas of two box
