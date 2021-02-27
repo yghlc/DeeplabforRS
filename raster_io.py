@@ -220,8 +220,8 @@ def read_raster_all_bands_np(raster_path, boundary=None):
 
         # print(data.shape)
         # print(src.nodata)
-        if src.nodata is not None and src.dtypes[0] == 'float32':
-            data[ data == src.nodata ] = np.nan
+        # if src.nodata is not None and src.dtypes[0] == 'float32':
+        #     data[ data == src.nodata ] = np.nan
 
         return data, src.nodata
 
@@ -234,8 +234,8 @@ def read_raster_one_band_np(raster_path,band=1,boundary=None):
         else:
             data = src.read(band)       # output (height, width)
 
-        if src.nodata is not None and src.dtypes[0] == 'float32':
-            data[ data == src.nodata ] = np.nan
+        # if src.nodata is not None and src.dtypes[0] == 'float32':
+        #     data[ data == src.nodata ] = np.nan
         return data, src.nodata
 
 def save_numpy_array_to_rasterfile(numpy_array, save_path, ref_raster, format='GTiff', nodata=None,
