@@ -104,6 +104,8 @@ def get_valid_pixel_percentage(image_path,total_pixel_num=None, progress=None):
         total_pixel_num =total_count
 
     valid_per = 100.0 * valid_pixel_count / total_pixel_num
+    if progress is not None:
+        print(progress, 'Done')
     return valid_per
 
 def get_valid_percent_shannon_entropy(image_path,log_base=10):
