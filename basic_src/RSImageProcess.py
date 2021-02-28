@@ -141,7 +141,7 @@ class RSImgProclass(object):
 
 def mosaic_crop_images_gdalwarp(raster_files,outputfile,src_nodata=None,dst_nodata=None,min_x=None,min_y=None, max_x=None, max_y=None,
                                 xres=None,yres=None,resampling_method='min', o_format='GTiff',
-                                compress=None,tiled=None, bigtiff=None):
+                                compress=None,tiled=None, bigtiff=None, thread_num=None):
     '''
     create a mosaic from multiple input raster using gdalwarp, crop if min_x, min_y, max_x, max_y are valid
     Args:
@@ -191,6 +191,9 @@ def mosaic_crop_images_gdalwarp(raster_files,outputfile,src_nodata=None,dst_noda
         CommandString += ' -co ' + 'TILED=%s'%tiled     # yes
     if bigtiff != None:
         CommandString += ' -co ' + 'bigtiff=%s' % bigtiff  # IF_SAFER
+
+    if thread_num != None:
+        CommandString += ' -multi -wo NUM_THREADS=%d '%thread_num
 
     inputfiles = ' '.join(raster_files)
     CommandString += ' ' + inputfiles + ' ' + outputfile
