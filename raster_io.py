@@ -97,11 +97,11 @@ def get_valid_pixel_percentage(image_path,total_pixel_num=None, progress=None):
     Returns: the percentage (%)
 
     """
+    if progress is not None:
+        print(progress)
     valid_pixel_count, total_count = get_valid_pixel_count(image_path)
     if total_pixel_num is None:
         total_pixel_num =total_count
-    if progress is not None:
-        print(progress)
 
     valid_per = 100.0 * valid_pixel_count / total_pixel_num
     return valid_per
