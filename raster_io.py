@@ -34,6 +34,12 @@ def get_driver_format(file_path):
     with rasterio.open(file_path) as src:
         return src.driver
 
+def get_projection(file_path):
+    # https://rasterio.readthedocs.io/en/latest/api/rasterio.crs.html
+    # convert the different type, to epsg, proj4, and wkt
+    with rasterio.open(file_path) as src:
+        return src.crs
+
 def get_xres_yres_file(file_path):
     with rasterio.open(file_path) as src:
         xres, yres  = src.res       # Returns the (width, height) of pixels in the units of its coordinate reference system.
