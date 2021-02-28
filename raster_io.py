@@ -92,9 +92,11 @@ def get_valid_pixel_count(image_path):
             # print(band_block_data.shape)
             # print(band_block_data)
             valid_loc = np.where(band_block_data != nodata)
-            if band_block_data.dtype == 'float32':
-                nan_loc = np.where(np.isnan(band_block_data))
-                valid_pixel_count -=  nan_loc[0].size
+            # if band_block_data.dtype == 'float32':
+            # always check nan
+            nan_loc = np.where(np.isnan(band_block_data))
+            valid_pixel_count -=  nan_loc[0].size
+
             valid_pixel_count += valid_loc[0].size
             total_count += band_block_data.size
             # break
