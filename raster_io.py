@@ -85,13 +85,14 @@ def get_valid_pixel_count(image_path):
     # return valid count and total count
     return valid_pixel_count, oneband_data.size
 
-def get_valid_pixel_percentage(image_path,total_pixel_num=None):
+def get_valid_pixel_percentage(image_path,total_pixel_num=None, progress=None):
     """
     get the percentage of valid pixels (exclude no_data pixel)
     assume that the nodata value already be set
     Args:
         image_path: path
         total_pixel_num: total pixel count, for example, the image only cover a portion of the area
+        progress: to show the progress when parallel call this function
 
     Returns: the percentage (%)
 
@@ -99,6 +100,8 @@ def get_valid_pixel_percentage(image_path,total_pixel_num=None):
     valid_pixel_count, total_count = get_valid_pixel_count(image_path)
     if total_pixel_num is None:
         total_pixel_num =total_count
+    if progress is not None:
+        print(progress)
 
     valid_per = 100.0 * valid_pixel_count / total_pixel_num
     return valid_per
