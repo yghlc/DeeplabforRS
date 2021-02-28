@@ -16,7 +16,7 @@ import numpy as np
 from rasterio.coords import BoundingBox
 
 import skimage.measure
-
+import time
 #Color interpretation https://rasterio.readthedocs.io/en/latest/topics/color.html
 from rasterio.enums import ColorInterp
 
@@ -72,18 +72,50 @@ def get_valid_pixel_count(image_path):
 
     """
 
-    oneband_data, nodata = read_raster_one_band_np(image_path, band=1)
-    if nodata is None:
-        raise ValueError('nodata is not set in %s, cannot tell valid pixel'%image_path)
+    t0 = time.time()
+    band = 1
+    # count the pixel block by block,  quicker than read the entire image
+    # https://rasterio.readthedocs.io/en/latest/topics/windowed-rw.html?highlight=block_shapes#blocks
+    valid_pixel_count = 0
+    total_count = 0
+    with rasterio.open(image_path) as src:
+        assert len(set(src.block_shapes)) == 1   # check have identically blocked bands
+        # for i, shape in enumerate(src.block_shapes,start=1):    # output shape
+        #     print((i, shape))
+        nodata = src.nodata
+        # print(nodata)
+        if nodata is None:
+            raise ValueError('nodata is not set in %s, cannot tell valid pixel' % image_path)
+        for ji, window in src.block_windows(band):     # 1 mean for band one
+            # print((ji, window))
+            band_block_data = src.read(band, window=window) # it seems that src convert nodata to nan automatically
+            # print(band_block_data.shape)
+            # print(band_block_data)
+            valid_loc = np.where(band_block_data != nodata)
+            if band_block_data.dtype == 'float32':
+                nan_loc = np.where(np.isnan(band_block_data))
+                valid_pixel_count -=  nan_loc[0].size
+            valid_pixel_count += valid_loc[0].size
+            total_count += band_block_data.size
+            # break
+    # total_count = src.width*src.height
+    # print('valid_pixel_count, total_count, time cost',valid_pixel_count, total_count,time.time() - t0)
+    return valid_pixel_count, total_count
 
-    valid_loc = np.where(oneband_data != nodata)
-    valid_pixel_count = valid_loc[0].size
-    if oneband_data.dtype == 'float32':
-        nan_loc = np.where(np.isnan(oneband_data))
-        valid_pixel_count -=  nan_loc[0].size
-
-    # return valid count and total count
-    return valid_pixel_count, oneband_data.size
+    # # read the entire image, then calculate
+    # oneband_data, nodata = read_raster_one_band_np(image_path, band=1)
+    # if nodata is None:
+    #     raise ValueError('nodata is not set in %s, cannot tell valid pixel'%image_path)
+    #
+    # valid_loc = np.where(oneband_data != nodata)
+    # valid_pixel_count = valid_loc[0].size
+    # if oneband_data.dtype == 'float32':
+    #     nan_loc = np.where(np.isnan(oneband_data))
+    #     valid_pixel_count -=  nan_loc[0].size
+    #
+    # # return valid count and total count
+    # print('valid_pixel_count, total_count, time cost', valid_pixel_count, oneband_data.size, time.time() - t0)
+    # return valid_pixel_count, oneband_data.size
 
 def get_valid_pixel_percentage(image_path,total_pixel_num=None, progress=None):
     """

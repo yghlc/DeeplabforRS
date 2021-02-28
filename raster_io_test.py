@@ -70,6 +70,35 @@ def test_parallel_reading_images():
     # [print(res) for res in results]
 
 
+def test_reading_images_block_by_block():
+
+    work_dir = os.path.expanduser('~/Data/Arctic/canada_arctic/DEM/WR_dem_diff/dem_tifs')
+    os.chdir(work_dir)
+    img_path = os.path.join(work_dir,'SETSM_WV01_20170630_1020010066903A00_1020010063388B00_seg1_2m_v3.0_dem_reg.tif')
+    ## reading with blocks
+    # valid_pixel_count, total_count, time cost 427551052 504329114 15.830054998397827
+    # 84.77619874231571
+    ## reading the entire images without blocks
+    # valid_pixel_count, total_count, time cost 427551052 504329114 21.094736099243164
+    # 84.77619874231571
+
+    # work_dir = os.path.expanduser('~/Data/Arctic/canada_arctic/DEM/WR_dem_diff')
+    # os.chdir(work_dir)
+    # img_path = os.path.join(work_dir,'WR_extent_DEM_diff_sub_1_reg.tif')
+    ## reading with blocks
+    # valid_pixel_count, total_count, time cost 111300813 111559476 3.6818361282348633
+    # 99.76813892528502
+    ## reading the entire images without blocks
+    # valid_pixel_count, total_count, time cost 111300813 111559476 4.6006247997283936
+    # 99.76813892528502
+
+
+    out = raster_io.get_valid_pixel_percentage(img_path)
+    print(out)
+
 if __name__ == '__main__':
-    test_parallel_reading_images()
+    # test_parallel_reading_images()
+
+    test_reading_images_block_by_block()
+
     pass
