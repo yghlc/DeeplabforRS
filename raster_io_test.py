@@ -14,6 +14,15 @@ import basic_src.io_function as io_function
 
 import multiprocessing
 from multiprocessing import Pool
+from multiprocessing import Process
+
+import time
+
+def b_all_task_finish(all_tasks):
+    for task in all_tasks:
+        if task.is_alive():
+            return False
+    return True
 
 def test_parallel_reading_images():
     # in some place, when calling get_valid_pixel_percentage in parallel (multiprocessing), after calculating,
@@ -42,11 +51,23 @@ def test_parallel_reading_images():
     try_count = 10
     para_list = [ (img_path, None, '%d/%d'%(idx+1, try_count)) for idx in range(try_count) ]
 
-    treadPool = Pool(process_num)
-    results = treadPool.starmap(raster_io.get_valid_pixel_percentage, para_list)
+    # treadPool = Pool(process_num)
+    # results = treadPool.starmap(raster_io.get_valid_pixel_percentage, para_list)
+
+    # this parallel stategy, a few print Done, other processes did not return results
+    sub_tasks = []
+    for idx in range(try_count):
+        sub_process = Process(target=raster_io.get_valid_pixel_percentage,args=(img_path, None, '%d/%d'%(idx+1, try_count)))
+        sub_process.start()
+        sub_tasks.append(sub_process)
+
+    # check all the tasks already finished
+    while b_all_task_finish(sub_tasks) is False:
+        print('wait all tasks to finish')
+        time.sleep(5)
 
     print('Done:')
-    [print(res) for res in results]
+    # [print(res) for res in results]
 
 
 if __name__ == '__main__':
