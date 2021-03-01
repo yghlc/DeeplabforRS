@@ -448,7 +448,7 @@ def image_numpy_to_8bit(img_np, max_value, min_value, src_nodata=None, dst_nodat
     Returns: new numpy array
 
     '''
-    print('Convert to 8bit, old max, min: %.4f, %.4f'%(max_value, min_value))
+    print('Convert to 8bit, original max, min: %.4f, %.4f'%(max_value, min_value))
     nan_loc = np.where(np.isnan(img_np))
     if nan_loc[0].size > 0:
         img_np = np.nan_to_num(img_np)
