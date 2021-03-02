@@ -14,6 +14,7 @@ import rasterio
 import numpy as np
 
 from rasterio.coords import BoundingBox
+from rasterio.mask import mask
 
 import skimage.measure
 import time
@@ -255,6 +256,36 @@ def boundary_to_window(boundary):
     # window structure; expecting ((row_start, row_stop), (col_start, col_stop))
     window = ((boundary[1],boundary[1]+boundary[3])  ,  (boundary[0],boundary[0]+boundary[2]))
     return window
+
+def read_raster_in_polygons_mask(raster_path, polygons, nodata=None, all_touched=True, crop=True,
+                                 bands = None, save_path=None):
+    # using mask to get pixels in polygons
+    # see more information of the parameter in the function: mask
+
+    if isinstance(polygons, list) is False:
+        polygon_list = [polygons]
+    else:
+        polygon_list = polygons
+
+    with rasterio.open(raster_path) as src:
+        # crop image and saved to disk
+        out_image, out_transform = mask(src, polygon_list, nodata=nodata, all_touched=all_touched, crop=crop,
+                                        indexes=bands)
+
+        if save_path is not None:
+            # save it to disk
+            if nodata is None:  # if it None, copy from the src file
+                nodata = src.nodata
+            out_meta = src.meta.copy()
+            out_meta.update({"driver": "GTiff",
+                             "height": out_image.shape[1],
+                             "width": out_image.shape[2],
+                             "transform": out_transform,
+                             "nodata": nodata})  # note that, the saved image have a small offset compared to the original ones (~0.5 pixel)
+            with rasterio.open(save_path, "w", **out_meta) as dest:
+                dest.write(out_image)
+
+        return out_image, out_transform
 
 def read_raster_all_bands_np(raster_path, boundary=None):
     # boundary: (xoff,yoff ,xsize, ysize)
