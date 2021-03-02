@@ -179,6 +179,31 @@ def read_polygons_gpd(polygon_shp, b_fix_invalid_polygon = True):
 
     return polygons
 
+def add_attributes_to_shp(shp_path, add_attributes):
+    '''
+    add attbibutes to a shapefile
+    :param shp_path: the path of shapefile
+    :param add_attributes: attributes (dict)
+    :return: True if successful, False otherwise
+    '''
+
+    shapefile = gpd.read_file(shp_path)
+    # print(shapefile.loc[0])   # output the first row
+
+    # get attributes_names
+    org_attribute_names = [ key for key in  shapefile.loc[0].keys()]
+    # print(org_attribute_names)
+    for key in add_attributes.keys():
+        if key in org_attribute_names:
+            basic.outputlogMessage('warning, field name: %s already in table '
+                                       'this will replace the original value'%(key))
+        shapefile[key] = add_attributes[key]
+
+    print(shapefile)
+    # save the original file
+    return shapefile.to_file(shp_path, driver='ESRI Shapefile')
+
+
 def read_attribute_values_list(polygon_shp, field_name):
     '''
     read the attribute value to a list
