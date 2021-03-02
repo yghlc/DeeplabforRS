@@ -272,10 +272,10 @@ def read_raster_in_polygons_mask(raster_path, polygons, nodata=None, all_touched
         out_image, out_transform = mask(src, polygon_list, nodata=nodata, all_touched=all_touched, crop=crop,
                                         indexes=bands)
 
+        if nodata is None:  # if it None, copy from the src file
+            nodata = src.nodata
         if save_path is not None:
             # save it to disk
-            if nodata is None:  # if it None, copy from the src file
-                nodata = src.nodata
             out_meta = src.meta.copy()
             out_meta.update({"driver": "GTiff",
                              "height": out_image.shape[1],
@@ -285,7 +285,7 @@ def read_raster_in_polygons_mask(raster_path, polygons, nodata=None, all_touched
             with rasterio.open(save_path, "w", **out_meta) as dest:
                 dest.write(out_image)
 
-        return out_image, out_transform
+        return out_image, out_transform, nodata
 
 def read_raster_all_bands_np(raster_path, boundary=None):
     # boundary: (xoff,yoff ,xsize, ysize)
