@@ -142,12 +142,16 @@ def zonal_stats_multiRasters(in_shp, raster_file_or_files, nodata=None, band = 1
     # polygons_json = [mapping(item) for item in polygons]  # no need when use new verion of rasterio
 
     # process polygons one by one polygons and the corresponding image tiles (parallel and save memory)
-    stats_res_list = []
-    for idx, polygon in enumerate(polygons):
-        out_stats = zonal_stats_one_polygon(idx, polygon, image_tiles, img_tile_polygons, stats, nodata=nodata, ignore_range=ignore_range,
-                                band=band, all_touched=all_touched)
-        stats_res_list.append(out_stats)
+    # stats_res_list = []
+    # for idx, polygon in enumerate(polygons):
+    #     out_stats = zonal_stats_one_polygon(idx, polygon, image_tiles, img_tile_polygons, stats, nodata=nodata, ignore_range=ignore_range,
+    #                             band=band, all_touched=all_touched)
+    #     stats_res_list.append(out_stats)
 
+    threadpool = Pool(process_num)
+    para_list = [ (idx, polygon, image_tiles, img_tile_polygons, stats, nodata, ignore_range,band, all_touched)
+                  for idx, polygon in enumerate(polygons)]
+    stats_res_list = threadpool.starmap(zonal_stats_one_polygon,para_list)
 
 
 
@@ -182,7 +186,7 @@ def test_zonal_stats_multiRasters():
 
     io_function.copy_shape_file(shp, save_shp)
     zonal_stats_multiRasters(save_shp, dem_list, nodata=None, band=1, stats=None, prefix='dem',
-                             ignore_range=None, all_touched=True, process_num=1)
+                             ignore_range=None, all_touched=True, process_num=4)
 
 
 
