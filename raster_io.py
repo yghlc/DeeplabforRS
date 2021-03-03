@@ -272,16 +272,25 @@ def read_raster_in_polygons_mask(raster_path, polygons, nodata=None, all_touched
         out_image, out_transform = mask(src, polygon_list, nodata=nodata, all_touched=all_touched, crop=crop,
                                         indexes=bands)
 
+        # print(out_image.shape)
+        if out_image.ndim == 2:
+            height, width = out_image.shape
+            band_count = 1
+        else:
+            band_count, height, width = out_image.shape
         if nodata is None:  # if it None, copy from the src file
             nodata = src.nodata
         if save_path is not None:
             # save it to disk
             out_meta = src.meta.copy()
             out_meta.update({"driver": "GTiff",
-                             "height": out_image.shape[1],
-                             "width": out_image.shape[2],
+                             "height": height,
+                             "width": width,
+                             "count": band_count,
                              "transform": out_transform,
                              "nodata": nodata})  # note that, the saved image have a small offset compared to the original ones (~0.5 pixel)
+            if out_image.ndim == 2:
+                out_image = out_image.reshape((1, height, width))
             with rasterio.open(save_path, "w", **out_meta) as dest:
                 dest.write(out_image)
 

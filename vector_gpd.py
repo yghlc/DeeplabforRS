@@ -199,7 +199,7 @@ def add_attributes_to_shp(shp_path, add_attributes):
                                        'this will replace the original value'%(key))
         shapefile[key] = add_attributes[key]
 
-    print(shapefile)
+    # print(shapefile)
     # save the original file
     return shapefile.to_file(shp_path, driver='ESRI Shapefile')
 

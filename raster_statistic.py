@@ -73,7 +73,8 @@ def zonal_stats_one_polygon(idx, polygon, image_tiles, img_tile_polygons, stats,
         tmp_saved_files = []
         for k_img, image_path in enumerate(image_list):
 
-            tmp_save_path = os.path.splitext(os.path.basename(image_path))[0] + 'subset_poly%d_'%idx +'.tif'
+            # print(image_path)
+            tmp_save_path = os.path.splitext(os.path.basename(image_path))[0] + '_subset_poly%d'%idx +'.tif'
             _, _,nodata = raster_io.read_raster_in_polygons_mask(image_path, polygon,all_touched=all_touched,nodata=nodata,
                                                           bands=band, save_path=tmp_save_path)
             tmp_saved_files.append(tmp_save_path)
@@ -165,14 +166,22 @@ def zonal_stats_multiRasters(in_shp, raster_file_or_files, nodata=None, band = 1
 
 
 def test_zonal_stats_multiRasters():
+
     shp = os.path.expanduser('~/Data/Arctic/canada_arctic/Willow_River/Willow_River_Thaw_Slumps.shp')
-    save_shp = os.path.basename(io_function.get_name_by_adding_tail(shp,'raster_stats'))
+    # save_shp = os.path.basename(io_function.get_name_by_adding_tail(shp,'raster_stats'))
+
+
+    # a single DEM
+    # dem_file_dir = os.path.expanduser('~/Data/Arctic/canada_arctic/DEM/WR_dem_ArcticDEM_mosaic')
+    # dem_path = os.path.join(dem_file_dir,'WR_extent_2m_v3.0_ArcticTileDEM_sub_1_prj.tif')
+
+    # dem patches
+    dem_file_dir = os.path.expanduser('~/Data/Arctic/canada_arctic/DEM/WR_dem_ArcticDEM_mosaic/dem_patches')
+    dem_list = io_function.get_file_list_by_ext('.tif',dem_file_dir,bsub_folder=False)
+    save_shp = os.path.basename(io_function.get_name_by_adding_tail(shp, 'multi_raster_stats'))
+
     io_function.copy_shape_file(shp, save_shp)
-
-    dem_file_dir = os.path.expanduser('~/Data/Arctic/canada_arctic/DEM/WR_dem_ArcticDEM_mosaic')
-    dem_path = os.path.join(dem_file_dir,'WR_extent_2m_v3.0_ArcticTileDEM_sub_1_prj.tif')
-
-    zonal_stats_multiRasters(save_shp, dem_path, nodata=None, band=1, stats=None, prefix='dem',
+    zonal_stats_multiRasters(save_shp, dem_list, nodata=None, band=1, stats=None, prefix='dem',
                              ignore_range=None, all_touched=True, process_num=1)
 
 
