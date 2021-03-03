@@ -22,18 +22,18 @@ basic.setlogfile('raster_statistic.log')
 
 from multiprocessing import Pool
 
-def array_stats(in_array, stats, nodata,ignore_range=None):
+def array_stats(in_array, stats, nodata,range=None):
     data_1d = in_array.flatten()
     data_1d = data_1d[ data_1d != nodata]
     data_1d = data_1d[~np.isnan(data_1d)]  # remove nan value
 
-    if ignore_range is not None:
-        lower = ignore_range[0]
-        upper = ignore_range[1]
+    if range is not None:
+        lower = range[0]
+        upper = range[1]
         if lower is None:
-            data_1d = data_1d[data_1d > upper]
+            data_1d = data_1d[data_1d <= upper]
         elif upper is None:
-            data_1d = data_1d[data_1d < lower]
+            data_1d = data_1d[data_1d >= lower]
         else:
             data_1d = data_1d[np.logical_and( data_1d >= lower, data_1d <= upper ) ]
 
@@ -59,7 +59,7 @@ def array_stats(in_array, stats, nodata,ignore_range=None):
     return out_value_dict
 
 
-def zonal_stats_one_polygon(idx, polygon, image_tiles, img_tile_polygons, stats, nodata=None,ignore_range=None,
+def zonal_stats_one_polygon(idx, polygon, image_tiles, img_tile_polygons, stats, nodata=None,range=None,
                             band = 1,all_touched=True):
 
     overlap_index = vector_gpd.get_poly_index_within_extent(img_tile_polygons, polygon)
@@ -98,10 +98,10 @@ def zonal_stats_one_polygon(idx, polygon, image_tiles, img_tile_polygons, stats,
         return None
 
     # do calculation
-    return array_stats(out_image, stats, nodata,ignore_range=ignore_range)
+    return array_stats(out_image, stats, nodata,range=range)
 
 def zonal_stats_multiRasters(in_shp, raster_file_or_files, nodata=None, band = 1, stats = None, prefix='',
-                             ignore_range=None,all_touched=True, process_num=1):
+                             range=None,all_touched=True, process_num=1):
     '''
     zonal statistic based on vectors, along multiple rasters (image tiles)
     Args:
@@ -110,7 +110,7 @@ def zonal_stats_multiRasters(in_shp, raster_file_or_files, nodata=None, band = 1
         nodata:
         band: band
         stats: like [mean, std, max, min]
-        ignore_range: ignore values [min, max], if min is None, then ignore value<=max, same to max.
+        range: interested values [min, max], None means infinity
         all_touched:
         process_num: process number for calculation
 
@@ -144,12 +144,12 @@ def zonal_stats_multiRasters(in_shp, raster_file_or_files, nodata=None, band = 1
     # process polygons one by one polygons and the corresponding image tiles (parallel and save memory)
     # stats_res_list = []
     # for idx, polygon in enumerate(polygons):
-    #     out_stats = zonal_stats_one_polygon(idx, polygon, image_tiles, img_tile_polygons, stats, nodata=nodata, ignore_range=ignore_range,
+    #     out_stats = zonal_stats_one_polygon(idx, polygon, image_tiles, img_tile_polygons, stats, nodata=nodata, range=range,
     #                             band=band, all_touched=all_touched)
     #     stats_res_list.append(out_stats)
 
     threadpool = Pool(process_num)
-    para_list = [ (idx, polygon, image_tiles, img_tile_polygons, stats, nodata, ignore_range,band, all_touched)
+    para_list = [ (idx, polygon, image_tiles, img_tile_polygons, stats, nodata, range,band, all_touched)
                   for idx, polygon in enumerate(polygons)]
     stats_res_list = threadpool.starmap(zonal_stats_one_polygon,para_list)
 
