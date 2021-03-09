@@ -259,6 +259,10 @@ def get_file_list_by_pattern(folder,pattern):
 
     return file_list
 
+def get_free_disk_space_GB(dir):
+    total, used, free = shutil.disk_usage(dir)  # output in bytes
+    return free/(1000*1000*1000)    # convert to GB
+
 def get_absolute_path(path):
     return os.path.abspath(path)
 
