@@ -11,6 +11,7 @@ add time: 27 February, 2021
 import os, sys
 import raster_io
 import basic_src.io_function as io_function
+import basic_src.basic as basic
 
 import multiprocessing
 from multiprocessing import Pool
@@ -96,9 +97,33 @@ def test_reading_images_block_by_block():
     out = raster_io.get_valid_pixel_percentage(img_path)
     print(out)
 
+def test_if_raseter_closed():
+
+    # to test, if the raster is close if it's outside with open
+
+    dir = os.path.expanduser('~/Data/Arctic/canada_arctic/DEM/WR_dem_diff')
+    tifs = io_function.get_file_list_by_ext('.tif',dir,bsub_folder=False)
+    print("%d tif in %s"%(len(tifs), dir))
+
+    data_list = []
+    for idx in range(10):   # each one open 10 times
+
+        boundary = (0,0, 100, 100)  # (xoff,yoff ,xsize, ysize)
+        for tif in tifs:
+            data = raster_io.read_raster_one_band_np(tif,band=1,boundary=boundary)
+            data_list.append(data)
+
+        # check current files
+        open_file_list = basic.get_curr_process_openfiles()
+        print(' open file count:', len(open_file_list))
+        for o_file in open_file_list:
+            print(o_file)
+
 if __name__ == '__main__':
     # test_parallel_reading_images()
 
-    test_reading_images_block_by_block()
+    # test_reading_images_block_by_block()
+
+    test_if_raseter_closed()
 
     pass
