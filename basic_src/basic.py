@@ -9,6 +9,7 @@ add time: 04 May, 2016
 """
 
 import time,os,sys,subprocess
+import psutil
 
 logfile = 'processLog.txt'
 def setlogfile(file_name):
@@ -202,6 +203,17 @@ def alive_process_count(processes):
             count += 1
     return count
 
+
+def get_curr_process_openfiles():
+    # the the open files by current process
+    # if want to check all the open files in a system, need go through psutil.process_iter()
+    proc = psutil.Process()
+    open_file_path = []
+    open_files = proc.open_files()
+    for o_file in open_files:
+        open_file_path.append(o_file[0])    # get the path
+
+    return open_file_path
 
 if __name__=='__main__':
     pass
