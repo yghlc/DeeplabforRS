@@ -215,5 +215,40 @@ def get_curr_process_openfiles():
 
     return open_file_path
 
+def get_all_processes_openfiles(proc_name_contain_str=None):
+    # check all open files
+    import getpass
+    user_name = getpass.getuser()
+    all_open_files = []
+    for proc in psutil.process_iter():
+        try:
+            # _proc = proc.as_dict(attrs=['cpu_times', 'name', 'pid', 'status'])
+            # print(proc)
+            if proc.username() != user_name:
+                continue
+            if proc_name_contain_str is not None:
+                if proc_name_contain_str not in proc.name():
+                    continue
+            if proc.is_running() is False:
+                continue
+            open_files = proc.open_files()
+            open_file_path = []
+            for o_file in open_files:
+                open_file_path.append(o_file[0])
+                all_open_files.append(o_file[0])
+            print(proc.pid, proc.name(), proc.username(), 'open %d files'%len(open_file_path))   # proc.is_running()
+
+        except psutil.NoSuchProcess:
+            continue
+        except psutil.ZombieProcess: #
+            continue
+        except:
+            print('unknown except')
+            continue
+
+
+        # # print('process: id, name, started, open %d files'%len(open_file_path), proc[0], proc[1], proc[2])
+    return all_open_files
+
 if __name__=='__main__':
     pass

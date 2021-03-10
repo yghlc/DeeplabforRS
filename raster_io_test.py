@@ -114,7 +114,8 @@ def test_if_raseter_closed():
             data_list.append(data)
 
         # check current files
-        open_file_list = basic.get_curr_process_openfiles()
+        # open_file_list = basic.get_curr_process_openfiles()
+        open_file_list = basic.get_all_processes_openfiles('python')
         print(' open file count:', len(open_file_list))
         for o_file in open_file_list:
             print(o_file)
