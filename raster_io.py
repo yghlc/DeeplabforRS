@@ -111,6 +111,7 @@ def get_valid_pixel_count(image_path):
             valid_pixel_count += valid_loc[0].size
             total_count += band_block_data.size
             # break
+        src.close()     # when call this function many time (> 10), the script frozen, try to manually close it.
     # total_count = src.width*src.height
     # print('valid_pixel_count, total_count, time cost',valid_pixel_count, total_count,time.time() - t0)
     return valid_pixel_count, total_count
