@@ -112,6 +112,7 @@ def get_valid_pixel_count(image_path):
             total_count += band_block_data.size
             # break
         src.close()     # when call this function many time (> 10), the script frozen, try to manually close it.
+                        # on uist, has this problem, but on tesia, don't have this problem # 2021-3-10 hlc
     # total_count = src.width*src.height
     # print('valid_pixel_count, total_count, time cost',valid_pixel_count, total_count,time.time() - t0)
     return valid_pixel_count, total_count
