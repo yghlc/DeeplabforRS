@@ -112,28 +112,24 @@ def get_directory_None_if_absence(parafile,name):
         return None
     return os.path.expanduser(value)
 
+def get_directory(parafile,name):
+    value = get_string_parameters_None_if_absence(parafile,name)
+    if value is None:
+        raise ValueError('%s not set in %s'%(name,parafile))
+    return os.path.expanduser(value)
+
 def get_file_path_parameters_None_if_absence(parafile,name):
     value = get_string_parameters_None_if_absence(parafile, name)
     if value is None:
         return None
     return os.path.expanduser(value)
 
-def get_bool_parameters(parafile,name,default):
-    if parafile =='':
-        parafile = saved_parafile_path
-    result = read_Parameters_file(parafile,name)
-    if result is False:
-        if default is None:
-            raise ValueError('get %s parameter (from %s) failed '%(name,parafile))
-            # sys.exit(-1);
-        else:
-            basic.outputlogMessage('get %s parameter failed, the  %s will be set as %s'%(name,name,default))
-            # return False
-            result = default
-    if result.upper()=='YES':
-        return True
-    else:
-        return False
+def get_file_path_parameters(parafile,name):
+    value = get_file_path_parameters_None_if_absence(parafile, name)
+    if value is None:
+        raise ValueError('%s not set in %s'%(name,parafile))
+    return os.path.expanduser(value)
+
 
 def get_bool_parameters_None_if_absence(parafile,name):
     if parafile =='':
@@ -146,31 +142,12 @@ def get_bool_parameters_None_if_absence(parafile,name):
     else:
         return False
 
-def get_digit_parameters(parafile,name,default,datatype):
-    if parafile =='':
-        parafile = saved_parafile_path
-    result = read_Parameters_file(parafile,name)
-    if result is False:
-        if not (default is None):
-            basic.outputlogMessage('get %s parameter failed, the  %s will be set as %f'%(name,name,default))
-            return default
-        else:
-            raise ValueError('get %s parameter failed, exit'%(name))
-            # return False
-    try:
-        if datatype == 'int':
-            digit_value = int(result)
-        else:
-            digit_value = float(result)
-    except ValueError:
-        basic.outputlogMessage(str(ValueError))
-        if not (default is None):
-            basic.outputlogMessage('convert %s to digit failed , it be set as %f'%(name,default))
-            return default
-        else:
-            raise ValueError('convert %s to digit failed , exit'%(name))
+def get_bool_parameters(parafile,name):
+    value = get_bool_parameters_None_if_absence(parafile,name)
+    if value is None:
+        raise ValueError(' %s not set in %s' % (name, parafile))
+    return value
 
-    return digit_value
 
 def get_digit_parameters_None_if_absence(parafile,name,datatype):
     if parafile =='':
@@ -188,9 +165,24 @@ def get_digit_parameters_None_if_absence(parafile,name,datatype):
 
     return digit_value
 
+def get_digit_parameters(parafile,name,datatype):
+    value = get_digit_parameters_None_if_absence(parafile, name, datatype)
+    if value is None:
+        raise ValueError(' %s not set in %s'%(name, parafile))
+    return value
+
+
 def get_string_list_parameters_None_if_absence(parafile,name):
     str_value = get_string_parameters(parafile, name)
     attributes_list = []
+
+    # if the list is in a txt file
+    if str_value.endswith('.txt') and len(str_value.split(',')) == 1:
+        with open(str_value, 'r') as f_obj:
+            lines = f_obj.readlines()
+            lines = [item.strip() for item in lines]
+            return lines
+
     attributes_init = str_value.split(',')
     if len(attributes_init) < 1:
         return None
@@ -204,7 +196,11 @@ def get_string_list_parameters_None_if_absence(parafile,name):
         else:
             return attributes_list
 
-#endregion
+def get_string_list_parameters(parafile,name):
+    str_value = get_string_list_parameters_None_if_absence(parafile,name)
+    if str_value is None or len(str_value) < 1:
+        raise ValueError('No inference area is set in %s' % parafile)
+    return str_value
 
 #region input and output setting
 def get_input_image_path(parafile=''):
@@ -272,41 +268,41 @@ def get_raster_example_file(parafile=''):
 
 ### Post processing and evaluation Parameters
 def get_minimum_gully_area(parafile=''):
-    return get_digit_parameters(parafile, 'minimum_gully_area', None, 'float')
+    return get_digit_parameters(parafile, 'minimum_gully_area', 'float')
 
 def get_maximum_ratio_width_height(parafile=''):
-    return get_digit_parameters(parafile, 'maximum_ratio_width_height', None, 'float')
+    return get_digit_parameters(parafile, 'maximum_ratio_width_height', 'float')
 
 def get_minimum_ratio_perimeter_area(parafile=''):
-    return get_digit_parameters(parafile, 'minimum_ratio_perimeter_area', None, 'float')
+    return get_digit_parameters(parafile, 'minimum_ratio_perimeter_area', 'float')
 
 def get_b_keep_holes(parafile=''):
-    return get_bool_parameters(parafile, 'b_keep_holes','YES' )
+    return get_bool_parameters(parafile, 'b_keep_holes' )
 
 def get_validation_shape(parafile=''):
     return get_string_parameters(parafile, 'validation_shape')
 
 def get_IOU_threshold(parafile=''):
-    return get_digit_parameters(parafile, 'IOU_threshold', None, 'float')
+    return get_digit_parameters(parafile, 'IOU_threshold', 'float')
 
 #end Post processing and evaluation Parameters
 
 
 ### Parameters for image co-registration
 def get_required_minimum_tiepoint_number(parafile=''):
-    return get_digit_parameters(parafile, 'required_minimum_tiepoint_number', None, 'int')
+    return get_digit_parameters(parafile, 'required_minimum_tiepoint_number', 'int')
 
 def get_acceptable_maximum_RMS(parafile=''):
-    return get_digit_parameters(parafile, 'acceptable_maximum_RMS', None, 'float')
+    return get_digit_parameters(parafile, 'acceptable_maximum_RMS', 'float')
 
 def get_gdalwarp_polynomial_order(parafile=''):
-    return get_digit_parameters(parafile, 'gdalwarp_polynomial_order', None, 'int')
+    return get_digit_parameters(parafile, 'gdalwarp_polynomial_order', 'int')
 
 def get_exec_dir(parafile=''):
     return get_string_parameters(parafile,'exec_dir')
 
 def get_draw_tie_points_rms_vector_scale(parafile=''):
-    return get_digit_parameters(parafile, 'draw_tie_points_rms_vector_scale', None, 'float')
+    return get_digit_parameters(parafile, 'draw_tie_points_rms_vector_scale', 'float')
 
 #end Post processing and evaluation Parameters
 
