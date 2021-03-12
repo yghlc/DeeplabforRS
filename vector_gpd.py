@@ -255,6 +255,10 @@ def read_polygons_attributes_list(polygon_shp, field_nameS, b_fix_invalid_polygo
         raise ValueError('unknown type of %s'%str(field_nameS))
 
 
+def get_polygon_bounding_box(polygon):
+    # return the bounding box of a shapely polygon (minx, miny, maxx, maxy)
+    return polygon.bounds
+
 def remove_polygon_equal(shapefile,field_name, expect_value, b_equal, output):
     '''
     remove polygons the the attribute value is not equal to a specific value
