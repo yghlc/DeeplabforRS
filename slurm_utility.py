@@ -49,6 +49,15 @@ def get_submited_job_ids(user_name):
         job_ids.append(info[0])
     return job_ids
 
+def get_submited_job_names(user_name):
+    status, output = basic.exec_command_string("squeue --user="+user_name)
+    lines = output.split('\n')[1:]  # remove the first line: JOBID PARTITION  NAME USER ST TIME NODES NODELIST(REASON)
+    job_names = []
+    for line in lines:
+        info = line.split()
+        job_names.append(info[2]) # the third one is the job name
+    return job_names
+
 def get_submit_job_count(user_name):
     job_ids = get_submited_job_ids(user_name)
     return len(job_ids)
@@ -56,7 +65,8 @@ def get_submit_job_count(user_name):
 def test():
     # modify_slurm_job_sh('job_tf_GPU.sh','job-name', 'hello2')
     # get_submited_jobs('lihu9680')
-    print(get_submit_job_count('lihu9680'))
+    print(get_submited_job_names('lihu9680'))
+    # print(get_submit_job_count('lihu9680'))
 
 
 if __name__ == '__main__':
