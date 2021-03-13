@@ -12,6 +12,7 @@ add time: 12 March, 2021
 
 
 import os,sys
+import basic_src.basic as basic
 
 def modify_slurm_job_sh(job_sh,parameter,new_value):
     with open(job_sh,'r') as inputfile:
@@ -38,12 +39,24 @@ def modify_slurm_job_sh(job_sh,parameter,new_value):
     return True
 
 
-def get_submited_jobs(user_name):
-    pass
+def get_submited_job_ids(user_name):
+    status, output = basic.exec_command_string("squeue --user="+user_name)
+    # print(output)
+    lines = output.split('\n')[1:]  # remove the first line: JOBID PARTITION  NAME USER ST TIME NODES NODELIST(REASON)
+    job_ids = []
+    for line in lines:
+        info = line.split()
+        job_ids.append(info[0])
+    return job_ids
 
+def get_submit_job_count(user_name):
+    job_ids = get_submited_job_ids(user_name)
+    return len(job_ids)
 
 def test():
-    modify_slurm_job_sh('job_tf_GPU.sh','job-name', 'hello2')
+    # modify_slurm_job_sh('job_tf_GPU.sh','job-name', 'hello2')
+    # get_submited_jobs('lihu9680')
+    print(get_submit_job_count('lihu9680'))
 
 
 if __name__ == '__main__':
