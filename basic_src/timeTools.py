@@ -51,6 +51,9 @@ def get_yeardate_yyyymmdd(in_string):
         return None
     return datetime_list[0]
 
+def get_now_time_str(fromat="%Y%m%d_%H%M%S"):
+    return datetime.now().strftime(fromat)
+
 def str2date(date_str,format = '%Y%m%d'):
     date_obj = datetime.strptime(date_str, format)
     return date_obj
