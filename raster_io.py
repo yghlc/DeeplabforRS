@@ -432,7 +432,11 @@ def image_numpy_allBands_to_8bit_hist(img_np_allbands, min_max_values=None, per_
             if found_max > min_max_values[band][1]:
                 found_max = min_max_values[band][1]
                 print('reset the max value to %s' % found_max)
-        new_img_np[band,:] = image_numpy_to_8bit(img_oneband, found_max, found_min, src_nodata=src_nodata, dst_nodata=dst_nodata)
+        if found_min == found_max:
+            print('warning, found_min == find_max, set the output as nodata or found_min')
+            new_img_np[band, :] = dst_nodata if dst_nodata is not None else found_min
+        else:
+            new_img_np[band,:] = image_numpy_to_8bit(img_oneband, found_max, found_min, src_nodata=src_nodata, dst_nodata=dst_nodata)
 
     if input_ndim == 3:
         return new_img_np
