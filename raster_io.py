@@ -407,7 +407,7 @@ def image_numpy_allBands_to_8bit_hist(img_np_allbands, min_max_values=None, per_
             raise ValueError('The number of min_max_value is not the same with band account')
         # if only input one scale, then duplicate for multiple band account.
         if len(min_max_values) == 1 and len(min_max_values) != band_count:
-            min_max_value = min_max_values * band_count
+            min_max_values = min_max_values * band_count
 
     # get min, max
     bin_count = 500
