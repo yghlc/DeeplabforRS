@@ -400,7 +400,14 @@ def save_numpy_array_to_rasterfile(numpy_array, save_path, ref_raster, format='G
 
 def image_numpy_allBands_to_8bit_hist(img_np_allbands, min_max_values=None, per_min=0.01, per_max=0.99, src_nodata=None, dst_nodata=None):
 
-    band_count, height, width = img_np_allbands.shape
+    input_ndim = img_np_allbands.ndim
+    if input_ndim == 3:
+        band_count, height, width = img_np_allbands.shape
+    else:
+        # add one dimension
+        band_count = 1
+        img_np_allbands = np.expand_dims(img_np_allbands, axis=0)
+
     if min_max_values is not None:
         # if we input multiple scales, it should has the same size the band count
         if len(min_max_values) > 1 and len(min_max_values) != band_count:
@@ -427,7 +434,11 @@ def image_numpy_allBands_to_8bit_hist(img_np_allbands, min_max_values=None, per_
                 print('reset the max value to %s' % found_max)
         new_img_np[band,:] = image_numpy_to_8bit(img_oneband, found_max, found_min, src_nodata=src_nodata, dst_nodata=dst_nodata)
 
-    return new_img_np
+    if input_ndim == 3:
+        return new_img_np
+    else:
+        # remove the add dimension
+        return np.squeeze(new_img_np)
 
 
 def image_numpy_allBands_to_8bit(img_np_allbands, scales, src_nodata=None, dst_nodata=None):
