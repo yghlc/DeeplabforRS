@@ -186,7 +186,7 @@ def test_zonal_stats_multiRasters():
 
     io_function.copy_shape_file(shp, save_shp)
     zonal_stats_multiRasters(save_shp, dem_list, nodata=None, band=1, stats=None, prefix='dem',
-                             ignore_range=None, all_touched=True, process_num=4)
+                             range=None, all_touched=True, process_num=4)
 
 
 
