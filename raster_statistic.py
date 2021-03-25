@@ -51,7 +51,7 @@ def array_stats(in_array, stats, nodata,range=None):
         elif item == 'count':
             value = data_1d.size
         elif item =='std':
-            value = data_1d.std(data_1d)
+            value = np.std(data_1d)
         else:
             raise ValueError('unsupported stats: %s'%item)
         out_value_dict[item] = value
