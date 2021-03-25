@@ -17,6 +17,7 @@ import shapely
 from shapely.geometry import mapping # transform to GeJSON format
 from shapely.geometry import MultiPolygon
 from shapely.geometry import Polygon
+from shapely.strtree import STRtree
 import geopandas as gpd
 from shapely.geometry import Point
 import pandas as pd
@@ -780,12 +781,45 @@ def find_adjacent_polygons(in_polygon, polygon_list, buffer_size=None):
         center_poly = in_polygon
 
     adjacent_polygons = []
+    adjacent_poly_idx = []
 
-    for poly in polygon_list:
+    for idx, poly in enumerate(polygon_list):
         if is_two_polygons_connected(poly, center_poly):
             adjacent_polygons.append(poly)
+            adjacent_poly_idx.append(idx)
 
-    return adjacent_polygons
+    return adjacent_polygons, adjacent_poly_idx
+
+
+def build_adjacent_map_of_polygons(polygons_list):
+    """
+    build an adjacent matrix of the tou
+    :param polygons_list: a list contains all the shapely (not pyshp) polygons
+    :return: a matrix storing the adjacent (shared points) for all polygons
+    """
+
+    # another implement is in the vector_features.py,
+    # here, we implement the calculation parallel to improve the efficiency.
+
+    # the input polgyons are all valid.
+
+    polygon_count = len(polygons_list)
+    if polygon_count < 2:
+        basic.outputlogMessage('error, the count of polygon is less than 2')
+        return False
+
+    ad_matrix = np.zeros((polygon_count, polygon_count),dtype=np.int8)
+    for i in range(0,polygon_count):
+        check_polygons = [ polygons_list[j] for j in range(i+1, polygon_count) ]
+        adj_polygons, adj_poly_idxs = find_adjacent_polygons(polygons_list[i], check_polygons)
+
+        for idx in adj_poly_idxs:
+            j = i+1+idx
+            ad_matrix[i, j] = 1
+            ad_matrix[j, i] = 1  # also need the low part of matrix, or later polygon can not find previous neighbours
+
+    # print(ad_matrix)
+    return ad_matrix
 
 def main(options, args):
 
