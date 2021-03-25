@@ -763,6 +763,29 @@ def get_overlap_area_two_boxes(box1, box2, buffer=None):
     else:
         raise ValueError('need more support of the type: %s'% str(inter.geom_type))
 
+def is_two_polygons_connected(polygon1, polygon2):
+    intersection = polygon1.intersection(polygon2)
+    if intersection.is_empty:
+        return False
+    return True
+
+def find_adjacent_polygons(in_polygon, polygon_list, buffer_size=None):
+    # find adjacent polygons
+    # in_polygon is the center polygon
+    # polygon_list is a polygon list without in_polygon
+
+    if buffer_size is not None:
+        center_poly =  in_polygon.buffer(buffer_size)
+    else:
+        center_poly = in_polygon
+
+    adjacent_polygons = []
+
+    for poly in polygon_list:
+        if is_two_polygons_connected(poly, center_poly):
+            adjacent_polygons.append(poly)
+
+    return adjacent_polygons
 
 def main(options, args):
 
