@@ -29,6 +29,9 @@ import basic_src.basic as basic
 
 import basic_src.map_projection as map_projection
 
+from datetime import datetime
+from multiprocessing import Pool
+
 def read_polygons_json(polygon_shp, no_json=False):
     '''
     read polyogns and convert to json format
@@ -780,18 +783,39 @@ def find_adjacent_polygons(in_polygon, polygon_list, buffer_size=None):
     else:
         center_poly = in_polygon
 
-    adjacent_polygons = []
-    adjacent_poly_idx = []
+    if len(polygon_list) < 1:
+        return [], []
 
-    for idx, poly in enumerate(polygon_list):
-        if is_two_polygons_connected(poly, center_poly):
-            adjacent_polygons.append(poly)
-            adjacent_poly_idx.append(idx)
+    # https://shapely.readthedocs.io/en/stable/manual.html#str-packed-r-tree
+    tree = STRtree(polygon_list)
+    # query: Returns a list of all geometries in the strtree whose extents intersect the extent of geom.
+    # This means that a subsequent search through the returned subset using the desired binary predicate
+    # (eg. intersects, crosses, contains, overlaps) may be necessary to further filter the results according
+    # to their specific spatial relationships.
+
+    # quicker than check one by one
+    adjacent_polygons = [item for item in tree.query(center_poly) if item.intersection(center_poly) ]
+    adjacent_poly_idx = [polygon_list.index(item) for item in adjacent_polygons ]
+
+    # adjacent_polygons = []
+    # adjacent_poly_idx = []
+    # for idx, poly in enumerate(polygon_list):
+    #     if is_two_polygons_connected(poly, center_poly):
+    #         adjacent_polygons.append(poly)
+    #         adjacent_poly_idx.append(idx)
+
+    # print(datetime.now(), 'find %d adjacent polygons' % len(adjacent_polygons))
 
     return adjacent_polygons, adjacent_poly_idx
 
+def find_adjacent_polygons_from_sub(c_polygon_idx, polygon_list, start_idx, end_idx):
 
-def build_adjacent_map_of_polygons(polygons_list):
+    check_polygons = [polygon_list[j] for j in range(start_idx, end_idx)]
+    adj_polygons, adj_poly_idxs = find_adjacent_polygons(polygon_list[c_polygon_idx], check_polygons)
+    return c_polygon_idx, adj_polygons, adj_poly_idxs
+
+
+def build_adjacent_map_of_polygons(polygons_list, process_num = 1):
     """
     build an adjacent matrix of the tou
     :param polygons_list: a list contains all the shapely (not pyshp) polygons
@@ -808,15 +832,46 @@ def build_adjacent_map_of_polygons(polygons_list):
         basic.outputlogMessage('error, the count of polygon is less than 2')
         return False
 
-    ad_matrix = np.zeros((polygon_count, polygon_count),dtype=np.int8)
-    for i in range(0,polygon_count):
-        check_polygons = [ polygons_list[j] for j in range(i+1, polygon_count) ]
-        adj_polygons, adj_poly_idxs = find_adjacent_polygons(polygons_list[i], check_polygons)
+    # # https://shapely.readthedocs.io/en/stable/manual.html#str-packed-r-tree
+    # tree = STRtree(polygons_list)
 
-        for idx in adj_poly_idxs:
-            j = i+1+idx
-            ad_matrix[i, j] = 1
-            ad_matrix[j, i] = 1  # also need the low part of matrix, or later polygon can not find previous neighbours
+    ad_matrix = np.zeros((polygon_count, polygon_count),dtype=np.int8)
+
+    if process_num == 1:
+        for i in range(0,polygon_count):
+            check_polygons = [ polygons_list[j] for j in range(i+1, polygon_count) ]
+            adj_polygons, adj_poly_idxs = find_adjacent_polygons(polygons_list[i], check_polygons)
+
+            # find adjacent from entire list using tree, but slower
+            # adjacent_polygons = [item for item in tree.query(polygons_list[i]) if item.intersection(polygons_list[i])]
+            # adjacent_poly_idx = [polygons_list.index(item) for item in adjacent_polygons]
+            # remove itself
+            # adjacent_poly_idx.remove(i)
+            # for idx in adjacent_poly_idx:
+            #     ad_matrix[i, idx] = 1
+            #     ad_matrix[idx, i] = 1  # also need the low part of matrix, or later polygon can not find previous neighbours
+
+            # print(datetime.now(), '%d/%d'%(i, polygon_count))
+
+            for idx in adj_poly_idxs:
+                j = i+1+idx
+                ad_matrix[i, j] = 1
+                ad_matrix[j, i] = 1  # also need the low part of matrix, or later polygon can not find previous neighbours
+    elif process_num > 1:
+        theadPool = Pool(process_num)
+        parameters_list = [(i, polygons_list, i+1, polygon_count) for i in range(0,polygon_count)]
+        results = theadPool.starmap(find_adjacent_polygons_from_sub, parameters_list)
+        print(datetime.now(), 'finish parallel runing')
+        for i, adj_polygons, adj_poly_idxs in results:
+            # print(adj_poly_idxs)
+            for idx in adj_poly_idxs:
+                j = i+1+idx
+                # print(i, j)
+                ad_matrix[i, j] = 1
+                ad_matrix[j, i] = 1  # also need the low part of matrix, or later polygon can not find previous neighbours
+
+    else:
+        raise ValueError('wrong process_num: %d'%process_num)
 
     # print(ad_matrix)
     return ad_matrix
