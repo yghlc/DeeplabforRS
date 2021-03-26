@@ -18,7 +18,7 @@ import basic_src.io_function as io_function
 import basic_src.map_projection as map_projection
 import basic_src.basic as basic
 import numpy as np
-basic.setlogfile('raster_statistic.log')
+
 
 from multiprocessing import Pool
 
@@ -195,4 +195,5 @@ def main():
     pass
 
 if __name__=='__main__':
+    basic.setlogfile('raster_statistic.log')
     main()
