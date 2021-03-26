@@ -860,7 +860,7 @@ def build_adjacent_map_of_polygons(polygons_list, process_num = 1):
     elif process_num > 1:
         theadPool = Pool(process_num)
         parameters_list = [(i, polygons_list, i+1, polygon_count) for i in range(0,polygon_count)]
-        results = theadPool.starmap(find_adjacent_polygons_from_sub, parameters_list)
+        results = theadPool.starmap(find_adjacent_polygons_from_sub, parameters_list,chunksize=1)
         print(datetime.now(), 'finish parallel runing')
         for i, adj_polygons, adj_poly_idxs in results:
             # print(adj_poly_idxs)

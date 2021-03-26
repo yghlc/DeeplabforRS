@@ -151,7 +151,7 @@ def zonal_stats_multiRasters(in_shp, raster_file_or_files, nodata=None, band = 1
     threadpool = Pool(process_num)
     para_list = [ (idx, polygon, image_tiles, img_tile_polygons, stats, nodata, range,band, all_touched)
                   for idx, polygon in enumerate(polygons)]
-    stats_res_list = threadpool.starmap(zonal_stats_one_polygon,para_list)
+    stats_res_list = threadpool.starmap(zonal_stats_one_polygon,para_list,chunksize=1)
 
 
 
