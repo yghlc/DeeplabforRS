@@ -58,9 +58,15 @@ def get_submited_job_names(user_name):
         job_names.append(info[2]) # the third one is the job name
     return job_names
 
-def get_submit_job_count(user_name):
-    job_ids = get_submited_job_ids(user_name)
-    return len(job_ids)
+def get_submit_job_count(user_name,job_name_substr=None):
+    if job_name_substr is None:
+        job_ids = get_submited_job_ids(user_name)
+        return len(job_ids)
+    else:
+        job_names = get_submited_job_names(user_name)
+        job_names = [item for item in job_names if job_name_substr in item]
+        return len(job_names)
+
 
 def test():
     # modify_slurm_job_sh('job_tf_GPU.sh','job-name', 'hello2')
