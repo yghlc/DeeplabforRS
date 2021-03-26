@@ -876,6 +876,28 @@ def build_adjacent_map_of_polygons(polygons_list, process_num = 1):
     # print(ad_matrix)
     return ad_matrix
 
+
+def get_surrounding_polygons(in_polygons,buffer_size):
+    '''
+    get polygons surround the input polygons
+    similar to the one: "get_buffer_polygons" in "vector_features.py"
+    Args:
+        in_polygons:
+        buffer_size:
+
+    Returns: a list of expanding polygons
+
+    '''
+    # remove holes
+    polygons = [ fill_holes_in_a_polygon(poly) for poly in  in_polygons]
+    # buffer the polygons
+    expansion_polygons = [ item.buffer(buffer_size) for item in polygons]
+    # difference
+    surround_polys = [exp_poly.difference(poly) for exp_poly, poly in zip(expansion_polygons,polygons)]
+
+    return surround_polys
+
+
 def main(options, args):
 
     # ###############################################################
