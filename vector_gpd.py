@@ -24,6 +24,7 @@ import pandas as pd
 
 import math
 import numpy as np
+import time
 
 import basic_src.basic as basic
 
@@ -773,7 +774,7 @@ def is_two_polygons_connected(polygon1, polygon2):
         return False
     return True
 
-def find_adjacent_polygons(in_polygon, polygon_list, buffer_size=None):
+def find_adjacent_polygons(in_polygon, polygon_list, buffer_size=None, Rtree=None):
     # find adjacent polygons
     # in_polygon is the center polygon
     # polygon_list is a polygon list without in_polygon
@@ -787,15 +788,25 @@ def find_adjacent_polygons(in_polygon, polygon_list, buffer_size=None):
         return [], []
 
     # https://shapely.readthedocs.io/en/stable/manual.html#str-packed-r-tree
-    tree = STRtree(polygon_list)
+    if Rtree is None:
+        tree = STRtree(polygon_list)
+    else:
+        tree = Rtree
     # query: Returns a list of all geometries in the strtree whose extents intersect the extent of geom.
     # This means that a subsequent search through the returned subset using the desired binary predicate
     # (eg. intersects, crosses, contains, overlaps) may be necessary to further filter the results according
     # to their specific spatial relationships.
 
+    # https://www.geeksforgeeks.org/introduction-to-r-tree/
+    # R-trees are faster than Quad-trees for Nearest Neighbour queries while for window queries, Quad-trees are faster than R-trees
+
+
     # quicker than check one by one
-    adjacent_polygons = [item for item in tree.query(center_poly) if item.intersection(center_poly) ]
+    # adjacent_polygons = [item for item in tree.query(center_poly) if item.intersection(center_poly) ]
+    t0= time.time()
+    adjacent_polygons = [item for item in tree.query(center_poly) if item.intersects(center_poly) ]
     adjacent_poly_idx = [polygon_list.index(item) for item in adjacent_polygons ]
+    print('cost %f seconds'%(time.time() - t0))
 
     # adjacent_polygons = []
     # adjacent_poly_idx = []
@@ -839,8 +850,18 @@ def build_adjacent_map_of_polygons(polygons_list, process_num = 1):
 
     if process_num == 1:
         for i in range(0,polygon_count):
-            check_polygons = [ polygons_list[j] for j in range(i+1, polygon_count) ]
-            adj_polygons, adj_poly_idxs = find_adjacent_polygons(polygons_list[i], check_polygons)
+            t0 = time.time()
+            if i%100 == 0:
+                start_idx = i+1
+                check_polygons = [polygons_list[j] for j in range(start_idx, polygon_count)]
+                tree = STRtree(check_polygons)
+            # check_polygons = [ polygons_list[j] for j in range(i+1, polygon_count) ]
+            # adj_polygons, adj_poly_idxs = find_adjacent_polygons(polygons_list[i], check_polygons, Rtree=tree)
+
+            # find index from the entire polygon list
+            # adj_polygons, adj_poly_idxs = find_adjacent_polygons(polygons_list[i], polygons_list, Rtree=tree)
+
+            adj_polygons, adj_poly_idxs = find_adjacent_polygons(polygons_list[i], check_polygons, Rtree=tree)
 
             # find adjacent from entire list using tree, but slower
             # adjacent_polygons = [item for item in tree.query(polygons_list[i]) if item.intersection(polygons_list[i])]
@@ -851,10 +872,13 @@ def build_adjacent_map_of_polygons(polygons_list, process_num = 1):
             #     ad_matrix[i, idx] = 1
             #     ad_matrix[idx, i] = 1  # also need the low part of matrix, or later polygon can not find previous neighbours
 
-            # print(datetime.now(), '%d/%d'%(i, polygon_count))
+            print(datetime.now(), '%d/%d'%(i, polygon_count),'cost', time.time() - t0)
 
             for idx in adj_poly_idxs:
-                j = i+1+idx
+                j = start_idx+idx
+                # j = idx
+                if j==i:
+                    continue
                 ad_matrix[i, j] = 1
                 ad_matrix[j, i] = 1  # also need the low part of matrix, or later polygon can not find previous neighbours
     elif process_num > 1:
@@ -865,7 +889,10 @@ def build_adjacent_map_of_polygons(polygons_list, process_num = 1):
         for i, adj_polygons, adj_poly_idxs in results:
             # print(adj_poly_idxs)
             for idx in adj_poly_idxs:
-                j = i+1+idx
+                # j = i+1+idx
+                j = idx
+                if j==i:
+                    continue
                 # print(i, j)
                 ad_matrix[i, j] = 1
                 ad_matrix[j, i] = 1  # also need the low part of matrix, or later polygon can not find previous neighbours
