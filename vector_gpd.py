@@ -857,6 +857,7 @@ def build_adjacent_map_of_polygons(polygons_list, process_num = 1):
     # tree = STRtree(polygons_list)
     polygon_boxes = [ get_polygon_bounding_box(item) for item in polygons_list]
 
+    # this would take a lot of memory if they are many polyton, such as more than 10 000
     ad_matrix = np.zeros((polygon_count, polygon_count),dtype=np.int8)
 
     if process_num == 1:
