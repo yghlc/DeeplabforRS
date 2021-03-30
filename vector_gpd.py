@@ -259,6 +259,15 @@ def read_polygons_attributes_list(polygon_shp, field_nameS, b_fix_invalid_polygo
     else:
         raise ValueError('unknown type of %s'%str(field_nameS))
 
+def is_two_bound_disjoint(box1, box2):
+    # same to the one in raster_io by calling rasterio.coords.disjoint_bounds(box1,box2)
+    # but just do not want to import rater_io
+    # box: (minx, miny, maxx, maxy)
+
+    # left 1 > right 2 or  right 1 < left 2 or bottom 1 > top 2 or top 1 < bottom 2
+    if box1[0] > box2[2] or box1[2] < box2[0] or box1[1] > box2[3] or box1[3] < box2[1]:
+        return True
+    return False
 
 def get_polygon_bounding_box(polygon):
     # return the bounding box of a shapely polygon (minx, miny, maxx, maxy)
@@ -803,10 +812,10 @@ def find_adjacent_polygons(in_polygon, polygon_list, buffer_size=None, Rtree=Non
 
     # quicker than check one by one
     # adjacent_polygons = [item for item in tree.query(center_poly) if item.intersection(center_poly) ]
-    t0= time.time()
+    # t0= time.time()
     adjacent_polygons = [item for item in tree.query(center_poly) if item.intersects(center_poly) ]
     adjacent_poly_idx = [polygon_list.index(item) for item in adjacent_polygons ]
-    print('cost %f seconds'%(time.time() - t0))
+    # print('cost %f seconds'%(time.time() - t0))
 
     # adjacent_polygons = []
     # adjacent_poly_idx = []
@@ -819,9 +828,10 @@ def find_adjacent_polygons(in_polygon, polygon_list, buffer_size=None, Rtree=Non
 
     return adjacent_polygons, adjacent_poly_idx
 
-def find_adjacent_polygons_from_sub(c_polygon_idx, polygon_list, start_idx, end_idx):
+def find_adjacent_polygons_from_sub(c_polygon_idx, polygon_list,polygon_boxes,  start_idx, end_idx):
 
-    check_polygons = [polygon_list[j] for j in range(start_idx, end_idx)]
+    check_polygons = [polygon_list[j] for j in range(start_idx, end_idx)
+                      if is_two_bound_disjoint(polygon_boxes[c_polygon_idx],polygon_boxes[j]) is False ]
     adj_polygons, adj_poly_idxs = find_adjacent_polygons(polygon_list[c_polygon_idx], check_polygons)
     return c_polygon_idx, adj_polygons, adj_poly_idxs
 
@@ -845,23 +855,26 @@ def build_adjacent_map_of_polygons(polygons_list, process_num = 1):
 
     # # https://shapely.readthedocs.io/en/stable/manual.html#str-packed-r-tree
     # tree = STRtree(polygons_list)
+    polygon_boxes = [ get_polygon_bounding_box(item) for item in polygons_list]
 
     ad_matrix = np.zeros((polygon_count, polygon_count),dtype=np.int8)
 
     if process_num == 1:
         for i in range(0,polygon_count):
             t0 = time.time()
-            if i%100 == 0:
-                start_idx = i+1
-                check_polygons = [polygons_list[j] for j in range(start_idx, polygon_count)]
-                tree = STRtree(check_polygons)
-            # check_polygons = [ polygons_list[j] for j in range(i+1, polygon_count) ]
-            # adj_polygons, adj_poly_idxs = find_adjacent_polygons(polygons_list[i], check_polygons, Rtree=tree)
+            # if i%100 == 0:
+            #     start_idx = i+1
+            #     check_polygons = [polygons_list[j] for j in range(start_idx, polygon_count)]
+            #     tree = STRtree(check_polygons)
+            start_idx = i + 1
+            check_polygons = [ polygons_list[j] for j in range(i+1, polygon_count)
+                               if is_two_bound_disjoint(polygon_boxes[i],polygon_boxes[j]) is False]
+            adj_polygons, adj_poly_idxs = find_adjacent_polygons(polygons_list[i], check_polygons)
 
             # find index from the entire polygon list
             # adj_polygons, adj_poly_idxs = find_adjacent_polygons(polygons_list[i], polygons_list, Rtree=tree)
 
-            adj_polygons, adj_poly_idxs = find_adjacent_polygons(polygons_list[i], check_polygons, Rtree=tree)
+            # adj_polygons, adj_poly_idxs = find_adjacent_polygons(polygons_list[i], check_polygons, Rtree=tree)
 
             # find adjacent from entire list using tree, but slower
             # adjacent_polygons = [item for item in tree.query(polygons_list[i]) if item.intersection(polygons_list[i])]
@@ -877,22 +890,22 @@ def build_adjacent_map_of_polygons(polygons_list, process_num = 1):
             for idx in adj_poly_idxs:
                 j = start_idx+idx
                 # j = idx
-                if j==i:
-                    continue
+                # if j==i:
+                #     continue
                 ad_matrix[i, j] = 1
                 ad_matrix[j, i] = 1  # also need the low part of matrix, or later polygon can not find previous neighbours
     elif process_num > 1:
         theadPool = Pool(process_num)
-        parameters_list = [(i, polygons_list, i+1, polygon_count) for i in range(0,polygon_count)]
+        parameters_list = [(i, polygons_list, polygon_boxes, i+1, polygon_count) for i in range(0,polygon_count)]
         results = theadPool.starmap(find_adjacent_polygons_from_sub, parameters_list)
         print(datetime.now(), 'finish parallel runing')
         for i, adj_polygons, adj_poly_idxs in results:
             # print(adj_poly_idxs)
             for idx in adj_poly_idxs:
-                # j = i+1+idx
-                j = idx
-                if j==i:
-                    continue
+                j = i+1+idx
+                # j = idx
+                # if j==i:
+                #     continue
                 # print(i, j)
                 ad_matrix[i, j] = 1
                 ad_matrix[j, i] = 1  # also need the low part of matrix, or later polygon can not find previous neighbours
