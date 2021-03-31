@@ -293,6 +293,20 @@ def get_file_path_new_home_folder(in_path):
         basic.outputlogMessage('Warning, change to a new path under the new home folder: %s'%new_path)
         return new_path
 
+def get_name_no_ext(file_path):
+    """
+    get file name without extension
+    Args:
+        file_path: exist file name
+
+    Returns: a new name if successfull
+    Notes: if input error, it will exit program
+
+    """
+    # get file name without extension
+    filename_no_ext = os.path.splitext(os.path.basename(file_path))[0]
+    return filename_no_ext
+
 def get_name_by_adding_tail(basename,tail):
     """
     create a new file name by add a tail to a exist file name
