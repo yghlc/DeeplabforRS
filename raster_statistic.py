@@ -142,16 +142,21 @@ def zonal_stats_multiRasters(in_shp, raster_file_or_files, nodata=None, band = 1
     # polygons_json = [mapping(item) for item in polygons]  # no need when use new verion of rasterio
 
     # process polygons one by one polygons and the corresponding image tiles (parallel and save memory)
-    # stats_res_list = []
-    # for idx, polygon in enumerate(polygons):
-    #     out_stats = zonal_stats_one_polygon(idx, polygon, image_tiles, img_tile_polygons, stats, nodata=nodata, range=range,
-    #                             band=band, all_touched=all_touched)
-    #     stats_res_list.append(out_stats)
+    # also to avoid error: daemonic processes are not allowed to have children
+    if process_num == 1:
+        stats_res_list = []
+        for idx, polygon in enumerate(polygons):
+            out_stats = zonal_stats_one_polygon(idx, polygon, image_tiles, img_tile_polygons, stats, nodata=nodata, range=range,
+                                    band=band, all_touched=all_touched)
+            stats_res_list.append(out_stats)
 
-    threadpool = Pool(process_num)
-    para_list = [ (idx, polygon, image_tiles, img_tile_polygons, stats, nodata, range,band, all_touched)
-                  for idx, polygon in enumerate(polygons)]
-    stats_res_list = threadpool.starmap(zonal_stats_one_polygon,para_list)
+    elif process_num > 1:
+        threadpool = Pool(process_num)
+        para_list = [ (idx, polygon, image_tiles, img_tile_polygons, stats, nodata, range,band, all_touched)
+                      for idx, polygon in enumerate(polygons)]
+        stats_res_list = threadpool.starmap(zonal_stats_one_polygon,para_list)
+    else:
+        raise ValueError('Wrong process number: %s '%str(process_num))
 
 
 
