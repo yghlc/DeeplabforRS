@@ -385,6 +385,8 @@ def save_numpy_array_to_rasterfile(numpy_array, save_path, ref_raster, format='G
             out_meta.update(bigtiff=bigtiff)
 
         if boundary is not None:
+            if boundary[2] != width or boundary[3] != height:
+                raise ValueError('boundary (%s) is not consistent with width (%d) and height (%d)'%(str(boundary),width,height))
             window = boundary_to_window(boundary)
             new_transform = src.window_transform(window)
             out_meta.update(transform=new_transform)
