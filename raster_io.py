@@ -334,7 +334,7 @@ def read_raster_one_band_np(raster_path,band=1,boundary=None):
         return data, src.nodata
 
 def save_numpy_array_to_rasterfile(numpy_array, save_path, ref_raster, format='GTiff', nodata=None,
-                                   compress=None, tiled=None, bigtiff=None):
+                                   compress=None, tiled=None, bigtiff=None,boundary=None ):
     '''
     save a numpy to file, the numpy has the same projection and extent with ref_raster
     Args:
@@ -342,6 +342,7 @@ def save_numpy_array_to_rasterfile(numpy_array, save_path, ref_raster, format='G
         save_path:
         ref_raster:
         format:
+        boundary: (xoff,yoff ,xsize, ysize)
 
     Returns:
 
@@ -382,6 +383,11 @@ def save_numpy_array_to_rasterfile(numpy_array, save_path, ref_raster, format='G
             out_meta.update(tiled=tiled)
         if bigtiff is not None:
             out_meta.update(bigtiff=bigtiff)
+
+        if boundary is not None:
+            window = boundary_to_window(boundary)
+            new_transform = src.window_transform(window)
+            out_meta.update(transform=new_transform)
 
         colorinterp = [src.colorinterp[idx] for idx in range(src.count)]
         # print(colorinterp)
