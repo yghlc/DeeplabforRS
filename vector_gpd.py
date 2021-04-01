@@ -886,7 +886,7 @@ def build_adjacent_map_of_polygons(polygons_list, process_num = 1):
             #     ad_matrix[i, idx] = 1
             #     ad_matrix[idx, i] = 1  # also need the low part of matrix, or later polygon can not find previous neighbours
 
-            print(datetime.now(), '%d/%d'%(i, polygon_count),'cost', time.time() - t0)
+            # print(datetime.now(), '%d/%d'%(i, polygon_count),'cost', time.time() - t0)
 
             for idx in adj_poly_idxs:
                 j = start_idx+idx
@@ -938,6 +938,63 @@ def get_surrounding_polygons(in_polygons,buffer_size):
 
     return surround_polys
 
+
+def merge_shape_files(file_list, save_path):
+
+    if os.path.isfile(save_path):
+        print('%s already exists'%save_path)
+        return True
+    if len(file_list) < 1:
+        raise IOError("no input shapefiles")
+
+    ref_prj = map_projection.get_raster_or_vector_srs_info_proj4(file_list[0])
+
+    # read polygons as shapely objects
+    attribute_names = None
+    polygons_list = []
+    polygon_attributes_list = []
+
+    b_get_field_name = False
+
+    for idx, shp_path in enumerate(file_list):
+
+        # check projection
+        prj = map_projection.get_raster_or_vector_srs_info_proj4(file_list[idx])
+        if prj != ref_prj:
+            raise ValueError('Projection inconsistent: %s is different with the first one'%shp_path)
+
+        shapefile = gpd.read_file(shp_path)
+        if len(shapefile.geometry.values) < 1:
+            basic.outputlogMessage('warning, %s is empty, skip'%shp_path)
+            continue
+
+        # go through each geometry
+        for ri, row in shapefile.iterrows():
+            # if idx == 0 and ri==0:
+            if b_get_field_name is False:
+                attribute_names = row.keys().to_list()
+                attribute_names = attribute_names[:len(attribute_names) - 1]
+                # basic.outputlogMessage("attribute names: "+ str(row.keys().to_list()))
+                b_get_field_name = True
+
+            polygons_list.append(row['geometry'])
+            polygon_attributes = row[:len(row) - 1].to_list()
+            if len(polygon_attributes) < len(attribute_names):
+                polygon_attributes.extend([None]* (len(attribute_names) - len(polygon_attributes)))
+            polygon_attributes_list.append(polygon_attributes)
+
+    # save results
+    save_polyons_attributes = {}
+    for idx, attribute in enumerate(attribute_names):
+        # print(idx, attribute)
+        values = [item[idx] for item in polygon_attributes_list]
+        save_polyons_attributes[attribute] = values
+
+    save_polyons_attributes["Polygons"] = polygons_list
+    polygon_df = pd.DataFrame(save_polyons_attributes)
+
+
+    return save_polygons_to_files(polygon_df, 'Polygons', ref_prj, save_path)
 
 def main(options, args):
 
