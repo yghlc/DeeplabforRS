@@ -533,6 +533,16 @@ def keep_only_used_files_in_list(output_list_file,old_image_list_txt,used_images
     used_images_txt_obj.close()
     output_list_obj.close()
 
+def delete_shape_file(input):
+    arg1 = os.path.splitext(input)[0]
+    exts = ['.shx', '.shp','.prj','.dbf']
+    for ext in exts:
+        file_path = arg1 + ext
+        if os.path.isfile(file_path):
+            delete_file_or_dir(file_path)
+
+    return True
+
 def copy_shape_file(input, output):
 
     assert is_file_exist(input)

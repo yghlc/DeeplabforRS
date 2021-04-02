@@ -225,6 +225,20 @@ def read_attribute_values_list(polygon_shp, field_name):
         basic.outputlogMessage('Warning: %s not in the shape file, will return None'%field_name)
         return None
 
+def is_field_name_in_shp(polygon_shp, field_name):
+    '''
+    check a attribute name is in the shapefile
+    :param polygon_shp:
+    :param field_name:
+    :return:
+    '''
+    shapefile = gpd.read_file(polygon_shp)
+    if field_name in shapefile.keys():
+        return True
+    else:
+        return False
+
+
 def read_polygons_attributes_list(polygon_shp, field_nameS, b_fix_invalid_polygon = True):
     '''
     read polygons and attribute value (list)
