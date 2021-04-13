@@ -15,7 +15,7 @@ from datetime import datetime
 from dateutil.parser import parse
 import re
 
-def get_yeardate_yyyymmdd(in_string):
+def get_yeardate_yyyymmdd(in_string, pattern='[0-9]{8}',format='%Y%m%d'):
     '''
     get datetime object from a filename (or string)
     Args:
@@ -24,8 +24,8 @@ def get_yeardate_yyyymmdd(in_string):
     Returns: datetime
 
     '''
-    pattern = '[0-9]{8}'
-    format = '%Y%m%d'
+
+
     found_strs = re.findall(pattern,in_string)
     if len(found_strs) < 1:
         basic.outputlogMessage('Warning, cannot found yyyymmdd string in %s'%(in_string))
@@ -34,6 +34,8 @@ def get_yeardate_yyyymmdd(in_string):
     #     print(str)
     #     date_obj = parse(str,yearfirst=True)
     #     print(date_obj)
+    if pattern.endswith('_'):  # if pattern is: '[0-9]{8}_'
+        found_strs = [item[:-1] for item in found_strs]     # remove "_"
 
     datetime_list = []
     for str in found_strs:
@@ -90,7 +92,10 @@ def group_files_yearmonthDay(demTif_list, diff_days=30):
     for tif in demTif_list:
         yeardate =  get_yeardate_yyyymmdd(os.path.basename(tif))  # time year is at the begining
         if yeardate is None:
-            raise ValueError('get date info from %s failed'%tif)
+            # try again by adding '_' in the pattern
+            yeardate = get_yeardate_yyyymmdd(os.path.basename(tif),pattern='[0-9]{8}_')
+            if yeardate is None:
+                raise ValueError('get date info from %s failed'%tif)
 
         b_assgined = False
         for time in file_groups.keys():
