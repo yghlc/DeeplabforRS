@@ -80,6 +80,28 @@ def diff_yeardate(in_date1, in_date2):
     # print(diff_days)
     return abs(diff_days)
 
+def group_files_yearmonthDay(demTif_list, diff_days=30):
+    '''
+    groups files based on date information in the filename
+    :param demTif_list:
+    :return:
+    '''
+    file_groups = {}
+    for tif in demTif_list:
+        yeardate =  get_yeardate_yyyymmdd(os.path.basename(tif))  # time year is at the begining
+        if yeardate is None:
+            raise ValueError('get date info from %s failed'%tif)
+
+        b_assgined = False
+        for time in file_groups.keys():
+            if diff_yeardate(time,yeardate) <= diff_days:
+                file_groups[time].append(tif)
+                b_assgined = True
+                break
+        if b_assgined is False:
+            file_groups[yeardate] = [tif]
+
+    return file_groups
 
 def test():
     # out = get_yeardate_yyyymmdd('20170301_10300100655B5A00_1030010066B4AA00.tif')
