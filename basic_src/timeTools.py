@@ -90,10 +90,12 @@ def group_files_yearmonthDay(demTif_list, diff_days=30):
     '''
     file_groups = {}
     for tif in demTif_list:
-        yeardate =  get_yeardate_yyyymmdd(os.path.basename(tif))  # time year is at the begining
+        tif_name = os.path.basename(tif)
+        yeardate =  get_yeardate_yyyymmdd(tif_name)  # time year is at the begining
         if yeardate is None:
             # try again by adding '_' in the pattern
-            yeardate = get_yeardate_yyyymmdd(os.path.basename(tif),pattern='[0-9]{8}_')
+            print('waning, try again to get datetime for %s using [0-9]{8}_'%tif_name)
+            yeardate = get_yeardate_yyyymmdd(tif_name,pattern='[0-9]{8}_')
             if yeardate is None:
                 raise ValueError('get date info from %s failed'%tif)
 
