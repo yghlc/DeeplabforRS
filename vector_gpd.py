@@ -827,7 +827,7 @@ def find_adjacent_polygons(in_polygon, polygon_list, buffer_size=None, Rtree=Non
     # quicker than check one by one
     # adjacent_polygons = [item for item in tree.query(center_poly) if item.intersection(center_poly) ]
     # t0= time.time()
-    adjacent_polygons = [item for item in tree.query(center_poly) if item.intersects(center_poly) ]
+    adjacent_polygons = [item for item in tree.query(center_poly) if item.intersects(center_poly) or item.touches(center_poly) ]
     adjacent_poly_idx = [polygon_list.index(item) for item in adjacent_polygons ]
     # print('cost %f seconds'%(time.time() - t0))
 
