@@ -518,6 +518,17 @@ def calculate_polygon_shape_info(polygon_shapely):
 
     return shape_info
 
+# convert the list from calculate_polygon_shape_info to a dict for saving to shapefile.
+def list_to_dict(list_dict):
+    out_dict = {}
+    for dict_obj in list_dict:
+        for key in dict_obj.keys():
+            if key in out_dict.keys():
+                out_dict[key].append(dict_obj[key])
+            else:
+                out_dict[key] = [dict_obj[key]]
+    return out_dict
+
 def save_shapefile_subset_as(data_poly_indices, org_shp, save_path):
     '''
     save subset of shapefile
