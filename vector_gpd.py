@@ -808,7 +808,7 @@ def find_adjacent_polygons(in_polygon, polygon_list, buffer_size=None, Rtree=Non
         center_poly = in_polygon
 
     if len(polygon_list) < 1:
-        return [], []
+        return []
 
     # https://shapely.readthedocs.io/en/stable/manual.html#str-packed-r-tree
     if Rtree is None:
