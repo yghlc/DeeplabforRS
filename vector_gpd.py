@@ -828,7 +828,7 @@ def find_adjacent_polygons(in_polygon, polygon_list, buffer_size=None, Rtree=Non
     # adjacent_polygons = [item for item in tree.query(center_poly) if item.intersection(center_poly) ]
     # t0= time.time()
     adjacent_polygons = [item for item in tree.query(center_poly) if item.intersects(center_poly) or item.touches(center_poly) ]
-    adjacent_poly_idx = [polygon_list.index(item) for item in adjacent_polygons ]
+    # adjacent_poly_idx = [polygon_list.index(item) for item in adjacent_polygons ]
     # print('cost %f seconds'%(time.time() - t0))
 
     # adjacent_polygons = []
@@ -840,13 +840,15 @@ def find_adjacent_polygons(in_polygon, polygon_list, buffer_size=None, Rtree=Non
 
     # print(datetime.now(), 'find %d adjacent polygons' % len(adjacent_polygons))
 
-    return adjacent_polygons, adjacent_poly_idx
+    return adjacent_polygons
 
 def find_adjacent_polygons_from_sub(c_polygon_idx, polygon_list,polygon_boxes,  start_idx, end_idx):
 
     check_polygons = [polygon_list[j] for j in range(start_idx, end_idx)
                       if is_two_bound_disjoint(polygon_boxes[c_polygon_idx],polygon_boxes[j]) is False ]
-    adj_polygons, adj_poly_idxs = find_adjacent_polygons(polygon_list[c_polygon_idx], check_polygons)
+    adj_polygons = find_adjacent_polygons(polygon_list[c_polygon_idx], check_polygons)
+    # change polygon index to the entire polygons list
+    adj_poly_idxs = [polygon_list.index(item) for item in adj_polygons]
     return c_polygon_idx, adj_polygons, adj_poly_idxs
 
 
@@ -862,6 +864,7 @@ def build_adjacent_map_of_polygons(polygons_list, process_num = 1):
 
     # the input polgyons are all valid.
 
+    polygons_list = [item for item in polygons_list]  # GeometryArray to list
     polygon_count = len(polygons_list)
     if polygon_count < 2:
         basic.outputlogMessage('error, the count of polygon is less than 2')
@@ -884,7 +887,9 @@ def build_adjacent_map_of_polygons(polygons_list, process_num = 1):
             start_idx = i + 1
             check_polygons = [ polygons_list[j] for j in range(i+1, polygon_count)
                                if is_two_bound_disjoint(polygon_boxes[i],polygon_boxes[j]) is False]
-            adj_polygons, adj_poly_idxs = find_adjacent_polygons(polygons_list[i], check_polygons)
+            adj_polygons = find_adjacent_polygons(polygons_list[i], check_polygons)
+            # change polygon index to the entire polygons list
+            adj_poly_idxs = [polygons_list.index(item) for item in adj_polygons ]
 
             # find index from the entire polygon list
             # adj_polygons, adj_poly_idxs = find_adjacent_polygons(polygons_list[i], polygons_list, Rtree=tree)
@@ -902,11 +907,7 @@ def build_adjacent_map_of_polygons(polygons_list, process_num = 1):
 
             # print(datetime.now(), '%d/%d'%(i, polygon_count),'cost', time.time() - t0)
 
-            for idx in adj_poly_idxs:
-                j = start_idx+idx
-                # j = idx
-                # if j==i:
-                #     continue
+            for j in adj_poly_idxs:
                 ad_matrix[i, j] = 1
                 ad_matrix[j, i] = 1  # also need the low part of matrix, or later polygon can not find previous neighbours
     elif process_num > 1:
@@ -916,12 +917,7 @@ def build_adjacent_map_of_polygons(polygons_list, process_num = 1):
         print(datetime.now(), 'finish parallel runing')
         for i, adj_polygons, adj_poly_idxs in results:
             # print(adj_poly_idxs)
-            for idx in adj_poly_idxs:
-                j = i+1+idx
-                # j = idx
-                # if j==i:
-                #     continue
-                # print(i, j)
+            for j in adj_poly_idxs:
                 ad_matrix[i, j] = 1
                 ad_matrix[j, i] = 1  # also need the low part of matrix, or later polygon can not find previous neighbours
 
