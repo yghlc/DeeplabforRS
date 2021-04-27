@@ -62,7 +62,7 @@ def array_stats(in_array, stats, nodata,range=None):
 def zonal_stats_one_polygon(idx, polygon, image_tiles, img_tile_polygons, stats, nodata=None,range=None,
                             band = 1,all_touched=True):
 
-    overlap_index = vector_gpd.get_poly_index_within_extent(img_tile_polygons, polygon)
+    overlap_index = vector_gpd.get_poly_index_within_extent(img_tile_polygons, polygon, min_overlap_area=0.01)
     image_list = [image_tiles[item] for item in overlap_index]
 
     if len(image_list) == 1:

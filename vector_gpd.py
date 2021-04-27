@@ -742,18 +742,22 @@ def fill_holes_in_a_polygon(polygon):
     else:
         return polygon
 
-def get_poly_index_within_extent(polygon_list, extent_poly):
+def get_poly_index_within_extent(polygon_list, extent_poly, min_overlap_area=None):
     '''
     get id of polygons intersecting with an extent
     (may also consider using ogr2ogr to crop the shapefile, also can use remove functions)
     :param polygon_list: polygons list (polygon is in shapely format)
     :param extent_poly: extent polygon (shapely format)
+    :param min_overlap_area: if the overlap area is too smaller, than ignore it
     :return: id list
     '''
     idx_list = []
     for idx, poly in enumerate(polygon_list):
         inter = extent_poly.intersection(poly)
         if inter.is_empty is False:
+            if min_overlap_area is not None:
+                if inter.area < min_overlap_area:
+                    continue
             idx_list.append(idx)
 
     return idx_list
