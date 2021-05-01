@@ -514,7 +514,14 @@ def calculate_polygon_shape_info(polygon_shapely):
         shape_info['ratio_w_h'] = width / height
 
     #added number of holes
-    shape_info['hole_count'] = len(list(polygon_shapely.interiors))
+    if polygon_shapely.geom_type == 'Polygon':
+        shape_info['hole_count'] = len(list(polygon_shapely.interiors))
+    else:
+        polygons = MultiPolygon_to_polygons(0, polygon_shapely)
+        hole_count = 0
+        for poly in polygons:
+            hole_count += len(list(poly.interiors))
+        shape_info['hole_count'] = hole_count
 
     return shape_info
 
