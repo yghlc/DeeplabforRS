@@ -737,6 +737,7 @@ def fill_holes_in_a_polygon(polygon):
     :param polygon: a polygon object (shapely)
     :return:
     '''
+    # about MultiPolygon https://stackoverflow.com/questions/48082553/convert-multipolygon-to-polygon-in-python
     if polygon.interiors:
         return Polygon(list(polygon.exterior.coords))
     else:
