@@ -1021,6 +1021,28 @@ def merge_shape_files(file_list, save_path):
 
     return save_polygons_to_files(polygon_df, 'Polygons', ref_prj, save_path)
 
+def raster2shapefile(in_raster, out_shp=None,connect8=True):
+    if out_shp is None:
+        out_shp = os.path.splitext(in_raster)[0] + '.shp'
+
+    if os.path.isfile(out_shp):
+        print('%s exists, skip'%out_shp)
+        return out_shp
+
+    commond_str = 'gdal_polygonize.py '
+    # is Default is 4 connectedness.
+    if connect8:
+        commond_str += ' -8 '
+    commond_str += in_raster + ' -b 1 '
+    commond_str += ' -f "ESRI Shapefile" ' + out_shp  # +  [layer] [fieldname]
+
+    print(commond_str)
+    res = os.system(commond_str)
+    if res == 0:
+        return out_shp
+    else:
+        return None
+
 def main(options, args):
 
     # ###############################################################
