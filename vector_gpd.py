@@ -287,6 +287,14 @@ def get_polygon_bounding_box(polygon):
     # return the bounding box of a shapely polygon (minx, miny, maxx, maxy)
     return polygon.bounds
 
+def get_polygon_envelope_xy(polygon):
+    # get polygon envelope x,y coordinates
+    # polygon, shapely polygon
+    # output: x: a list of x0 to x4  y: a list of y0 to y4      # the last one is the same as the first one.
+    polygon_env = polygon.envelope
+    x, y = polygon_env.exterior.coords.xy
+    return x,y
+
 def remove_polygon_equal(shapefile,field_name, expect_value, b_equal, output):
     '''
     remove polygons the the attribute value is not equal to a specific value
