@@ -17,6 +17,9 @@ import shapely
 from shapely.geometry import mapping # transform to GeJSON format
 from shapely.geometry import MultiPolygon
 from shapely.geometry import Polygon
+from shapely.geometry import LineString
+from shapely.geometry import MultiLineString
+from shapely import ops
 from shapely.strtree import STRtree
 import geopandas as gpd
 from shapely.geometry import Point
@@ -1058,6 +1061,34 @@ def raster2shapefile(in_raster, out_shp=None,connect8=True):
         return out_shp
     else:
         return None
+
+
+def line_segments_to_LineString(segment_list):
+    # input a list of line segment: ((x1, y1), (x2, y2)),
+    # then convert to LineString or (multi-linestring)
+
+    line_2points_list = []
+    for line in segment_list:
+        p1, p2 = line
+        line_2points_list.append(LineString([ [p1[0], p1[1]], [p2[0], p2[1]] ]))
+
+    # combine them into a multi-linestring
+    multi_line = MultiLineString(line_2points_list)
+    # print(multi_line)  # prints MULTILINESTRING
+
+    # now merge the lines
+    # note that it will now merge only the contiguous portions into a component of a new multi-linestring
+    merged_line = ops.linemerge(multi_line)
+    # print(merged_line)
+    # print(merged_line.geom_type)
+    # line_list = list(merged_line)
+    # print('line count:',len(line_list))
+    # lenth_list = [ item.length for item in line_list]
+    # print('max line length:', max(lenth_list) )
+
+    return merged_line
+
+
 
 def main(options, args):
 
