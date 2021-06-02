@@ -183,15 +183,11 @@ def get_file_list_by_ext(ext,folder,bsub_folder):
     elif isinstance(ext, list):
         extension = ext
     else:
-        basic.outputlogMessage('input extension type is not correct')
-        assert False
+        raise ValueError('input extension type is not correct')
     if os.path.isdir(folder) is False:
-        basic.outputlogMessage('input error, %s is not a directory'%folder)
-        assert False
+        raise IOError('input error, directory %s is invalid'%folder)
     if isinstance(bsub_folder,bool) is False:
-        basic.outputlogMessage('input error, bsub_folder must be a bool value')
-        assert False
-        # sys.exit(1)
+        raise ValueError('input error, bsub_folder must be a bool value')
 
     files = []
     sub_folders = []
