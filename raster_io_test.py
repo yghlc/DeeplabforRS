@@ -123,7 +123,11 @@ def b_all_task_finish(all_tasks):
 
 def test_projection_epsg_2163():
     # read a patch from iamge with epsg_2163, then save, see what's the projection
-    folder = os.path.expanduser('~/Data/flooding_area/Houston/Houston_SAR_GRD_FLOAT_gee/S1_Houston_prj_8bit')
+    # path on my Mac
+    # folder = os.path.expanduser('~/Data/flooding_area/Houston/Houston_SAR_GRD_FLOAT_gee/S1_Houston_prj_8bit')
+
+    # path on tesia
+    folder = os.path.expanduser('~/Bhaltos2/lingcaoHuang/flooding_area/Houston/Houston_SAR_GRD_FLOAT_gee/S1_Houston_prj_8bit_select')
     img_path = os.path.join(folder,'S1A_IW_GRDH_1SDV_20170829T002620_20170829T002645_018131_01E74D_D734_prj_8bit.tif')
 
     xoff, yoff, xsize, ysize = 10000, 10000, 500,500
