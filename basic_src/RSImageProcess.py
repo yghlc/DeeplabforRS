@@ -228,7 +228,7 @@ def mosaics_images(raster_files,outputfile,nodata=None):
         CommandString += ' -n ' + str(nodata)
     return basic.exec_command_string_one_file(CommandString,outputfile)
 
-def subset_image_baseimage(output_file,input_file,baseimage,same_res=False):
+def subset_image_baseimage(output_file,input_file,baseimage,same_res=False,resample_m='bilinear'):
     """
     subset a image base on the extent of another image
     Args:
@@ -259,7 +259,7 @@ def subset_image_baseimage(output_file,input_file,baseimage,same_res=False):
     yres = img_obj.GetYresolution()
     img_obj=None
 
-    if subset_image_projwin(output_file,input_file,ulx,uly,lrx,lry,xres=xres,yres=yres) is False:
+    if subset_image_projwin(output_file,input_file,ulx,uly,lrx,lry,xres=xres,yres=yres,resample_m=resample_m) is False:
         return False
     return True
 
