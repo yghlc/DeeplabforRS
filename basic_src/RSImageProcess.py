@@ -259,7 +259,8 @@ def subset_image_baseimage(output_file,input_file,baseimage,same_res=False,resam
     yres = img_obj.GetYresolution()
     img_obj=None
 
-    if subset_image_projwin(output_file,input_file,ulx,uly,lrx,lry,xres=xres,yres=yres,resample_m=resample_m) is False:
+    if subset_image_projwin(output_file,input_file,ulx,uly,lrx,lry,xres=xres,yres=yres,resample_m=resample_m,
+                            compress='lzw', tiled='yes', bigtiff='if_safer') is False:
         return False
     return True
 
