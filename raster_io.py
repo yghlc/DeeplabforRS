@@ -15,6 +15,7 @@ import numpy as np
 
 from rasterio.coords import BoundingBox
 from rasterio.mask import mask
+from rasterio.features import rasterize
 
 import skimage.measure
 import time
@@ -611,6 +612,51 @@ def burn_polygon_to_raster_oneband(raster_path, polygon_shp, burn_value):
         return raster_path
     else:
         return False
+
+
+def burn_polygons_to_a_raster(ref_raster, polygons, burn_values, save_path, date_type='uint8'):
+    # burn polygons to a new raster
+
+    if os.path.isfile(save_path):
+        print('%s exist, skip burn_polygons_to_a_raster'%save_path)
+        return save_path
+
+    if isinstance(burn_values,int):
+        values = [burn_values]*len(polygons)
+    elif isinstance(burn_values,list):
+        values = burn_values
+        if len(burn_values) != polygons:
+            raise ValueError('polygons and burn_values do not have the same size')
+    else:
+        raise ValueError('unkonw type of burn_values')
+
+
+    if date_type=='uint8':
+        save_dtype = rasterio.uint8
+    else:
+        raise ValueError('not yet support')
+
+    with rasterio.open(ref_raster) as src:
+        transform = src.transform
+        burn_out = np.zeros((src.height, src.width))
+        # rasterize the shapes
+        burn_shapes = [(item_shape, item_int) for (item_shape, item_int) in
+                       zip(polygons, values)]
+        #
+        out_label = rasterize(burn_shapes, out=burn_out, transform=transform,
+                              fill=0, all_touched=False, dtype=save_dtype)
+        # test: save it to disk
+        kwargs = src.meta
+        kwargs.update(
+            dtype=rasterio.uint8,
+            count=1)
+
+        # remove nodta in the output
+        if 'nodata' in kwargs.keys():
+            del kwargs['nodata']
+
+        with rasterio.open(save_path, 'w', **kwargs) as dst:
+            dst.write_band(1, out_label.astype(rasterio.uint8))
 
 
 def main():
