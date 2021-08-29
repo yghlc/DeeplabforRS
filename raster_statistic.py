@@ -43,7 +43,7 @@ def array_stats(in_array, stats, nodata,range=None):
         if item == 'mean':
             value = np.mean(data_1d)
         elif item == 'max':
-            value = np.mean(data_1d)
+            value = np.max(data_1d)
         elif item == 'min':
             value = np.min(data_1d)
         elif item == 'median':
