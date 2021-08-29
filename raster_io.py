@@ -60,6 +60,10 @@ def get_height_width_bandnum_dtype(file_path):
     with rasterio.open(file_path) as src:
         return src.height, src.width, src.count, src.dtypes[0]
 
+def get_transform_from_file(file_path):
+    with rasterio.open(file_path) as src:
+        return src.transform
+
 def get_nodata(file_path):
     with rasterio.open(file_path) as src:
         return src.nodata

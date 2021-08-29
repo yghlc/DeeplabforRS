@@ -587,6 +587,9 @@ def save_polygons_to_files(data_frame, geometry_name, wkt_string, save_path):
 
     return True
 
+def save_lines_to_files(data_frame, geometry_name, wkt_string, save_path):
+    return save_polygons_to_files(data_frame, geometry_name, wkt_string, save_path)
+
 def remove_narrow_parts_of_a_polygon(shapely_polygon, rm_narrow_thr):
     '''
     try to remove the narrow (or thin) parts of a polygon by using buffer opeartion
@@ -1062,6 +1065,12 @@ def raster2shapefile(in_raster, out_shp=None,connect8=True):
         return out_shp
     else:
         return None
+
+
+def points_to_LineString(point_list):
+    # input a point in order, then output a line
+    # for point in point_list:
+    return LineString(point_list)
 
 
 def line_segments_to_LineString(segment_list):
