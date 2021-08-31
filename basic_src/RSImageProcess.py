@@ -201,7 +201,7 @@ def mosaic_crop_images_gdalwarp(raster_files,outputfile,src_nodata=None,dst_noda
     return basic.exec_command_string_one_file(CommandString,outputfile)
 
 
-def mosaics_images(raster_files,outputfile,nodata=None):
+def mosaics_images(raster_files,outputfile,nodata=None,compress=None,tiled=None, bigtiff=None):
     """
     mosaic a set of images. All the images must be in the same coordinate system and have a matching number of bands,
     Args:
@@ -226,6 +226,14 @@ def mosaics_images(raster_files,outputfile,nodata=None):
     CommandString = 'gdal_merge.py ' + inputfile +  ' -o '+ outputfile
     if nodata is not None:
         CommandString += ' -n ' + str(nodata)
+
+    if compress != None:
+        CommandString += ' -co ' + 'compress=%s'%compress       # lzw
+    if tiled != None:
+        CommandString += ' -co ' + 'TILED=%s'%tiled     # yes
+    if bigtiff != None:
+        CommandString += ' -co ' + 'bigtiff=%s' % bigtiff  # IF_SAFER
+
     return basic.exec_command_string_one_file(CommandString,outputfile)
 
 def subset_image_baseimage(output_file,input_file,baseimage,same_res=False,resample_m='bilinear'):
