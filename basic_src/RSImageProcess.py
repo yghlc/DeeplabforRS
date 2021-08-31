@@ -226,6 +226,7 @@ def mosaics_images(raster_files,outputfile,nodata=None,compress=None,tiled=None,
     CommandString = 'gdal_merge.py ' + inputfile +  ' -o '+ outputfile
     if nodata is not None:
         CommandString += ' -n ' + str(nodata)
+        CommandString += ' -a_nodata ' + str(nodata)
 
     if compress != None:
         CommandString += ' -co ' + 'compress=%s'%compress       # lzw
