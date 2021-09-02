@@ -619,6 +619,7 @@ def burn_polygon_to_raster_oneband(raster_path, polygon_shp, burn_value):
 
 
 def burn_polygons_to_a_raster(ref_raster, polygons, burn_values, save_path, date_type='uint8'):
+    # if save_path is None, it will return the array, not saving to disk
     # burn polygons to a new raster
 
     if os.path.isfile(save_path):
@@ -649,6 +650,9 @@ def burn_polygons_to_a_raster(ref_raster, polygons, burn_values, save_path, date
         #
         out_label = rasterize(burn_shapes, out=burn_out, transform=transform,
                               fill=0, all_touched=False, dtype=save_dtype)
+        if save_path is None:
+            return out_label
+
         # test: save it to disk
         kwargs = src.meta
         kwargs.update(
