@@ -244,6 +244,16 @@ def set_nodata_to_raster_metadata(raster_path, nodata):
     else:
         return False
 
+def remove_nodata_from_raster_metadata(raster_path):
+    # modifiy the nodata value in the metadata
+    cmd_str = 'gdal_edit.py -unsetnodata %s' % ( raster_path)
+    print(cmd_str)
+    res = os.system(cmd_str)
+    if res == 0:
+        return True
+    else:
+        return False
+
 
 def is_two_bound_disjoint(box1, box2):
     # box1 and box2: bounding box: (left, bottom, right, top)
@@ -622,7 +632,7 @@ def burn_polygons_to_a_raster(ref_raster, polygons, burn_values, save_path, date
     # if save_path is None, it will return the array, not saving to disk
     # burn polygons to a new raster
 
-    if os.path.isfile(save_path):
+    if save_path is not None and os.path.isfile(save_path):
         print('%s exist, skip burn_polygons_to_a_raster'%save_path)
         return save_path
 
@@ -630,7 +640,7 @@ def burn_polygons_to_a_raster(ref_raster, polygons, burn_values, save_path, date
         values = [burn_values]*len(polygons)
     elif isinstance(burn_values,list):
         values = burn_values
-        if len(burn_values) != polygons:
+        if len(burn_values) != len(polygons):
             raise ValueError('polygons and burn_values do not have the same size')
     else:
         raise ValueError('unkonw type of burn_values')
