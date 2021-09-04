@@ -764,9 +764,29 @@ def fill_holes_in_a_polygon(polygon):
     else:
         return polygon
 
-def get_poly_index_within_extent(polygon_list, extent_poly, min_overlap_area=None, polygon_boxes=None):
+def get_poly_index_within_extent(polygon_list, extent_poly, min_overlap_area=None):
     '''
     get id of polygons intersecting with an extent
+    (may also consider using ogr2ogr to crop the shapefile, also can use remove functions)
+    :param polygon_list: polygons list (polygon is in shapely format)
+    :param extent_poly: extent polygon (shapely format)
+    :param min_overlap_area: if the overlap area is too smaller, than ignore it
+    :return: id list
+    '''
+    idx_list = []
+    for idx, poly in enumerate(polygon_list):
+        inter = extent_poly.intersection(poly)
+        if inter.is_empty is False:
+            if min_overlap_area is not None:
+                if inter.area < min_overlap_area:
+                    continue
+            idx_list.append(idx)
+
+    return idx_list
+
+def get_poly_within_extent(polygon_list, extent_poly, min_overlap_area=None, polygon_boxes=None):
+    '''
+    get polygons intersecting with an extent
     (may also consider using ogr2ogr to crop the shapefile, also can use remove functions)
     :param polygon_list: polygons list (polygon is in shapely format)
     :param extent_poly: extent polygon (shapely format)
@@ -774,8 +794,7 @@ def get_poly_index_within_extent(polygon_list, extent_poly, min_overlap_area=Non
     :param polygon_boxes: a list of polygon bound (minx, miny, maxx, maxy), to avoid unnecessary intersection calculation
     :return: id list
     '''
-    idx_list = []
-    polygon_list_bak = [poly for poly in polygon_list]
+    out_polygon_list = []
     if polygon_boxes is not None:
         # update polygons list
         ext_box = get_polygon_bounding_box(extent_poly)
@@ -787,10 +806,9 @@ def get_poly_index_within_extent(polygon_list, extent_poly, min_overlap_area=Non
             if min_overlap_area is not None:
                 if inter.area < min_overlap_area:
                     continue
-            # idx_list.append(idx)
-            idx_list.append(polygon_list_bak.index(poly))
+            out_polygon_list.append(poly)
 
-    return idx_list
+    return out_polygon_list
 
 def convert_image_bound_to_shapely_polygon(img_bound_box):
     # convert bounding box  to shapely polygon
