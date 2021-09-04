@@ -775,6 +775,7 @@ def get_poly_index_within_extent(polygon_list, extent_poly, min_overlap_area=Non
     :return: id list
     '''
     idx_list = []
+    polygon_list_bak = polygon_list.copy()
     if polygon_boxes is not None:
         # update polygons list
         ext_box = get_polygon_bounding_box(extent_poly)
@@ -786,7 +787,8 @@ def get_poly_index_within_extent(polygon_list, extent_poly, min_overlap_area=Non
             if min_overlap_area is not None:
                 if inter.area < min_overlap_area:
                     continue
-            idx_list.append(idx)
+            # idx_list.append(idx)
+            idx_list.append(polygon_list_bak.index(poly))
 
     return idx_list
 
