@@ -119,6 +119,8 @@ def split_image(input,output_dir,patch_w=1024,patch_h=1024,adj_overlay_x=0,adj_o
     # f_obj.writelines("pre FileName:"+pre_name+'_p_\n')
     # f_obj.close()
 
+    out_raster_list = []
+
     for patch in patch_boundary:
         # print information
         print(patch)
@@ -134,7 +136,9 @@ def split_image(input,output_dir,patch_w=1024,patch_h=1024,adj_overlay_x=0,adj_o
         if os.path.isfile(output_path) is False:
             raise IOError('Failed in gdal_translate, return codes: ' + str(returncode))
         index = index + 1
+        out_raster_list.append(output_path)
 
+    return out_raster_list
 
 
 def main(options, args):
