@@ -137,6 +137,12 @@ def test_projection_epsg_2163():
     raster_io.save_numpy_array_to_rasterfile(img_data,'test_projection.tif',img_path,boundary=boundary)
 
 
+def test_raster2shapefile():
+    # in_tif = os.path.expanduser('~/Data/dem_processing/grid_9053_tmp_files/20140701_dem_slope_bin.tif')
+    in_tif = os.path.expanduser('~/Data/dem_processing/grid_9053_tmp_files/20140701_dem_slope_bin_sub.tif')
+
+    out=raster_io.raster2shapefile(in_tif, out_shp=None, driver='ESRI Shapefile', nodata=0)
+    print(out)
 
 
 
@@ -146,5 +152,7 @@ if __name__ == '__main__':
     # test_reading_images_block_by_block()
 
     # test_if_raseter_closed()
+
+    test_raster2shapefile()
 
     pass

@@ -16,6 +16,7 @@ import numpy as np
 from rasterio.coords import BoundingBox
 from rasterio.mask import mask
 from rasterio.features import rasterize
+from rasterio.features import shapes
 
 import skimage.measure
 import time
@@ -675,6 +676,45 @@ def burn_polygons_to_a_raster(ref_raster, polygons, burn_values, save_path, date
 
         with rasterio.open(save_path, 'w', **kwargs) as dst:
             dst.write_band(1, out_label.astype(rasterio.uint8))
+
+
+def raster2shapefile(in_raster, out_shp=None, driver='ESRI Shapefile', nodata=None):
+    # convert raster to shapefile, similar to: vector_gpd.raster2shapefile but using rasterio
+    import fiona
+
+    if out_shp is None:
+        out_shp = os.path.splitext(in_raster)[0] + '.shp'
+    if os.path.isfile(out_shp):
+        print('%s exists, skip'%out_shp)
+        return out_shp
+
+    with rasterio.open(in_raster) as src:
+        image = src.read(1)
+
+    if nodata is not None:
+        mask = image != nodata
+    else:
+        mask = None
+
+    results = ( {'properties': {'raster_val': v}, 'geometry': s}
+        for i, (s, v) in enumerate(shapes(image, mask=mask, transform=src.transform)))
+
+    # for i, (s, v) in enumerate(shapes(image, mask=mask,connectivity=8, transform=src.transform)):
+    #     if i%100==0 and v==255:
+    #         print(i,s,v)
+
+    # print(results)
+    # print(src.crs.to_wkt() )
+
+    with fiona.open(
+            out_shp, 'w',
+            driver=driver,
+            crs=src.crs.to_wkt(),
+            schema={'properties': [('raster_val', 'int')],
+                    'geometry': 'Polygon'}) as dst:
+        dst.writerecords(results)
+    return out_shp
+
 
 
 def main():
