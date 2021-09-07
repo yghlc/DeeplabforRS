@@ -1087,7 +1087,7 @@ def raster2shapefile(in_raster, out_shp=None,connect8=True, format='ESRI Shapefi
     if connect8:
         commond_str += ' -8 '
     commond_str += in_raster + ' -b 1 '
-    commond_str += ' -f  %s '%format + out_shp  # +  [layer] [fieldname]
+    commond_str += ' -f  "%s" '%format + out_shp  # +  [layer] [fieldname]
 
     print(commond_str)
     res = os.system(commond_str)
