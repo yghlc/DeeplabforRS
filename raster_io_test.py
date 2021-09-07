@@ -141,7 +141,7 @@ def test_raster2shapefile():
     # in_tif = os.path.expanduser('~/Data/dem_processing/grid_9053_tmp_files/20140701_dem_slope_bin.tif')
     in_tif = os.path.expanduser('~/Data/dem_processing/grid_9053_tmp_files/20140701_dem_slope_bin_sub.tif')
 
-    out=raster_io.raster2shapefile(in_tif, out_shp=None, driver='ESRI Shapefile', nodata=0)
+    out=raster_io.raster2shapefile(in_tif, out_shp=None, driver='ESRI Shapefile', nodata=0,connect8=True)
     print(out)
 
 

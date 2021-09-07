@@ -678,7 +678,7 @@ def burn_polygons_to_a_raster(ref_raster, polygons, burn_values, save_path, date
             dst.write_band(1, out_label.astype(rasterio.uint8))
 
 
-def raster2shapefile(in_raster, out_shp=None, driver='ESRI Shapefile', nodata=None):
+def raster2shapefile(in_raster, out_shp=None, driver='ESRI Shapefile', nodata=None,connect8=True):
     # convert raster to shapefile, similar to: vector_gpd.raster2shapefile but using rasterio
     import fiona
 
@@ -696,8 +696,12 @@ def raster2shapefile(in_raster, out_shp=None, driver='ESRI Shapefile', nodata=No
     else:
         mask = None
 
+    connet=4
+    if connect8:
+        connet=8
+
     results = ( {'properties': {'raster_val': v}, 'geometry': s}
-        for i, (s, v) in enumerate(shapes(image, mask=mask, transform=src.transform)))
+        for i, (s, v) in enumerate(shapes(image, mask=mask, connectivity=connet, transform=src.transform)))
 
     # for i, (s, v) in enumerate(shapes(image, mask=mask,connectivity=8, transform=src.transform)):
     #     if i%100==0 and v==255:
