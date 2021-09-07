@@ -1073,7 +1073,10 @@ def merge_shape_files(file_list, save_path):
 def raster2shapefile(in_raster, out_shp=None,connect8=True, format='ESRI Shapefile'):
     # some time "ESRI Shapefile" may be failed is the raster is large and complex, it good to use "GPKG" (GeoPackage)
     if out_shp is None:
-        out_shp = os.path.splitext(in_raster)[0] + '.shp'
+        if format.upper()=='GPKG':
+            out_shp = os.path.splitext(in_raster)[0] + '.gpkg'
+        else:
+            out_shp = os.path.splitext(in_raster)[0] + '.shp'
 
     if os.path.isfile(out_shp):
         print('%s exists, skip'%out_shp)
