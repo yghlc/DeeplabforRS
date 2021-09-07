@@ -1070,7 +1070,8 @@ def merge_shape_files(file_list, save_path):
 
     return save_polygons_to_files(polygon_df, 'Polygons', ref_prj, save_path)
 
-def raster2shapefile(in_raster, out_shp=None,connect8=True):
+def raster2shapefile(in_raster, out_shp=None,connect8=True, format='ESRI Shapefile'):
+    # some time "ESRI Shapefile" may be failed is the raster is large and complex, it good to use "GPKG" (GeoPackage)
     if out_shp is None:
         out_shp = os.path.splitext(in_raster)[0] + '.shp'
 
@@ -1083,7 +1084,7 @@ def raster2shapefile(in_raster, out_shp=None,connect8=True):
     if connect8:
         commond_str += ' -8 '
     commond_str += in_raster + ' -b 1 '
-    commond_str += ' -f "ESRI Shapefile" ' + out_shp  # +  [layer] [fieldname]
+    commond_str += ' -f  %s '%format + out_shp  # +  [layer] [fieldname]
 
     print(commond_str)
     res = os.system(commond_str)
