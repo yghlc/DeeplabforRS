@@ -649,12 +649,13 @@ def burn_polygons_to_a_raster(ref_raster, polygons, burn_values, save_path, date
 
     if date_type=='uint8':
         save_dtype = rasterio.uint8
+        np_dtype = np.uint8
     else:
         raise ValueError('not yet support')
 
     with rasterio.open(ref_raster) as src:
         transform = src.transform
-        burn_out = np.zeros((src.height, src.width))
+        burn_out = np.zeros((src.height, src.width),dtype=np_dtype)
         # rasterize the shapes
         burn_shapes = [(item_shape, item_int) for (item_shape, item_int) in
                        zip(polygons, values)]
