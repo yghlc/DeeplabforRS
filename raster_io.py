@@ -505,7 +505,7 @@ def image_numpy_allBands_to_8bit(img_np_allbands, scales, src_nodata=None, dst_n
     nodata_loc = None
     if src_nodata is not None:
         if isinstance(src_nodata,float):
-            nodata_loc = np.where((img_np_allbands - src_nodata) < 0.00001)
+            nodata_loc = np.where(np.abs(img_np_allbands - src_nodata) < 0.00001)
         else:
             nodata_loc = np.where(img_np_allbands==src_nodata)
     band_count, height, width = img_np_allbands.shape
