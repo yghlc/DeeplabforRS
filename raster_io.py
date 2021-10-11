@@ -634,7 +634,7 @@ def burn_polygon_to_raster_oneband(raster_path, polygon_shp, burn_value):
 
 
 def burn_polygons_to_a_raster(ref_raster, polygons, burn_values, save_path, date_type='uint8',
-                              xres=None,yres=None, extent=None, ref_prj=None):
+                              xres=None,yres=None, extent=None, ref_prj=None, nodata=None):
     # if save_path is None, it will return the array, not saving to disk
     # burn polygons to a new raster
     # if ref_raster is None, we must set xres and yres, and extent (read from polygons) and ref_prj (from shapefile)
@@ -670,6 +670,8 @@ def burn_polygons_to_a_raster(ref_raster, polygons, burn_values, save_path, date
         # exent (minx, miny, maxx, maxy)
         height, width = math.ceil((extent[3]-extent[1])/yres), math.ceil((extent[2]-extent[0])/xres)
         burn_out = np.zeros((height, width), dtype=np_dtype)
+        if nodata is not None:
+            burn_out[:] = nodata
         # rasterize the shapes
         burn_shapes = [(item_shape, item_int) for (item_shape, item_int) in
                        zip(polygons, values)]
@@ -685,7 +687,8 @@ def burn_polygons_to_a_raster(ref_raster, polygons, burn_values, save_path, date
                             count=1,
                             dtype=save_dtype,
                             crs=ref_prj,
-                            transform=transform) as dst:
+                            transform=transform,
+                            nodata=nodata) as dst:
             dst.write_band(1, out_label.astype(save_dtype))
 
 
@@ -693,6 +696,8 @@ def burn_polygons_to_a_raster(ref_raster, polygons, burn_values, save_path, date
         with rasterio.open(ref_raster) as src:
             transform = src.transform
             burn_out = np.zeros((src.height, src.width),dtype=np_dtype)
+            if nodata is not None:
+                burn_out[:] = nodata
             # rasterize the shapes
             burn_shapes = [(item_shape, item_int) for (item_shape, item_int) in
                            zip(polygons, values)]
@@ -706,11 +711,12 @@ def burn_polygons_to_a_raster(ref_raster, polygons, burn_values, save_path, date
             kwargs = src.meta
             kwargs.update(
                 dtype=save_dtype,
-                count=1)
+                count=1,
+                nodata=nodata)
 
-            # remove nodta in the output
-            if 'nodata' in kwargs.keys():
-                del kwargs['nodata']
+            # # remove nodta in the output
+            # if 'nodata' in kwargs.keys():
+            #     del kwargs['nodata']
 
             with rasterio.open(save_path, 'w', **kwargs) as dst:
                 dst.write_band(1, out_label.astype(save_dtype))
