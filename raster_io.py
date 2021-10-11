@@ -12,6 +12,7 @@ import os, sys
 from optparse import OptionParser
 import rasterio
 import numpy as np
+import math
 
 from rasterio.coords import BoundingBox
 from rasterio.mask import mask
@@ -632,9 +633,12 @@ def burn_polygon_to_raster_oneband(raster_path, polygon_shp, burn_value):
         return False
 
 
-def burn_polygons_to_a_raster(ref_raster, polygons, burn_values, save_path, date_type='uint8'):
+def burn_polygons_to_a_raster(ref_raster, polygons, burn_values, save_path, date_type='uint8',
+                              xres=None,yres=None, extent=None, ref_prj=None):
     # if save_path is None, it will return the array, not saving to disk
     # burn polygons to a new raster
+    # if ref_raster is None, we must set xres and yres, and extent (read from polygons) and ref_prj (from shapefile)
+    # extent: (minx, miny, maxx, maxy)
 
     if save_path is not None and os.path.isfile(save_path):
         print('%s exist, skip burn_polygons_to_a_raster'%save_path)
@@ -653,33 +657,63 @@ def burn_polygons_to_a_raster(ref_raster, polygons, burn_values, save_path, date
     if date_type=='uint8':
         save_dtype = rasterio.uint8
         np_dtype = np.uint8
+    elif date_type=='uint16':
+        save_dtype = rasterio.uint16
+        np_dtype = np.uint16
+    elif date_type == 'int32':
+        save_dtype = rasterio.int32
+        np_dtype = np.int32
     else:
         raise ValueError('not yet support')
 
-    with rasterio.open(ref_raster) as src:
-        transform = src.transform
-        burn_out = np.zeros((src.height, src.width),dtype=np_dtype)
+    if ref_raster is None:
+        # exent (minx, miny, maxx, maxy)
+        height, width = math.ceil((extent[3]-extent[1])/yres), math.ceil((extent[2]-extent[0])/xres)
+        burn_out = np.zeros((height, width), dtype=np_dtype)
         # rasterize the shapes
         burn_shapes = [(item_shape, item_int) for (item_shape, item_int) in
                        zip(polygons, values)]
-        #
+        ## new_transform = (burn_boxes[0], resX, 0, burn_boxes[3], 0, -resY )  # (X_min, resX, 0, Y_max, 0, -resY)  # GDAL-style transforms, have been deprecated after raster 1.0
+        # affine.Affine() vs. GDAL-style geotransforms: https://rasterio.readthedocs.io/en/stable/topics/migrating-to-v1.html
+        transform = (xres ,0, extent[0] , 0, -yres, extent[3])  # (resX, 0, X_min, 0, -resY, Y_max)
         out_label = rasterize(burn_shapes, out=burn_out, transform=transform,
                               fill=0, all_touched=False, dtype=save_dtype)
-        if save_path is None:
-            return out_label
 
-        # test: save it to disk
-        kwargs = src.meta
-        kwargs.update(
-            dtype=rasterio.uint8,
-            count=1)
+        with rasterio.open(save_path, 'w', driver='GTiff',
+                            height=height,
+                            width=width,
+                            count=1,
+                            dtype=save_dtype,
+                            crs=ref_prj,
+                            transform=transform) as dst:
+            dst.write_band(1, out_label.astype(save_dtype))
 
-        # remove nodta in the output
-        if 'nodata' in kwargs.keys():
-            del kwargs['nodata']
 
-        with rasterio.open(save_path, 'w', **kwargs) as dst:
-            dst.write_band(1, out_label.astype(rasterio.uint8))
+    else:
+        with rasterio.open(ref_raster) as src:
+            transform = src.transform
+            burn_out = np.zeros((src.height, src.width),dtype=np_dtype)
+            # rasterize the shapes
+            burn_shapes = [(item_shape, item_int) for (item_shape, item_int) in
+                           zip(polygons, values)]
+            #
+            out_label = rasterize(burn_shapes, out=burn_out, transform=transform,
+                                  fill=0, all_touched=False, dtype=save_dtype)
+            if save_path is None:
+                return out_label
+
+            # test: save it to disk
+            kwargs = src.meta
+            kwargs.update(
+                dtype=save_dtype,
+                count=1)
+
+            # remove nodta in the output
+            if 'nodata' in kwargs.keys():
+                del kwargs['nodata']
+
+            with rasterio.open(save_path, 'w', **kwargs) as dst:
+                dst.write_band(1, out_label.astype(save_dtype))
 
 
 def raster2shapefile(in_raster, out_shp=None, driver='ESRI Shapefile', nodata=None,connect8=True):
