@@ -175,10 +175,12 @@ def get_valid_pixel_percentage(image_path,total_pixel_num=None, progress=None):
         print(progress, 'Done')
     return valid_per
 
-def get_valid_percent_shannon_entropy(image_path,log_base=10):
+def get_valid_percent_shannon_entropy(image_path,log_base=10,nodata_input=0):
     oneband_data, nodata = read_raster_one_band_np(image_path, band=1)
     if nodata is None:
-        raise ValueError('nodata is not set in %s, cannot tell valid pixel'%image_path)
+        # raise ValueError('nodata is not set in %s, cannot tell valid pixel'%image_path)
+        print('warning, nodata is not set in %s, will use %s'%(image_path, str(nodata_input)))
+        nodata = nodata_input
 
     valid_loc = np.where(oneband_data != nodata)
     valid_pixel_count = valid_loc[0].size
