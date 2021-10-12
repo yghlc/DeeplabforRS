@@ -391,7 +391,7 @@ def subset_image_by_polygon_box(output, imagefile, polygon, resample_m='bilinear
         return False
     return result
 
-def subset_image_by_shapefile(imagefile,shapefile,bkeepmidfile=True, overwrite=False, format='GTiff'):
+def subset_image_by_shapefile(imagefile,shapefile,bkeepmidfile=True, overwrite=False, format='GTiff', save_path=None ):
     """
     subset an image by polygons contained in the shapefile
     the shapefile and imagefile may have different projections, the gdalwarp can handle
@@ -409,7 +409,10 @@ def subset_image_by_shapefile(imagefile,shapefile,bkeepmidfile=True, overwrite=F
     if io_function.is_file_exist(shapefile) is False:
         return False
 
-    Outfilename = io_function.get_name_by_adding_tail(imagefile,'vsub')
+    if save_path is None:
+        Outfilename = io_function.get_name_by_adding_tail(imagefile,'vsub')
+    else:
+        Outfilename = save_path
 
     # ds = ogr.Open(shapefile)
     # lyr = ds.GetLayer(0)
