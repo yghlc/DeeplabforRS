@@ -683,6 +683,9 @@ def burn_polygons_to_a_raster(ref_raster, polygons, burn_values, save_path, date
         out_label = rasterize(burn_shapes, out=burn_out, transform=transform,
                               fill=0, all_touched=False, dtype=save_dtype)
 
+        if save_path is None:
+            return out_label
+
         with rasterio.open(save_path, 'w', driver='GTiff',
                             height=height,
                             width=width,
