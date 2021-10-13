@@ -27,6 +27,8 @@ def get_remote_folder_list(remote_user_host,remote_dir,folder_pattern):
     status, result = basic.getstatusoutput(command_str)
     if status != 0:
         print(result)
+        if 'No such file or directory' in result:
+            return []
         sys.exit(1)
     dir_list = result.split()
     return dir_list
@@ -49,9 +51,20 @@ def get_remote_file_list(remote_user_host,remote_dir,file_pattern):
     status, result = basic.getstatusoutput(command_str)
     if status != 0:
         print(result)
+        if 'No such file or directory' in result:
+            return []
         sys.exit(1)
     file_list = result.split()
     return file_list
+
+def b_remote_exists(remote_user_host,remote_dir,file_pattern):
+    # check if file exist
+    command_str = 'ssh %s "ls %s/%s"'%(remote_user_host,remote_dir,file_pattern)
+    status, result = basic.getstatusoutput(command_str)
+    if status != 0 and 'No such file or directory' in result:
+        return False
+    return True
+
 
 def copy_file_folder_to_remote_machine(remote_user_host,remote_dir,local_file_or_folder):
     basic.outputlogMessage('copy file or folder %s to remote machine' % local_file_or_folder)
@@ -60,6 +73,8 @@ def copy_file_folder_to_remote_machine(remote_user_host,remote_dir,local_file_or
     status, result = basic.getstatusoutput(command_str)
     if status != 0:
         print(result)
+        if 'No such file or directory' in result:
+            return False
         sys.exit(1)
     return True
 
@@ -71,20 +86,25 @@ def copy_file_folder_from_remote_machine(remote_user_host,remote_file_folder,loc
     status, result = basic.getstatusoutput(command_str)
     if status != 0:
         print(result)
+        if 'No such file or directory' in result:
+            return False
         sys.exit(1)
     return True
 
 
 def test():
     # print('test')
-    remote_dir = get_remote_folder_list('$tesia_host','~/Data/dem_processing','seg*')
-    print(remote_dir)
-    remote_files = get_remote_file_list('$tesia_host','~/Data/dem_processing','*.sh')
-    print(remote_files)
+    # remote_dir = get_remote_folder_list('$tesia_host','~/Data/dem_processing','seg*')
+    # print(remote_dir)
+    # remote_files = get_remote_file_list('$tesia_host','~/Data/dem_processing','*.sh')
+    # print(remote_files)
+    # print(b_remote_exists('$tesia_host','~/Data/dem_processing','aaa.sh'))
 
-    copy_file_folder_to_remote_machine('$tesia_host','~/Data/dem_processing','test_projection.tif')
-    copy_file_folder_from_remote_machine('$tesia_host','~/Data/dem_processing/grid_dem_diffs_bin500_range-2000_2000.jpg','a.jpg')
 
+    # res = copy_file_folder_to_remote_machine('$tesia_host','~/Data/dem_processing','test_projection.tif')
+    # print(res)
+    res = copy_file_folder_from_remote_machine('$tesia_host','~/Data/dem_processing/grid_dem_diffs_bin500_range-2000_2000aa.jpg','a.jpg')
+    print(res)
     pass
 
 
