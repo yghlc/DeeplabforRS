@@ -165,6 +165,8 @@ def exec_command_string_one_file(command_str,output):
     # (status, result) = subprocess.check_output(command_str, universal_newlines=True, stderr=sys.stdout)  #available in both Python 2.x and 3.x
 
     (status, result) = getstatusoutput(command_str)
+    if status != 0:
+        outputlogMessage(result)
 
     if os.path.isfile(output):
         return output
