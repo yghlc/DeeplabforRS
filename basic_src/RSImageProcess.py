@@ -391,7 +391,9 @@ def subset_image_by_polygon_box(output, imagefile, polygon, resample_m='bilinear
         return False
     return result
 
-def subset_image_by_shapefile(imagefile,shapefile,bkeepmidfile=True, overwrite=False, format='GTiff', save_path=None ):
+def subset_image_by_shapefile(imagefile,shapefile,bkeepmidfile=True, overwrite=False, format='GTiff', save_path=None,
+                              resample_m='bilinear', src_nodata=None, dst_nondata=None, xres=None, yres=None,
+                              compress=None, tiled=None, bigtiff=None, thread_num=None):
     """
     subset an image by polygons contained in the shapefile
     the shapefile and imagefile may have different projections, the gdalwarp can handle
@@ -429,10 +431,32 @@ def subset_image_by_shapefile(imagefile,shapefile,bkeepmidfile=True, overwrite=F
     orgimg_obj = RSImageclass()
     if orgimg_obj.open(imagefile) is False:
         return False
-    x_res = abs(orgimg_obj.GetXresolution())
-    y_res = abs(orgimg_obj.GetYresolution())
+    if xres is None or yres is None:
+        x_res = abs(orgimg_obj.GetXresolution())
+        y_res = abs(orgimg_obj.GetYresolution())
+    else:
+        x_res = xres
+        y_res = yres
 
-    CommandString = 'gdalwarp '+' -tr ' + str(x_res) + '  '+ str(y_res)+ ' -of ' + format + ' ' + imagefile +' ' + Outfilename +' -cutline ' +shapefile +' -crop_to_cutline ' + ' -overwrite '
+
+    CommandString = 'gdalwarp -r %s '% resample_m+' -tr ' + str(x_res) + '  '+ str(y_res)+ ' -of ' + format + ' ' + \
+                    imagefile +' ' + Outfilename +' -cutline ' +shapefile +' -crop_to_cutline ' + ' -overwrite '
+
+    if src_nodata != None:
+        CommandString += ' -srcnodata %d '%src_nodata
+    if dst_nondata != None:
+        CommandString += ' -dstnodata %d ' %dst_nondata
+
+    if compress != None:
+        CommandString += ' -co ' + 'compress=%s'%compress       # lzw
+    if tiled != None:
+        CommandString += ' -co ' + 'TILED=%s'%tiled     # yes
+    if bigtiff != None:
+        CommandString += ' -co ' + 'bigtiff=%s' % bigtiff  # IF_SAFER
+
+    if thread_num != None:
+        CommandString += ' -multi -wo NUM_THREADS=%d '%thread_num
+
     if basic.exec_command_string_one_file(CommandString,Outfilename) is False:
         return False
 
