@@ -145,6 +145,26 @@ def test_raster2shapefile():
     print(out)
 
 
+def test_read_write_color_table():
+    data_dir = os.path.expanduser('~/Data/flooding_area/mapping_polygons_rasters/exp1_grd_Houston')
+    img_3band = os.path.join(data_dir,'out_color.tif')
+    img_1band = os.path.join(data_dir,'test_1band_color.tif')
+
+    color_table = os.path.join(data_dir,'color.txt')
+
+    # test reading color table
+    color_map_dict = {0: (230,230,230,255),
+                 1:(31,120,180, 255), # light blue for water
+                 128:(255,255,255,255)} # nodata
+    # raster_io.read_colormaps_band1(img_1band)
+
+
+    # wrrite color maps
+    # save_as_tif = io_function.get_name_by_adding_tail(img_1band,'add_color')
+    # # ,save_as_path=save_as_tif
+    raster_io.write_colormaps(img_1band,color_map_dict)
+
+
 
 if __name__ == '__main__':
     # test_parallel_reading_images()
@@ -153,6 +173,8 @@ if __name__ == '__main__':
 
     # test_if_raseter_closed()
 
-    test_raster2shapefile()
+    # test_raster2shapefile()
+
+    test_read_write_color_table()
 
     pass
