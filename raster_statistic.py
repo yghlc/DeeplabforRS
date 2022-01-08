@@ -39,6 +39,15 @@ def array_stats(in_array, stats, nodata,range=None):
 
     # https://numpy.org/doc/stable/reference/routines.statistics.html
     out_value_dict = {}
+    if data_1d.size == 0:
+        for item in stats:
+            if item == 'count':
+                out_value_dict[item] = data_1d.size
+                continue
+            out_value_dict[item] = None
+
+        return out_value_dict
+
     for item in stats:
         if item == 'mean':
             value = np.mean(data_1d)
@@ -60,9 +69,9 @@ def array_stats(in_array, stats, nodata,range=None):
 
 
 def zonal_stats_one_polygon(idx, polygon, image_tiles, img_tile_polygons, stats, nodata=None,range=None,
-                            band = 1,all_touched=True):
+                            band = 1,all_touched=True, tile_min_overlap=None):
 
-    overlap_index = vector_gpd.get_poly_index_within_extent(img_tile_polygons, polygon, min_overlap_area=0.01)
+    overlap_index = vector_gpd.get_poly_index_within_extent(img_tile_polygons, polygon,min_overlap_area=tile_min_overlap)
     image_list = [image_tiles[item] for item in overlap_index]
 
     if len(image_list) == 1:
@@ -95,13 +104,14 @@ def zonal_stats_one_polygon(idx, polygon, image_tiles, img_tile_polygons, stats,
 
     else:
         basic.outputlogMessage('warning, cannot find raster for %d (start=0) polygon'%idx)
-        return None
+        # return None           # dont return None, we cause error, let array_stats handle the empty array
+        out_image = np.array([])
 
     # do calculation
     return array_stats(out_image, stats, nodata,range=range)
 
-def zonal_stats_multiRasters(in_shp, raster_file_or_files, nodata=None, band = 1, stats = None, prefix='',
-                             range=None,all_touched=True, process_num=1):
+def zonal_stats_multiRasters(in_shp, raster_file_or_files, tile_min_overlap=None, nodata=None, band = 1, stats = None, prefix='',
+                             range=None,buffer=None, all_touched=True, process_num=1):
     '''
     zonal statistic based on vectors, along multiple rasters (image tiles)
     Args:
@@ -111,6 +121,7 @@ def zonal_stats_multiRasters(in_shp, raster_file_or_files, nodata=None, band = 1
         band: band
         stats: like [mean, std, max, min]
         range: interested values [min, max], None means infinity
+        buffer: expand polygon with buffer (meter) before the statistic
         all_touched:
         process_num: process number for calculation
 
@@ -121,6 +132,11 @@ def zonal_stats_multiRasters(in_shp, raster_file_or_files, nodata=None, band = 1
     if stats is None:
         basic.outputlogMessage('warning, No input stats, set to ["mean"])')
         stats = ['mean']
+    stats_backup = stats.copy()
+    if 'area' in stats:
+        stats.remove('area')
+        if 'count' not in stats:
+            stats.append('count')
 
     if isinstance(raster_file_or_files,str):
         io_function.is_file_exist(raster_file_or_files)
@@ -140,6 +156,8 @@ def zonal_stats_multiRasters(in_shp, raster_file_or_files, nodata=None, band = 1
         basic.outputlogMessage('No polygons in %s'%in_shp)
         return False
     # polygons_json = [mapping(item) for item in polygons]  # no need when use new verion of rasterio
+    if buffer is not None:
+        polygons = [ poly.buffer(buffer) for poly in polygons]
 
     # process polygons one by one polygons and the corresponding image tiles (parallel and save memory)
     # also to avoid error: daemonic processes are not allowed to have children
@@ -168,6 +186,13 @@ def zonal_stats_multiRasters(in_shp, raster_file_or_files, nodata=None, band = 1
     for stats_result in stats_res_list:
         for key in stats_result.keys():
             add_attributes[prefix + '_' + key].append(stats_result[key])
+
+    if 'area' in stats_backup:
+       dx, dy = raster_io.get_xres_yres_file(image_tiles[0])
+       add_attributes[prefix + '_' + 'area'] = [ count*dx*dy for count in add_attributes[prefix + '_' + 'count'] ]
+
+       if 'count' not in stats_backup:
+            del add_attributes[prefix + '_' + 'count']
 
     vector_gpd.add_attributes_to_shp(in_shp,add_attributes)
 
