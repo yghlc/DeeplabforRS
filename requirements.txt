@@ -3,3 +3,4 @@ shapely
 geopandas
 Pillow
 rasterstats
+psutil
