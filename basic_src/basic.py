@@ -218,6 +218,7 @@ def check_exitcode_of_process(processes):
     # check exitcode, if not 0, the quit
     for task in processes:
         if task.exitcode is not None and task.exitcode != 0:
+            print('a process was failed, exitcode:',task.exitcode,'process id',task.pid)
             sys.exit(task.exitcode)
 
 
