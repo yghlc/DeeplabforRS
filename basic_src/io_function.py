@@ -276,6 +276,9 @@ def get_url_file_size(url_path):
     basic.outputlogMessage('error, get size of %s failed'%url_path)
     return False
 
+def get_file_size_bytes(path):
+    return os.path.getsize(path)        # return the file size in bytes
+
 def get_file_path_new_home_folder(in_path):
     if in_path is None:
         return None
