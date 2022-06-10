@@ -118,6 +118,9 @@ def read_lines_gpd(lines_shp):
     # check are lines
     return lines
 
+def read_lines_attributes_list(polygon_shp, field_nameS):
+    return read_polygons_attributes_list(polygon_shp, field_nameS, b_fix_invalid_polygon=False)
+
 def find_one_line_intersect_Polygon(polygon, line_list, line_check_list):
     for idx, (line, b_checked) in enumerate(zip(line_list,line_check_list)):
         if b_checked:
