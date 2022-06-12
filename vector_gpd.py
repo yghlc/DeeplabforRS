@@ -216,7 +216,7 @@ def read_polygons_gpd(polygon_shp, b_fix_invalid_polygon = True):
 
     return polygons
 
-def add_attributes_to_shp(shp_path, add_attributes):
+def add_attributes_to_shp(shp_path, add_attributes,save_as=None,format='ESRI Shapefile'):
     '''
     add attbibutes to a shapefile
     :param shp_path: the path of shapefile
@@ -238,7 +238,10 @@ def add_attributes_to_shp(shp_path, add_attributes):
 
     # print(shapefile)
     # save the original file
-    return shapefile.to_file(shp_path, driver='ESRI Shapefile')
+    if save_as is not None:
+        return shapefile.to_file(save_as, driver=format)
+    else:
+        return shapefile.to_file(shp_path, driver='ESRI Shapefile')
 
 
 def read_attribute_values_list(polygon_shp, field_name):
