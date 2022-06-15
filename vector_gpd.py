@@ -606,7 +606,7 @@ def list_to_dict(list_dict):
                 out_dict[key] = [dict_obj[key]]
     return out_dict
 
-def save_shapefile_subset_as(data_poly_indices, org_shp, save_path):
+def save_shapefile_subset_as(data_poly_indices, org_shp, save_path,format='ESRI Shapefile'):
     '''
     save subset of shapefile
     :param data_poly_indices: polygon index
@@ -626,7 +626,7 @@ def save_shapefile_subset_as(data_poly_indices, org_shp, save_path):
         selected_list[idx] = True
 
     shapefile_sub = shapefile[selected_list]
-    shapefile_sub.to_file(save_path, driver='ESRI Shapefile')
+    shapefile_sub.to_file(save_path, driver=format)
     basic.outputlogMessage('save subset (%d geometry) of shapefile to %s'%(save_count,save_path))
 
     return True
