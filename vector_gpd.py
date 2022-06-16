@@ -647,8 +647,8 @@ def save_polygons_to_files(data_frame, geometry_name, wkt_string, save_path,form
 
     return True
 
-def save_lines_to_files(data_frame, geometry_name, wkt_string, save_path):
-    return save_polygons_to_files(data_frame, geometry_name, wkt_string, save_path)
+def save_lines_to_files(data_frame, geometry_name, wkt_string, save_path,format='ESRI Shapefile'):
+    return save_polygons_to_files(data_frame, geometry_name, wkt_string, save_path,format=format)
 
 def remove_narrow_parts_of_a_polygon(shapely_polygon, rm_narrow_thr):
     '''
