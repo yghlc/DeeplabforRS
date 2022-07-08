@@ -241,7 +241,7 @@ def add_attributes_to_shp(shp_path, add_attributes,save_as=None,format='ESRI Sha
     if save_as is not None:
         return shapefile.to_file(save_as, driver=format)
     else:
-        return shapefile.to_file(shp_path, driver='ESRI Shapefile')
+        return shapefile.to_file(shp_path, driver=format)
 
 
 def read_attribute_values_list(polygon_shp, field_name):
