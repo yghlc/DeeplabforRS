@@ -467,7 +467,7 @@ def image_numpy_allBands_to_8bit_hist(img_np_allbands, min_max_values=None, per_
             min_max_values = min_max_values * band_count
 
     # get min, max
-    bin_count = 500
+    bin_count = 10000
     new_img_np = np.zeros_like(img_np_allbands, dtype=np.uint8)
     for band, img_oneband in enumerate(img_np_allbands):
         found_min, found_max, hist, bin_edges = get_max_min_histogram_percent_oneband(img_oneband, bin_count,
