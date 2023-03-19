@@ -647,6 +647,30 @@ def check_file_or_dir_is_old(file_folder, time_hour_thr):
     else:
         return False
 
+def write_metadata(key, value, filename=None):
+    if isinstance(key,list):
+        keys = key
+    else:
+        keys = [key]
+    if isinstance(value, list):
+        values = value
+    else:
+        values = [value]
+
+    if len(keys) != len(values):
+        raise ValueError('the number of keys (%d) and values (%d) is different'%(len(keys), len(values)))
+
+    if filename is None:
+        filename = 'metadata.txt'
+    # with open(filename,'a') as f_obj:
+    #     f_obj.writelines(str(key)+': '+str(value) + '\n')
+    if os.path.isfile(filename):
+        meta_dict = read_dict_from_txt_json(filename)
+    else:
+        meta_dict = {}
+    for k, v in zip(keys, values):
+        meta_dict[k] = v
+    save_dict_to_txt_json(filename,meta_dict)
 
 if __name__=='__main__':
     pass

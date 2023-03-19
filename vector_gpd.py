@@ -1252,7 +1252,12 @@ def line_segments_to_LineString(segment_list):
 
     return merged_line
 
-
+def shapefile_to_ROIs_wkt(shp_path):
+    polygons = read_shape_gpd_to_NewPrj(shp_path,'EPSG:4326')  # lat, lon
+    if len(polygons) < 1:
+        raise ValueError('No polygons in %s'%shp_path)
+    ROIs_wkt = [str(p) for p in polygons ]
+    return ROIs_wkt
 
 def main(options, args):
 
