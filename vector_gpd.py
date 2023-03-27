@@ -1259,6 +1259,10 @@ def shapefile_to_ROIs_wkt(shp_path):
     ROIs_wkt = [str(p) for p in polygons ]
     return ROIs_wkt
 
+def json_geometry_to_polygons(data_dict):
+    return Polygon(data_dict['coordinates'][0])
+
+
 def main(options, args):
 
     # ###############################################################
