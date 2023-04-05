@@ -17,7 +17,13 @@ import numpy
 
 import  parameters
 
+#pyshp library
+import shapefile
 
+# some changes in 2.x the new changes are incompatible with previous versions (1.x)
+# many place need to change, such as "shapefile.Writer()"
+if shapefile.__version__ >= '2.0.0':
+    raise ValueError('Current do not support pyshp version 2 or above, please use pyshp version 1.2.12')
 
 import random
 
@@ -2104,13 +2110,6 @@ if __name__=='__main__':
     #                   help="the selectd used files,only need when you set --action=2")
     # parser.add_option('-o', "--output", action='store', dest="output",
     #                   help="the output file,only need when you set --action=2")
-
-    # pyshp library
-    import shapefile
-    # some changes in 2.x the new changes are incompatible with previous versions (1.x)
-    # many place need to change, such as "shapefile.Writer()"
-    if shapefile.__version__ >= '2.0.0':
-        raise ValueError('Current do not support pyshp version 2 or above, please use pyshp version 1.2.12')
 
     (options, args) = parser.parse_args()
     if len(sys.argv) < 2 or len(args) < 2:
