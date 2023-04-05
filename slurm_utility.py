@@ -51,11 +51,17 @@ def get_submited_job_ids(user_name):
 
 def get_submited_job_names(user_name):
     status, output = basic.exec_command_string("squeue --user="+user_name)
-    lines = output.split('\n')[1:]  # remove the first line: JOBID PARTITION  NAME USER ST TIME NODES NODELIST(REASON)
+    #first line at CU Boulder, JOBID PARTITION  NAME USER ST TIME NODES NODELIST(REASON)
+    #first line: Canada compute: JOBID     USER      ACCOUNT           NAME  ST  TIME_LEFT NODES CPUS TRES_PER_N MIN_MEM NODELIST (REASON)
+    all_lines = output.split('\n')
+    first_line = all_lines[0]
+    name_idx = first_line.split().index('NAME')
+
+    lines = all_lines[1:]  # remove the first line:
     job_names = []
     for line in lines:
         info = line.split()
-        job_names.append(info[2]) # the third one is the job name
+        job_names.append(info[name_idx])
     return job_names
 
 def get_submit_job_count(user_name,job_name_substr=None):
