@@ -27,9 +27,9 @@ local_tasks = []
 slurm_username = None
 b_run_job_local = False
 
-def check_length_jobname(job_name):
-    if len(job_name) > 8:
-        raise ValueError('the length job name exceed 8 letters, will be cut off to 8, leading to troubles')
+def check_length_jobname(job_name, length=8):
+    if len(job_name) > length:
+        raise ValueError('the length job name exceed %d letters, will be cut off to 8, leading to troubles'%length)
 
 def wait_if_reach_max_jobs(max_job_count,job_name_substr):
     if b_run_job_local:
