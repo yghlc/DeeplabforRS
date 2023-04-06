@@ -127,6 +127,8 @@ def os_system_exit_code(command_str):
     '''
     res = os.system(command_str)
     if res != 0:
+        print('command_str:')
+        print(command_str)
         sys.exit(1)
 
 def exec_command_string(command_str):
