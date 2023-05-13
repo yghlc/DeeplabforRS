@@ -1262,6 +1262,9 @@ def shapefile_to_ROIs_wkt(shp_path):
 def json_geometry_to_polygons(data_dict):
     return Polygon(data_dict['coordinates'][0])
 
+def wkt_string_to_polygons(wkt_str):
+    return shapely.wkt.loads(wkt_str)
+
 
 def main(options, args):
 
