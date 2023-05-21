@@ -24,6 +24,9 @@ import time
 #Color interpretation https://rasterio.readthedocs.io/en/latest/topics/color.html
 from rasterio.enums import ColorInterp
 
+import basic_src.basic as basic
+import basic_src.io_function as io_function
+
 def open_raster_read(raster_path):
     src = rasterio.open(raster_path)
     return src
@@ -849,6 +852,26 @@ def write_colormaps(raster_path, color_map_dict):
 
     return True
 
+def trim_nodata_region(img_path, save_path,nodata=0, tmp_dir='./'):
+    # crop the nodata region of a raster
+    ## trim nodata region
+    # calculate the valid region
+    mask_tif = os.path.join(tmp_dir, io_function.get_name_no_ext(img_path) +'_mask.tif')
+    cmd_str = 'gdal_calc.py --type=Byte --NoDataValue=%s  --calc="A!=%s" -A %s --outfile=%s'%(str(nodata),str(nodata),img_path,mask_tif)
+    basic.os_system_exit_code(cmd_str)
+    io_function.is_file_exist(mask_tif)
+
+    # polygonize
+    outline_shp = os.path.join(tmp_dir, io_function.get_name_no_ext(img_path) +'_outline.shp')
+    cmd_str = 'gdal_polygonize.py -8  %s  -b 1 -f "ESRI Shapefile" %s'%(mask_tif,outline_shp)
+    basic.os_system_exit_code(cmd_str)
+    io_function.is_file_exist(mask_tif)
+
+    # crop, and translate to Geotiff
+    cmd_str = 'gdalwarp -of GTiff -co compress=lzw -co tiled=yes -co bigtiff=if_safer -cutline %s -crop_to_cutline '%outline_shp + img_path + ' ' + save_path
+    basic.os_system_exit_code(cmd_str)
+
+    return save_path
 
 def main():
     pass
