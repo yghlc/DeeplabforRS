@@ -874,6 +874,10 @@ def trim_nodata_region(img_path, save_path,nodata=0, tmp_dir='./'):
     ## a safe way to crop is use the bounding box, because something a polygon in outline.shp may be invalid.
     ##  but here we need to call function in vector_gpd   noted by hlc, 2023, May 22.
     # bounding_boxes = vector_gpd.get_vector_file_bounding_box(outline_shp)  # minx, miny, maxx, maxy
+
+    # if np.any(np.isnan(bounding_boxes) == True):  # nan
+    #   handle this
+
     # box_str = ' '.join([str(item) for item in bounding_boxes])
     # cmd_str = 'gdalwarp -of GTiff -co compress=lzw -co tiled=yes -co bigtiff=if_safer -te %s '%box_str + img_path + ' ' + save_path
     # basic.os_system_exit_code(cmd_str)
