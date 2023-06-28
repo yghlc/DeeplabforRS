@@ -75,10 +75,29 @@ def get_tie_points_by_ZY3ImageMatch(basefile,warpfile,bkeepmidfile):
     resultdir = os.path.join(workdir,taskID)
     resultpath = os.path.join(resultdir,'results.txt')
 
-    exe_dir = parameters.get_exec_dir()
-    if exe_dir is False:
-        return False
-    exepath = os.path.join(exe_dir,'ImageMatchsiftGPU')
+    b_run_in_docker = parameters.get_bool_parameters('','b_run_in_docker')
+    if b_run_in_docker:
+        from pathlib import Path
+        # run in docker
+        docker_image = parameters.get_string_parameters('','docker_image_name')
+        cur_dir = Path(os.path.realpath(os.getcwd()))
+        basefile_dir = Path(os.path.realpath(basefile))
+        warpfile_dir = Path(os.path.realpath(warpfile))
+        #
+        top_folder_names = [os.path.join(item.parts[0], item.parts[1]) for item in
+                            [cur_dir,basefile_dir,warpfile_dir]]
+        top_folder_names = set(top_folder_names)
+        print('top_folder_names:', top_folder_names)
+        #
+        exepath = 'docker run --rm ' + ' -w %s'%cur_dir + ' -u $UID:$UID '
+        for top_dir in top_folder_names:
+            exepath += ' -v %s:%s '%(top_dir, top_dir)
+        exepath += ' -it yghlc/siftgpu-image-match:v1  ImageMatchsiftGPU '
+    else:
+        exe_dir = parameters.get_exec_dir()
+        if exe_dir is False:
+            return False
+        exepath = os.path.join(exe_dir,'ImageMatchsiftGPU')
     CommandString = exepath + ' ' + taskfile + ' ' + resultpath + ' '+ str(2)
     # basic.outputlogMessage(CommandString)
 
