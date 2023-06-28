@@ -9,6 +9,11 @@ add time: 11 May, 2016
 """
 
 import sys,os,time
+
+# support for python3: import the script in the same dir. hlc 2023-June-28
+py_dir=os.path.dirname(os.path.realpath(__file__))
+sys.path.append(py_dir)
+
 import io_function,basic
 import xml.etree.ElementTree as ET
 # from lxml import etree as ET
