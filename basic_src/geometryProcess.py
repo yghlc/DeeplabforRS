@@ -335,11 +335,13 @@ def coregistration_siftGPU(basefile, warpfile, bkeepmidfile, xml_obj):
     tiepoint_vector_ = 'tiepoints_vector.png'
     tmpImg_obj = RSImageclass()
     tmpImg_obj.open(basefile)
-    if tmpImg_obj.GetWidth() * tmpImg_obj.GetHeight() < 10000 * 10000:
-        output_tie_points_vector_on_base_image(basefile, result_rms_files, tiepoint_vector_)
-        xml_obj.add_coregistration_info('tie_points_drawed_image', os.path.abspath(tiepoint_vector_))
-    else:
-        basic.outputlogMessage('warning: the width*height of the image > 10000*10000, skip drawing tie point vectors')
+    b_draw_vector = parameters.get_bool_parameters('','b_draw_tie_points_rms_vector')
+    if b_draw_vector:
+        if tmpImg_obj.GetWidth() * tmpImg_obj.GetHeight() < 10000 * 10000 :
+            output_tie_points_vector_on_base_image(basefile, result_rms_files, tiepoint_vector_)
+            xml_obj.add_coregistration_info('tie_points_drawed_image', os.path.abspath(tiepoint_vector_))
+        else:
+            basic.outputlogMessage('warning: the width*height of the image > 10000*10000, skip drawing tie point vectors')
 
     # check the tie points
     try:
