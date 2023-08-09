@@ -12,12 +12,17 @@ import os, sys
 import raster_io
 import basic_src.io_function as io_function
 import basic_src.basic as basic
+import basic_src.map_projection as map_projection
 
 import multiprocessing
 from multiprocessing import Pool
 from multiprocessing import Process
 
 import time
+import  numpy as np
+
+import pandas as pd
+import vector_gpd
 
 def b_all_task_finish(all_tasks):
     for task in all_tasks:
@@ -165,6 +170,42 @@ def test_read_write_color_table():
     raster_io.write_colormaps(img_1band,color_map_dict)
 
 
+def test_numpy_array_to_shape():
+    data_dir = os.path.expanduser('~/Data/tmp_data/dem_diff_segment/multi_segment_results/WR_s2_2017/I0')
+    img_path = os.path.join(data_dir,'I0_WR_s2_2017_dem_diff_segment_exp6.tif')
+
+
+    # boundary: (xoff, yoff, xsize, ysize)
+
+    image_array,nodata = raster_io.read_raster_one_band_np(img_path)
+    # print(image_array.dtype)
+    image_array = image_array.astype(np.int32)
+    geometry_json_list, raster_values = raster_io.numpy_array_to_shape(image_array,img_path,nodata=0)
+    # print(geometry_json_list)
+    # print(raster_vlaues)
+
+    # from shapely.geometry import Polygon
+    # print(geometry_json_list[0]['coordinates'][0])
+    # poly_shapely = Polygon(geometry_json_list[0]['coordinates'][0])
+
+    # save to shapefile
+    wkt = map_projection.get_raster_or_vector_srs_info_proj4(img_path)
+    polygons = [vector_gpd.json_geometry_to_polygons(item) for item in geometry_json_list]
+    # for idx,geo in enumerate(geometry_json_list):
+        # print(geo)
+        # print(geo['coordinates'][0])
+        # poly_shapely = Polygon(geo['coordinates'][0])
+
+        # print(idx, vector_gpd.json_geometry_to_polygons(geo))
+    data_pd = pd.DataFrame({'polygon':polygons, 'r_value':raster_values})
+    # save_path = 'polygon_all.shp'
+    save_path = 'polygon_nodata_mask.shp'
+    vector_gpd.save_polygons_to_files(data_pd,'polygon',wkt,save_path)
+    print('save to %s'%save_path)
+
+
+
+
 
 if __name__ == '__main__':
     # test_parallel_reading_images()
@@ -175,6 +216,8 @@ if __name__ == '__main__':
 
     # test_raster2shapefile()
 
-    test_read_write_color_table()
+    # test_read_write_color_table()
+
+    test_numpy_array_to_shape()
 
     pass
