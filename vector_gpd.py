@@ -1328,6 +1328,30 @@ def clip_geometries(input_path, save_path, mask, target_prj=None, format='ESRI S
 
     shp_clip.to_file(save_path, driver=format)
 
+def geometries_overlap_another_group(input_shp, ref_shp, how='intersection'):
+    # using geopandas to find geometries in "input_shp" that overlap any geometries in "ref_shp"
+    # Read the shapefiles into GeoDataFrames
+    group1 = gpd.read_file(input_shp)
+    group2 = gpd.read_file(ref_shp)
+
+    if group1.crs != group2.crs:
+        print('Warning, CRS in group 1 (%s) and 2 (%s) is different, re-project group 2 to %s'%(group1.crs, group2.crs, group1.crs))
+        group2 = group2.to_crs(group1.crs)
+
+    # Perform overlay operation to find overlapping or touching geometries
+    # overlap_touch = gpd.overlay(group1, group2, how=how)
+
+    # Perform spatial join to find overlapping or touching geometries
+    overlap_touch = gpd.sjoin(group1, group2, how='inner', op='intersects')
+
+    # remove duplicated geometries in overlap_touch
+    overlap_touch = overlap_touch.drop_duplicates(subset=['geometry'])    # only check geometry
+
+    # save to disk for checking
+    # overlap_touch.to_file(os.path.splitext(os.path.basename(ref_shp))[0] + '_sel.shp')
+
+    return overlap_touch
+
 
 def main(options, args):
 
