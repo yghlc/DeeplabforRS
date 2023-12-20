@@ -1332,6 +1332,24 @@ def clip_geometries(input_path, save_path, mask, target_prj=None, format='ESRI S
 
     shp_clip.to_file(save_path, driver=format)
 
+def clip_geometries_ogr2ogr(input_path, save_path, bounds, format='ESRI Shapefile'):
+    # bounds: xmin, ymin, xmax, ymax
+    # using ogr2ogr to crop vector file, if the vector file is very large (> 1GB),
+    # we don't have to read all geometries to cpu memory, then use geopandas to clip it  (slow, out-of-memory)
+
+
+    # ogr2ogr -progress -f GPKG -spat ${xmin} ${ymin} ${xmax} ${ymax}  ${dst} ${src}
+    commond_str = 'ogr2ogr -progress -f "%s"'%format
+    commond_str += ' -spat %s %s %s %s '%(str(bounds[0]), str(bounds[1]), str(bounds[2]), str(bounds[3]))
+    commond_str += " %s %s"%(save_path,input_path)
+
+    res = os.system(commond_str)
+    if res == 0:
+        return save_path
+    else:
+        return None
+
+
 def geometries_overlap_another_group(input_shp, ref_shp, how='intersection'):
     # using geopandas to find geometries in "input_shp" that overlap any geometries in "ref_shp"
     # Read the shapefiles into GeoDataFrames
