@@ -1339,7 +1339,7 @@ def clip_geometries_ogr2ogr(input_path, save_path, bounds, format='ESRI Shapefil
 
 
     # ogr2ogr -progress -f GPKG -spat ${xmin} ${ymin} ${xmax} ${ymax}  ${dst} ${src}
-    commond_str = 'ogr2ogr -progress -f "%s"'%format
+    commond_str = 'ogr2ogr -f "%s"'%format      # -progress
     commond_str += ' -spat %s %s %s %s '%(str(bounds[0]), str(bounds[1]), str(bounds[2]), str(bounds[3]))
     commond_str += " %s %s"%(save_path,input_path)
 
