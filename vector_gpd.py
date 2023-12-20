@@ -1316,7 +1316,11 @@ def clip_geometries(input_path, save_path, mask, target_prj=None, format='ESRI S
     # If the mask is list-like with four elements (minx, miny, maxx, maxy), a faster rectangle clipping algorithm will be used
     # ref: https://geopandas.org/en/stable/docs/reference/api/geopandas.clip.html
 
-    shapefile = gpd.read_file(input_path)
+    if os.path.isfile(input_path):
+        shapefile = gpd.read_file(input_path)
+    else:
+        # if the input is already a geo dataframe
+        shapefile = input_path
     if target_prj is not None:
         in_prj = map_projection.get_raster_or_vector_srs_info_proj4(input_path)
         if in_prj != target_prj:
