@@ -431,7 +431,7 @@ def unzip_file(file_path, work_dir):
         raise IOError('dir %s not exist'%os.path.abspath(work_dir))
 
     if file_path.endswith('.zip') is False:
-        raise ValueError('input %s do not end with .tar.gz')
+        raise ValueError('input %s do not end with .zip')
 
     file_basename = os.path.splitext(os.path.basename(file_path))[0]
 
