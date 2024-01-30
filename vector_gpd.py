@@ -1375,6 +1375,27 @@ def geometries_overlap_another_group(input_shp, ref_shp, how='intersection'):
     return overlap_touch
 
 
+def expand_polygon_to_specific_size(polygon, new_area_size):
+
+    # check if polygons are in lat/lon (EPSG: 4326), need XY projection for calculating areas
+    # https://math.stackexchange.com/questions/1889423/calculating-the-scale-factor-to-resize-a-polygon-to-a-specific-size
+    # https://gis.stackexchange.com/questions/97963/how-to-surround-a-polygon-object-with-a-corridor-of-specified-width
+    # https://stackoverflow.com/questions/72786576/how-to-scale-polygon-using-shapely
+
+    # outside this function, need to make sure that the coordinate of polygons and unit of area_size is consistant
+    # i.e., both are in meter or both are in degree
+
+    if polygon.area >= new_area_size:
+        return polygon
+    # Calculate the scaling factor to achieve the desired area
+    scaling_factor = (new_area_size / polygon.area) ** 0.5
+    # Scale the polygon using the scaling factor
+    expanded_polygon = polygon.buffer(0).scale(scaling_factor, scaling_factor)
+
+    return expanded_polygon
+
+
+
 def main(options, args):
 
     # ###############################################################
