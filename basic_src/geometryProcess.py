@@ -355,14 +355,14 @@ def coregistration_siftGPU(basefile, warpfile, bkeepmidfile, xml_obj):
         xml_obj.add_coregistration_info('required_tie_point_count', str(required_point_count))
         xml_obj.add_coregistration_info('acceptable_rms', str(acceptable_rms))
         try:
-            digit_str = re.findall('\d+', rms_lines[0])
+            digit_str = re.findall(r'\d+', rms_lines[0])
             tiepoints_count = int(digit_str[0])
             xml_obj.add_coregistration_info('tie_points_count', str(tiepoints_count))
             if tiepoints_count < required_point_count:
                 basic.outputlogMessage("ERROR: tiepoints count(%d) is less than required one(%d)" % (
                 tiepoints_count, required_point_count))
                 return False
-            digit_str = re.findall('\d+\.?\d*', rms_lines[1])
+            digit_str = re.findall(r'\d+\.?\d*', rms_lines[1])
             totalrms_value = float(digit_str[2])
             xml_obj.add_coregistration_info('total_rms_value', str(totalrms_value))
             if totalrms_value > acceptable_rms:

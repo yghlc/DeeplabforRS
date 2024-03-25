@@ -70,13 +70,13 @@ def main(options, args):
 
             folder = os.path.basename(cwd_path)
             import re
-            I_idx_str = re.findall('I\d+', folder)
+            I_idx_str = re.findall(r'I\d+', folder)
             if len(I_idx_str) == 1:
                 index = int(I_idx_str[0][1:])
             else:
                 # try to find the image idx from file name
                 file_name = os.path.basename(input)
-                I_idx_str = re.findall('I\d+', file_name)
+                I_idx_str = re.findall(r'I\d+', file_name)
                 if len(I_idx_str) == 1:
                     index = int(I_idx_str[0][1:])
                 else:
