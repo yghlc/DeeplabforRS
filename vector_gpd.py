@@ -639,6 +639,28 @@ def list_to_dict(list_dict):
                 out_dict[key] = [dict_obj[key]]
     return out_dict
 
+def save_shapefile_subset_as_valueInlist(org_shp, save_path, field_name, value_list, format='ESRI Shapefile'):
+    '''
+    save a subset of vector file based on values in a column (field)
+    :param org_shp: original shapefile
+    :param save_path: save path
+    :param field_name: the file name
+    :param value_list: a list of values, if the value of the column is in this list, then will save the record
+    :param format:
+    :return:
+    '''
+    #
+    shapefile = gpd.read_file(org_shp)
+    filtered_shapefile = shapefile[shapefile[field_name].isin(value_list)]
+    # change format
+    guess_format = guess_file_format_extension(save_path)
+    if guess_format != format:
+        basic.outputlogMessage('warning, the format (%s) associated with file extension is different with the input one (%s)'%
+                               (guess_format,format))
+        format = guess_format
+    filtered_shapefile.to_file(save_path, driver=format)
+    basic.outputlogMessage('save subset (%d geometry) of shapefile to %s'%(len(filtered_shapefile),save_path))
+
 def save_shapefile_subset_as(data_poly_indices, org_shp, save_path,format='ESRI Shapefile'):
     '''
     save subset of shapefile
@@ -652,13 +674,14 @@ def save_shapefile_subset_as(data_poly_indices, org_shp, save_path,format='ESRI 
 
     save_count = len(data_poly_indices)
     shapefile = gpd.read_file(org_shp)
-    nrow, ncol = shapefile.shape
+    # nrow, ncol = shapefile.shape
 
-    selected_list = [False]*nrow
-    for idx in data_poly_indices:
-        selected_list[idx] = True
+    # selected_list = [False]*nrow
+    # for idx in data_poly_indices:
+    #     selected_list[idx] = True
 
-    shapefile_sub = shapefile[selected_list]
+    # shapefile_sub = shapefile[selected_list]
+    shapefile_sub = shapefile.iloc[data_poly_indices]
     # change format
     guess_format = guess_file_format_extension(save_path)
     if guess_format != format:
@@ -1161,6 +1184,13 @@ def get_surrounding_polygons(in_polygons,buffer_size):
 
     return surround_polys
 
+def merge_vector_files(file_list, save_path,format='ESRI Shapefile'):
+
+    command_string = 'ogrmerge.py -o %s -f "%s" -single -progress '%(save_path,format)
+    for item in file_list:
+        command_string += ' "%s"'%item
+    basic.os_system_exit_code(command_string)
+
 
 def merge_shape_files(file_list, save_path):
 
@@ -1336,14 +1366,18 @@ def clip_geometries(input_path, save_path, mask, target_prj=None, format='ESRI S
             else:
                 shapefile = shapefile.to_crs({'init': target_prj})
     shp_clip = gpd.clip(shapefile,mask)
+    if shp_clip.empty:
+        return None
 
     shp_clip.to_file(save_path, driver=format)
+    return save_path
 
 def clip_geometries_ogr2ogr(input_path, save_path, bounds, format='ESRI Shapefile'):
     # bounds: xmin, ymin, xmax, ymax
     # using ogr2ogr to crop vector file, if the vector file is very large (> 1GB),
     # we don't have to read all geometries to cpu memory, then use geopandas to clip it  (slow, out-of-memory)
 
+    # noted: may need to check the projection before calling this function
 
     # ogr2ogr -progress -f GPKG -spat ${xmin} ${ymin} ${xmax} ${ymax}  ${dst} ${src}
     commond_str = 'ogr2ogr -f "%s"'%format      # -progress
