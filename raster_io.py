@@ -241,6 +241,35 @@ def get_max_min_histogram_percent_oneband(data, bin_count, min_percent=0.01, max
     return found_min, found_max, hist, bin_edges
 
 
+def get_location_value_attribute(raster_path,x,y,is_pixel_xy=False, attribute_name=None, band_idx=None):
+    """
+    get the image value of given location(x,y) in bandindex
+    Args:
+        imagepath:the image path which the information query
+        x:x value
+        y:y value
+        is_pixel_xy: True for pixel coordinate
+        attribute_name: the name of attribute want to get
+        bandindex:the band_idx of band want to query, if it's None, then get values for all band
+
+    Returns:the certain value (float) of given location, also attribute of band in band_idx
+    """
+
+    with rasterio.open(raster_path) as src:
+        indexes = src.indexes
+        if band_idx is None:
+            band_idx = indexes
+
+        if is_pixel_xy is True:
+            x, y = pixel_xy_to_geo_xy(x,y,src.transform)
+            print(x,y)
+        values = [item for item in src.sample([(x,y)], indexes=band_idx)]
+        if attribute_name is not None:
+            att_values = [src.tags(idx)[attribute_name] for idx in band_idx ]
+        return values[0].tolist(), att_values
+
+
+
 def set_nodata_to_raster_metadata(raster_path, nodata):
     # modifiy the nodata value in the metadata
     cmd_str = 'gdal_edit.py -a_nodata %s  %s' % (str(nodata), raster_path)
