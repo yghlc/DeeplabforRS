@@ -916,6 +916,16 @@ def write_colormaps(raster_path, color_map_dict):
 
     return True
 
+def read_metadata_bands(raster_path, attribute_name, band_idx=None ):
+    with rasterio.open(raster_path) as src:
+        indexes = src.indexes
+        if band_idx is None:
+            band_idx = indexes
+
+        if attribute_name is not None:
+            att_values = [src.tags(idx)[attribute_name] for idx in band_idx ]
+        return att_values
+
 def add_metadata_to_bands(raster_path, meta_name, meta_values):
 
     # update the raster file
