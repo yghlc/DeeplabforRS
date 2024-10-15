@@ -241,7 +241,8 @@ def get_max_min_histogram_percent_oneband(data, bin_count, min_percent=0.01, max
     return found_min, found_max, hist, bin_edges
 
 
-def get_location_value_attribute(raster_path,x,y,is_pixel_xy=False, attribute_name=None, band_idx=None):
+def get_location_value_attribute(raster_path,x,y,is_pixel_xy=False, attribute_name=None, band_idx=None,
+                                 b_verbose = False):
     """
     get the image value of given location(x,y) in bandindex
     Args:
@@ -262,7 +263,8 @@ def get_location_value_attribute(raster_path,x,y,is_pixel_xy=False, attribute_na
 
         if is_pixel_xy is True:
             x, y = pixel_xy_to_geo_xy(x,y,src.transform)
-            print(x,y)
+            if b_verbose:
+                print('getting values at location for %d bands: '%len(band_idx), x,y)
         values = [item for item in src.sample([(x,y)], indexes=band_idx)]
         if attribute_name is not None:
             att_values = [src.tags(idx)[attribute_name] for idx in band_idx ]
@@ -913,6 +915,20 @@ def write_colormaps(raster_path, color_map_dict):
         # assert cmap[1] == (0, 0, 255, 255)
 
     return True
+
+def add_metadata_to_bands(raster_path, meta_name, meta_values):
+
+    # update the raster file
+    with rasterio.open(raster_path,mode='r+') as src:
+
+        band_count = src.count
+        if band_count != len(meta_values):
+            raise ValueError('The number of band account (%d) and values (%d) does not match'%(band_count, len(meta_values)))
+
+        for idx in range(band_count):
+            src.update_tags(idx+1, **{meta_name:meta_values[idx]})
+
+
 
 def trim_nodata_region(img_path, save_path,nodata=0, tmp_dir='./'):
     # crop the nodata region of a raster
