@@ -938,6 +938,22 @@ def add_metadata_to_bands(raster_path, meta_name, meta_values):
         for idx in range(band_count):
             src.update_tags(idx+1, **{meta_name:meta_values[idx]})
 
+def set_band_description(raster_path, band_description_list, band_idx=None):
+    # set band name (band description) for each band
+    # band_description_list (a list) for the band descriptions
+    # band_idx, the band index need to set, also a list (first band is 1, not 0)
+
+    # update the raster file
+    with rasterio.open(raster_path,mode='r+') as src:
+        indexes = src.indexes
+        if band_idx is None:
+            band_idx = indexes
+
+        if len(band_description_list) != len(band_idx):
+            raise ValueError('The count of band descriptions (%d) and indexes (%d) is different'%(len(band_description_list), len(band_idx)))
+
+        for idx in band_idx:
+            src.set_band_description(idx, band_description_list[idx])
 
 
 def trim_nodata_region(img_path, save_path,nodata=0, tmp_dir='./'):
