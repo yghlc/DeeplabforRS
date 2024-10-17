@@ -952,8 +952,8 @@ def set_band_description(raster_path, band_description_list, band_idx=None):
         if len(band_description_list) != len(band_idx):
             raise ValueError('The count of band descriptions (%d) and indexes (%d) is different'%(len(band_description_list), len(band_idx)))
 
-        for idx in band_idx:
-            src.set_band_description(idx, band_description_list[idx])
+        for ii, b_idx in enumerate(band_idx):
+            src.set_band_description(b_idx, band_description_list[ii])
 
 
 def trim_nodata_region(img_path, save_path,nodata=0, tmp_dir='./'):
