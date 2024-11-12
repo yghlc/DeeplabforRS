@@ -255,7 +255,7 @@ def get_location_value_attribute(raster_path,x,y,is_pixel_xy=False, attribute_na
 
     Returns:the certain value (float) of given location, also attribute of band in band_idx
     """
-
+    att_values = None
     with rasterio.open(raster_path) as src:
         indexes = src.indexes
         if band_idx is None:
@@ -265,6 +265,8 @@ def get_location_value_attribute(raster_path,x,y,is_pixel_xy=False, attribute_na
             x, y = pixel_xy_to_geo_xy(x,y,src.transform)
             if b_verbose:
                 print('getting values at location for %d bands: '%len(band_idx), x,y)
+
+        # if set masked=True, it will return a mask array, to check if a point outside the raster.
         values = [item for item in src.sample([(x,y)], indexes=band_idx)]
         if attribute_name is not None:
             att_values = [src.tags(idx)[attribute_name] for idx in band_idx ]
