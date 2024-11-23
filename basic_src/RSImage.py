@@ -13,12 +13,14 @@ import sys,os,json,subprocess,numpy
 from basic_src import basic
 
 
+# solve this by "conda install gdal -c conda-forge"
+
 # node: import gdal clobbering PATH environment variable on Ubuntu, add on 11 Nov 2020  gdal version 2.3.3
 # https://github.com/OSGeo/gdal/issues/1231
 try:
     from osgeo import ogr, osr, gdal
 except:
-    sys.exit('ERROR: cannot find GDAL/OGR modules')
+    raise IOError('ERROR: cannot find GDAL/OGR modules')
 
 
 def dependInit():

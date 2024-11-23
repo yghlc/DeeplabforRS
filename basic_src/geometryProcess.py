@@ -20,10 +20,11 @@ from PIL import Image, ImageDraw
 
 # import aggdraw,test_aggdraw
 
+# solve this by "conda install gdal -c conda-forge"
 try:
     from osgeo import ogr, osr, gdal
 except:
-    sys.exit('ERROR: cannot find GDAL/OGR modules')
+    raise IOError('ERROR: cannot find GDAL/OGR modules')
 
 __author__ = 'huanglingcao'
 

@@ -18,10 +18,11 @@ import sys,basic
 from RSImage import RSImageclass
 import math
 
+# solve this by "conda install gdal -c conda-forge"
 try:
     from osgeo import ogr, osr, gdal
 except:
-    sys.exit('ERROR: cannot find GDAL/OGR modules')
+    raise IOError('ERROR: cannot find GDAL/OGR modules')
 
 import io_function
 
