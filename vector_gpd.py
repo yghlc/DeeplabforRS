@@ -271,6 +271,35 @@ def read_attribute_values_list(polygon_shp, field_name):
         basic.outputlogMessage('Warning: %s not in the shape file, will return None'%field_name)
         return None
 
+def read_attribute_values_list_2d(polygon_shp, field_nameS):
+    '''
+    read attribute value (list)
+    :param polygon_shp:
+    :param field_nameS: a string file name or a list of field_name
+    :return: attributes
+    '''
+    shapefile = gpd.read_file(polygon_shp)
+
+    # read attributes
+    if isinstance(field_nameS, str):  # only one field name
+        if field_nameS in shapefile.keys():
+            attribute_values = shapefile[field_nameS]
+            return attribute_values.tolist()
+        else:
+            basic.outputlogMessage('Warning: %s not in the shape file, get None' % field_nameS)
+            return None
+    elif isinstance(field_nameS, list):  # a list of field name
+        attribute_2d = []
+        for field_name in field_nameS:
+            if field_name in shapefile.keys():
+                attribute_values = shapefile[field_name]
+                attribute_2d.append(attribute_values.tolist())
+            else:
+                basic.outputlogMessage('Warning: %s not in the shape file, get None' % field_nameS)
+                attribute_2d.append(None)
+
+        return attribute_2d
+
 def is_field_name_in_shp(polygon_shp, field_name):
     '''
     check a attribute name is in the shapefile
