@@ -60,6 +60,34 @@ def check_remove_None_geometries(geometries, gpd_dataframe, file_path=None):
     # return geometries again after droping some rows
     return gpd_dataframe.geometry.values
 
+
+def check_remove_None_geometries_file(input_file, output_file):
+    """
+        Reads a geospatial file, removes rows with None geometries, and saves the cleaned file.
+
+        :param input_file: Path to the input file (GeoJSON, Shapefile, etc.).
+        :param output_file: Path to save the output file with cleaned geometries.
+        :return: None
+        """
+    # Read the input file into a GeoDataFrame
+    gpd_dataframe = gpd.read_file(input_file)
+
+    # Find rows with None geometries
+    none_geometry_indices = gpd_dataframe[gpd_dataframe.geometry.isna()].index
+
+    # Log and remove None geometries
+    if len(none_geometry_indices) > 0:
+        print(f"Warning: Found {len(none_geometry_indices)} None geometries. Removing them...")
+
+        # Drop rows with None geometries
+        gpd_dataframe.drop(none_geometry_indices, inplace=True)
+    else:
+        print("No None geometries found. No changes made.")
+
+    # Save the cleaned GeoDataFrame to the output file
+    gpd_dataframe.to_file(output_file, driver=gpd.io.file.infer_schema(input_file))
+    print(f"Cleaned file saved to: {output_file}")
+
 def guess_file_format_extension(file_path):
     _, extension = os.path.splitext(file_path)
     if extension.lower() == '.gpkg':  # GPKG
