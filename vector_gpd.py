@@ -85,7 +85,7 @@ def check_remove_None_geometries_file(input_file, output_file):
         print("No None geometries found. No changes made.")
 
     # Save the cleaned GeoDataFrame to the output file
-    gpd_dataframe.to_file(output_file, driver=gpd.io.file.infer_schema(input_file))
+    gpd_dataframe.to_file(output_file)
     print(f"Cleaned file saved to: {output_file}")
 
 def guess_file_format_extension(file_path):
