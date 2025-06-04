@@ -632,21 +632,26 @@ def calculate_polygon_shape_info(polygon_shapely):
         circularity = (4 * math.pi *  polygon_shapely.area / polygon_shapely.length** 2)
         shape_info['circularit'] = circularity
 
-    minimum_rotated_rectangle = polygon_shapely.minimum_rotated_rectangle
-
-    points = list(minimum_rotated_rectangle.boundary.coords)
-    point1 = Point(points[0])
-    point2 = Point(points[1])
-    point3 = Point(points[2])
-    width = point1.distance(point2)
-    height = point2.distance(point3)
-
-    shape_info['WIDTH'] = width
-    shape_info['HEIGHT'] = height
-    if width > height:
-        shape_info['ratio_w_h'] = height / width
+    if polygon_shapely.is_empty:
+        shape_info['WIDTH'] = 0
+        shape_info['HEIGHT'] = 0
+        shape_info['ratio_w_h'] = 0
     else:
-        shape_info['ratio_w_h'] = width / height
+        minimum_rotated_rectangle = polygon_shapely.minimum_rotated_rectangle
+
+        points = list(minimum_rotated_rectangle.boundary.coords)
+        point1 = Point(points[0])
+        point2 = Point(points[1])
+        point3 = Point(points[2])
+        width = point1.distance(point2)
+        height = point2.distance(point3)
+
+        shape_info['WIDTH'] = width
+        shape_info['HEIGHT'] = height
+        if width > height:
+            shape_info['ratio_w_h'] = height / width
+        else:
+            shape_info['ratio_w_h'] = width / height
 
     #added number of holes
     if polygon_shapely.geom_type == 'Polygon':
