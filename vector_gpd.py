@@ -625,9 +625,12 @@ def calculate_polygon_shape_info(polygon_shapely):
     shape_info['INarea'] = polygon_shapely.area
     shape_info['INperimete']  = polygon_shapely.length
 
-    # circularity
-    circularity = (4 * math.pi *  polygon_shapely.area / polygon_shapely.length** 2)
-    shape_info['circularit'] = circularity
+    if polygon_shapely.is_empty:
+        shape_info['circularit'] = 0
+    else:
+        # circularity
+        circularity = (4 * math.pi *  polygon_shapely.area / polygon_shapely.length** 2)
+        shape_info['circularit'] = circularity
 
     minimum_rotated_rectangle = polygon_shapely.minimum_rotated_rectangle
 
