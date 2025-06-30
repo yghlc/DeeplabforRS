@@ -18,6 +18,7 @@ from rasterio.coords import BoundingBox
 from rasterio.mask import mask
 from rasterio.features import rasterize
 from rasterio.features import shapes
+from rasterio.transform import from_origin
 
 import skimage.measure
 import time
@@ -483,6 +484,49 @@ def save_numpy_array_to_rasterfile(numpy_array, save_path, ref_raster, format='G
         print('save to %s'%save_path)
 
     return True
+
+
+def save_numpy_array_to_rasterfile_noCRS(numpy_array, save_path, format='GTiff',verbose=True):
+    # save a numpy to file, the numpy has the same projection and extent with ref_raster, without map projection
+
+    if numpy_array.ndim == 2:
+        band_count = 1
+        height,width = numpy_array.shape
+        # reshape to 3 dim, to write the disk
+        numpy_array = numpy_array.reshape(band_count, height, width)
+    elif numpy_array.ndim == 3:
+        band_count, height,width = numpy_array.shape
+    else:
+        raise ValueError('only accept ndim is 2 or 3')
+
+    dt = np.dtype(numpy_array.dtype)
+
+    if verbose:
+        print('dtype:', dt.name)
+        print(numpy_array.dtype)
+        print('band_count,height,width',band_count,height,width)
+        # print('saved numpy_array.shape',numpy_array.shape)
+
+    transform = from_origin(0, 0, 1, 1)  # Origin at (0, 0), pixel size (1x1)
+    # Save the array as a TIFF file
+    with rasterio.open(
+            save_path,
+            'w',
+            driver=format,
+            height=numpy_array.shape[1],  # Height (rows)
+            width=numpy_array.shape[2],  # Width (columns)
+            count=numpy_array.shape[0],  # Number of bands (3 for RGB)
+            dtype=numpy_array.dtype,  # Data type of the array
+            transform=transform  # Basic transform (no projection)
+    ) as dst:
+        dst.write(numpy_array)  # Write all bands
+
+    if verbose:
+        print('save to %s'%save_path)
+
+    return True
+
+
 
 def image_numpy_allBands_to_8bit_hist(img_np_allbands, min_max_values=None, per_min=0.01, per_max=0.99, bin_count = 10000, src_nodata=None, dst_nodata=None):
 
