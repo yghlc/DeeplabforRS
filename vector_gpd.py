@@ -17,6 +17,7 @@ import shapely
 from shapely.geometry import mapping # transform to GeJSON format
 from shapely.geometry import MultiPolygon
 from shapely.geometry import Polygon
+from shapely.geometry import box
 from shapely.geometry import LineString
 from shapely.geometry import MultiLineString
 from shapely import ops
@@ -1160,7 +1161,7 @@ def find_adjacent_polygons_from_sub(c_polygon_idx, polygon_list,polygon_boxes,  
     return c_polygon_idx, adj_polygons, adj_poly_idxs
 
 
-def split_large_group_iterative(group, polygon_list, group_max_area, b_verbose=False):
+def split_large_group_iterative(group, polygon_list, overlap_threshold, group_max_area, b_verbose=False):
     """
     Splits a group of polygons into smaller subgroups iteratively if the merged area exceeds the max area.
 
@@ -1193,7 +1194,7 @@ def split_large_group_iterative(group, polygon_list, group_max_area, b_verbose=F
                     continue
                 # Calculate intersection area
                 intersection_area = poly.intersection(group_polygons[j]).area
-                if intersection_area > 0:
+                if intersection_area > overlap_threshold:
                     G.add_edge(i, j, weight=intersection_area)
 
         # Sort edges by weight, descending, sorted_edges is a list
@@ -1316,7 +1317,7 @@ def group_overlap_polygons(polygon_list, overlap_threshold=10000, group_max_area
             final_groups.append(group)
         else:
             # to check and split if the group is too large
-            final_groups.extend(split_large_group_iterative(group, polygon_list, group_max_area,b_verbose=b_verbose))
+            final_groups.extend(split_large_group_iterative(group, polygon_list, overlap_threshold, group_max_area,b_verbose=b_verbose))
 
         # testing
         # break
@@ -1431,6 +1432,95 @@ def merge_multi_geometries(geometry_list):
     #     return merged_geometry  # Return a single merged geometry
     # ouutside this function, to check if it's a single geometry or GeometryCollection
     return merged_geometry
+
+def split_polygon_by_grids(polygon, grid_size_x=5000, grid_size_y=5000, min_grid_wh=500):
+    """
+    Splits a polygon into smaller grids of size grid_size_x × grid_size_y meters,
+    and processes intersections, merging small cells on the edges into their direct neighbors.
+
+    Parameters:
+        polygon: The input Shapely polygon to split.
+        grid_size_x: The width of each grid cell in meters (default is 5000m).
+        grid_size_y: The height of each grid cell in meters (default is 5000m).
+        min_grid_wh: Minimum width and height for a grid cell in meters (default is 500m).
+
+    Returns:
+        list: A list of resulting polygons after splitting and merging (Shapely Polygon objects).
+    """
+    # Get the bounds of the polygon (minx, miny, maxx, maxy)
+    minx, miny, maxx, maxy = polygon.bounds
+
+    # Step 1: Generate all grid boxes and assign them row/column numbers
+    grid_cells = {}  # Dictionary to store grid cells by their (row, col) keys
+    row = 0
+    x = minx
+    while x < maxx:
+        col = 0
+        y = miny
+        while y < maxy:
+            # Create a grid cell with given row and column
+            grid_cells[(row, col)] = box(x, y, x + grid_size_x, y + grid_size_y)
+            y += grid_size_y
+            col += 1
+        x += grid_size_x
+        row += 1
+
+    # Step 2: Calculate intersections and keep non empty intersections
+    intersections = {}  # Store valid intersections by (row, col)
+    for (row, col), grid_cell in grid_cells.items():
+        # Calculate the intersection
+        intersection = polygon.intersection(grid_cell)
+
+        # Skip empty intersections
+        if intersection.is_empty:
+            continue
+        intersections[(row, col)] = intersection
+
+    # Step 3: Handle small cells by merging with neighbors
+    results = {}  # Final list of polygons
+    for (row, col), intersection in intersections.items():
+        # Get the bounds of the intersection
+        minx, miny, maxx, maxy = intersection.bounds
+        width = maxx - minx
+        height = maxy - miny
+
+        # Check if the intersection is too small
+        if width < min_grid_wh or height < min_grid_wh:
+            # Merge with left or right neighbors first
+            merged = False
+            neighbors = [(row, col - 1), (row, col + 1), (row - 1, col), (row + 1, col)]  # Left, right, up, down neighbors
+            for neighbor in neighbors:
+                if neighbor not in intersections.keys():    # if outside the extent of all grid cells
+                    continue
+                
+                neighbor_cell = intersections[neighbor]
+                merged_cell = intersection.union(neighbor_cell).buffer(1)  # Use buffer to fix potential issues with invalid geometries
+                # if isinstance(merged_cell, Polygon):
+                #     merged = True
+                    # merge the intersection with the neighbor
+                results[neighbor] = merged_cell
+                break
+                    # basic.outputlogMessage("Merged a intersection to its neighbor")
+                    # break
+            
+            # # If no neighbor is found to merge, abandon this intersection
+            # if not merged:
+            #     basic.outputlogMessage(f"Warning: Intersection at (row={row}, col={col}) is too small and cannot be merged with neighbors."
+            #                            f" Abandoning it: {intersection}.")
+
+        else:
+            # If the intersection is valid and not too small, add it to the results
+            results[(row, col)] = intersection
+    
+    # Step 4: If the intersection is not a single Polygon, keep the original grid cell
+    for (row, col), intersection in results.items():
+        if not isinstance(intersection, Polygon):
+            basic.outputlogMessage(f"Warning: Intersection: {intersection} at (row={row}, col={col}) is not a single Polygon. Keeping the grid cell.")
+            results[(row, col)] = grid_cells[(row, col)]
+
+
+    return results.values()  # Return the list of resulting polygons
+
 
 def merge_vector_files(file_list, save_path,format='ESRI Shapefile'):
 
