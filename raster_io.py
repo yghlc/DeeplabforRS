@@ -96,7 +96,7 @@ def get_image_bound_box(file_path, buffer=None):
             return new_box_obj
         return raster_bounds
 
-def get_valid_pixel_count(image_path):
+def get_valid_pixel_count(image_path,nodata_user=None):
     """
     get the count of valid pixels (exclude no_data pixel)
     assume that the nodata value already be set
@@ -117,7 +117,8 @@ def get_valid_pixel_count(image_path):
         assert len(set(src.block_shapes)) == 1   # check have identically blocked bands
         # for i, shape in enumerate(src.block_shapes,start=1):    # output shape
         #     print((i, shape))
-        nodata = src.nodata
+        # nodata = src.nodata
+        nodata = src.nodata if src.nodata is not None else nodata_user
         # print(nodata)
         if nodata is None:
             raise ValueError('nodata is not set in %s, cannot tell valid pixel' % image_path)
@@ -156,7 +157,7 @@ def get_valid_pixel_count(image_path):
     # print('valid_pixel_count, total_count, time cost', valid_pixel_count, oneband_data.size, time.time() - t0)
     # return valid_pixel_count, oneband_data.size
 
-def get_valid_pixel_percentage(image_path,total_pixel_num=None, progress=None):
+def get_valid_pixel_percentage(image_path,total_pixel_num=None, progress=None, nodata=None):
     """
     get the percentage of valid pixels (exclude no_data pixel)
     assume that the nodata value already be set
@@ -170,7 +171,7 @@ def get_valid_pixel_percentage(image_path,total_pixel_num=None, progress=None):
     """
     if progress is not None:
         print(progress)
-    valid_pixel_count, total_count = get_valid_pixel_count(image_path)
+    valid_pixel_count, total_count = get_valid_pixel_count(image_path,nodata_user=nodata)
     if total_pixel_num is None:
         total_pixel_num =total_count
 
