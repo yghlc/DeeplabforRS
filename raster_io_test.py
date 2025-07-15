@@ -204,6 +204,17 @@ def test_numpy_array_to_shape():
     print('save to %s'%save_path)
 
 
+def test_convert_images_to_rgb_8bit():
+    data_dir = os.path.expanduser('~/Data/slump_demdiff_classify/pan_Arctic/s2_gee/ARTS-v3_1_0_4bands_S2_SR_HARMONIZED_20240701_2024830_images')
+    img1 = os.path.join(data_dir, 'ARTS-v3_1_0_4bands_S2_SR_HARMONIZED_img0000701427_m0_20240803-193937.tif')
+    img2 = os.path.join(data_dir, 'ARTS-v3_1_0_4bands_S2_SR_HARMONIZED_img0037201690_m0_20240808-202803.tif')
+
+    # raster_io.convert_images_to_rgb_8bit_gdal(img1)
+    # raster_io.convert_images_to_rgb_8bit_gdal(img2)
+
+    raster_io.convert_images_to_rgb_8bit_np(img1, format='PNG',verbose=False)
+    raster_io.convert_images_to_rgb_8bit_np(img2, format='PNG',verbose=False)
+    # raster_io.convert_images_to_rgb_8bit_np(img2)
 
 
 
@@ -218,6 +229,8 @@ if __name__ == '__main__':
 
     # test_read_write_color_table()
 
-    test_numpy_array_to_shape()
+    # test_numpy_array_to_shape()
+
+    test_convert_images_to_rgb_8bit()
 
     pass
