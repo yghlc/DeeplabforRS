@@ -217,6 +217,23 @@ def test_convert_images_to_rgb_8bit():
     # raster_io.convert_images_to_rgb_8bit_np(img2)
 
 
+def test_shannon_entropy_np():
+    data_dir = os.path.expanduser(
+        '~/Data/slump_demdiff_classify/pan_Arctic/s2_gee/ARTS-v3_1_0_4bands_S2_SR_HARMONIZED_20240701_2024830_images')
+    img1 = os.path.join(data_dir, 'ARTS-v3_1_0_4bands_S2_SR_HARMONIZED_img0000701427_m0_20240803-193937.tif')
+    # img2 = os.path.join(data_dir, 'ARTS-v3_1_0_4bands_S2_SR_HARMONIZED_img0037201690_m0_20240808-202803.tif')
+
+    img1_8bit = os.path.join(data_dir, 'ARTS-v3_1_0_4bands_S2_SR_HARMONIZED_img0000701427_m0_20240803-193937_rgb_8bit copy.tif')
+
+    oneband_data, nodata = raster_io.read_raster_one_band_np(img1, band=1)
+    print('entropy:' ,raster_io.get_shannon_entropy_np(oneband_data, log_base=10))
+
+    oneband_data, nodata = raster_io.read_raster_one_band_np(img1_8bit, band=1)
+    print('entropy:', raster_io.get_shannon_entropy_np(oneband_data,log_base=10))
+
+
+
+
 
 if __name__ == '__main__':
     # test_parallel_reading_images()
@@ -231,6 +248,7 @@ if __name__ == '__main__':
 
     # test_numpy_array_to_shape()
 
-    test_convert_images_to_rgb_8bit()
+    # test_convert_images_to_rgb_8bit()
 
+    test_shannon_entropy_np()
     pass
