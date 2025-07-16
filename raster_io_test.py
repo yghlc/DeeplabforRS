@@ -218,18 +218,26 @@ def test_convert_images_to_rgb_8bit():
 
 
 def test_shannon_entropy_np():
-    data_dir = os.path.expanduser(
-        '~/Data/slump_demdiff_classify/pan_Arctic/s2_gee/ARTS-v3_1_0_4bands_S2_SR_HARMONIZED_20240701_2024830_images')
-    img1 = os.path.join(data_dir, 'ARTS-v3_1_0_4bands_S2_SR_HARMONIZED_img0000701427_m0_20240803-193937.tif')
-    # img2 = os.path.join(data_dir, 'ARTS-v3_1_0_4bands_S2_SR_HARMONIZED_img0037201690_m0_20240808-202803.tif')
+    # data_dir = os.path.expanduser(
+    #     '~/Data/slump_demdiff_classify/pan_Arctic/s2_gee/ARTS-v3_1_0_4bands_S2_SR_HARMONIZED_20240701_2024830_images')
+    # img1 = os.path.join(data_dir, 'ARTS-v3_1_0_4bands_S2_SR_HARMONIZED_img0000701427_m0_20240803-193937.tif')
+    # # img2 = os.path.join(data_dir, 'ARTS-v3_1_0_4bands_S2_SR_HARMONIZED_img0037201690_m0_20240808-202803.tif')
+    #
+    # img1_8bit = os.path.join(data_dir, 'ARTS-v3_1_0_4bands_S2_SR_HARMONIZED_img0000701427_m0_20240803-193937_rgb_8bit copy.tif')
+    #
+    # oneband_data, nodata = raster_io.read_raster_one_band_np(img1, band=1)
+    # print('entropy:' ,raster_io.get_shannon_entropy_np(oneband_data, log_base=10))
+    #
+    # oneband_data, nodata = raster_io.read_raster_one_band_np(img1_8bit, band=1)
+    # print('entropy:', raster_io.get_shannon_entropy_np(oneband_data,log_base=10))
 
-    img1_8bit = os.path.join(data_dir, 'ARTS-v3_1_0_4bands_S2_SR_HARMONIZED_img0000701427_m0_20240803-193937_rgb_8bit copy.tif')
+    data_dir2=os.path.expanduser('~/Data/slump_demdiff_classify/pan_Arctic/s2_gee/ARTS-v2_1_0_4bands_S2_SR_HARMONIZED_20240701_2024830_images')
+    img3 = os.path.join(data_dir2, 'ARTS-v2_1_0_4bands_S2_SR_HARMONIZED_img15928_m2_20240819-231750.tif')
+    oneband_data, nodata = raster_io.read_raster_one_band_np(img3, band=1)
+    print('entropy:', raster_io.get_shannon_entropy_np(oneband_data, log_base=10))
 
-    oneband_data, nodata = raster_io.read_raster_one_band_np(img1, band=1)
-    print('entropy:' ,raster_io.get_shannon_entropy_np(oneband_data, log_base=10))
-
-    oneband_data, nodata = raster_io.read_raster_one_band_np(img1_8bit, band=1)
-    print('entropy:', raster_io.get_shannon_entropy_np(oneband_data,log_base=10))
+    oneband_data_8bit = raster_io.image_numpy_to_8bit(oneband_data,2000, 0, src_nodata=0)
+    print('after convert to 8bit, the entropy:', raster_io.get_shannon_entropy_np(oneband_data_8bit, log_base=10))
 
 
 
