@@ -8,8 +8,12 @@ email:huanglingcao@gmail.com
 add time: 13 December, 2019
 """
 
+import os, sys
 from optparse import OptionParser
-import os,sys
+
+code_dir = os.path.join(os.path.dirname(sys.argv[0]), '..')
+sys.path.insert(0, code_dir)
+
 import basic_src.basic as basic
 import basic_src.io_function as io_function
 import parameters
@@ -17,7 +21,7 @@ import parameters
 import vector_features
 from vector_features import shape_opeation
 
-def evaluation_result(result_shp,val_shp,evaluation_txt=None):
+def evaluation_result(para_file, result_shp,val_shp,evaluation_txt=None):
     """
     evaluate the result based on IoU
     :param result_shp: result shape file contains detected polygons
@@ -33,7 +37,7 @@ def evaluation_result(result_shp,val_shp,evaluation_txt=None):
     operation_obj = shape_opeation()
     operation_obj.add_one_field_records_to_shapefile(result_shp, IoUs, 'IoU')
 
-    iou_threshold = parameters.get_IOU_threshold()
+    iou_threshold = parameters.get_digit_parameters(para_file,'IOU_threshold','float')
     true_pos_count = 0
     false_pos_count = 0
     val_polygon_count = operation_obj.get_shapes_count(val_shp)
@@ -105,33 +109,47 @@ def evaluation_result(result_shp,val_shp,evaluation_txt=None):
 
     pass
 
-def main(options, args):
-    input = args[0]
+def evaluation_polygons(input, para_file, data_para_file,out_report):
 
     # evaluation result
-    multi_val_files = parameters.get_string_parameters_None_if_absence('','validation_shape_list')
-    if multi_val_files is None:
-        val_path = parameters.get_validation_shape()
-    else:
-        val_path = io_function.get_path_from_txt_list_index(multi_val_files)
-        # try to change the home folder path if the file does not exist
-        val_path = io_function.get_file_path_new_home_folder(val_path)
+    val_path = parameters.get_file_path_parameters_None_if_absence(data_para_file,'validation_shape')
 
-    if os.path.isfile(val_path):
+    if val_path is not None and os.path.isfile(val_path):
         basic.outputlogMessage('Start evaluation, input: %s, validation file: %s'%(input, val_path))
-        evaluation_result(input, val_path)
+        evaluation_result(para_file, input, val_path, evaluation_txt=out_report)
     else:
         basic.outputlogMessage("warning, validation polygon (%s) not exist, skip evaluation"%val_path)
+
+def main(options, args):
+    input = args[0]
+    para_file = options.para_file
+    data_para_file = options.data_para
+    if data_para_file is None:
+        data_para_file = options.para_file
+    out_report = options.out_report
+
+    evaluation_polygons(input, para_file, data_para_file,out_report)
+
+
 
 
 
 if __name__=='__main__':
+
     usage = "usage: %prog [options] input_path "
     parser = OptionParser(usage=usage, version="1.0 2017-7-24")
     parser.description = 'Introduction: evaluate the mapping results '
     parser.add_option("-p", "--para",
                       action="store", dest="para_file",
                       help="the parameters file")
+
+    parser.add_option("-d", "--data_para",
+                      action="store", dest="data_para",
+                      help="the parameters file for data")
+
+    parser.add_option("-o", "--out_report",
+                      action="store", dest="out_report", default='evaluation_report.txt',
+                      help="the path for the evaluation report")
 
     (options, args) = parser.parse_args()
     if len(sys.argv) < 2 or len(args) < 1:
