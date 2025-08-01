@@ -129,9 +129,10 @@ def select_isolated_files_h3(h3_id_list, threshold_grid_k):
     cell_count = Counter(h3_id_list)
     io_function.save_dict_to_txt_json('cell_count.txt',cell_count)
     isolated = []
+    isolated_idx = []
 
 
-    for h3_id in h3_id_list:
+    for idx, h3_id in enumerate(h3_id_list):
         neighborhood = h3.grid_disk(h3_id, threshold_grid_k)
         # cell_count is a Counter object, which is a subclass of dict.
         # If you ask for a key (an H3 ID) that does not exist in the Counter,
@@ -139,7 +140,8 @@ def select_isolated_files_h3(h3_id_list, threshold_grid_k):
         total_count = sum(cell_count[neighbor] for neighbor in neighborhood)
         if total_count == 1:
             isolated.append(h3_id)
-    return isolated
+            isolated_idx.append(idx)
+    return isolated, isolated_idx
 
 def select_isolated_files_h3_at_res(h3_id_list, threshold_grid_k, res):
     """
@@ -166,11 +168,17 @@ def select_isolated_files_h3_at_res(h3_id_list, threshold_grid_k, res):
         elif curr_res == res:
             converted_ids.append(h)
         # If curr_res < res, ignore (or handle as needed for your use case)
+        else:
+            raise ValueError(f'current res: {curr_res} is smaller than targeted res: {res}')
 
         # print(curr_res, res)
-    print(converted_ids[0],converted_ids[1])
+    # print(converted_ids[0],converted_ids[1])
+    c_isolate_ids, c_isolated_idx = select_isolated_files_h3(converted_ids, threshold_grid_k)
 
-    return select_isolated_files_h3(converted_ids, threshold_grid_k)
+    # get the IDs  at the original res
+    sel_ids = [h3_id_list[idx] for idx in c_isolated_idx]
+
+    return sel_ids
 
 
 def test_select_isolated_files_h3_at_res():
