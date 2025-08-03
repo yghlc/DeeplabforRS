@@ -173,12 +173,14 @@ def select_isolated_files_h3_at_res(h3_id_list, threshold_grid_k, res):
 
         # print(curr_res, res)
     # print(converted_ids[0],converted_ids[1])
+    # print('debugging, h3_id_list, threshold_grid_k, res', len(h3_id_list), threshold_grid_k, res)
+    # print('debugging, converted_ids', len(converted_ids))
     c_isolate_ids, c_isolated_idx = select_isolated_files_h3(converted_ids, threshold_grid_k)
 
     # get the IDs  at the original res
     sel_ids = [h3_id_list[idx] for idx in c_isolated_idx]
 
-    return sel_ids
+    return sel_ids, c_isolated_idx
 
 
 def test_select_isolated_files_h3_at_res():
@@ -194,7 +196,7 @@ def test_select_isolated_files_h3_at_res():
     threshold_grid_k = 1
     res = 8
     # res = 14
-    isolated_ids = select_isolated_files_h3_at_res(h3_ids_list, threshold_grid_k, res)
+    isolated_ids, _ = select_isolated_files_h3_at_res(h3_ids_list, threshold_grid_k, res)
     io_function.save_list_to_txt('isolated_ids.txt',isolated_ids)
 
 
