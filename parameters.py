@@ -6,11 +6,10 @@ introduction: get the parameter from file
 authors: Huang Lingcao
 email:huanglingcao@gmail.com
 add time: 06 May, 2016
+Modified:  18 January, 2021
 """
 
 import sys,os
-import basic_src.basic as basic
-import basic_src.io_function as io_function
 from optparse import OptionParser
 
 saved_parafile_path ='para_default.ini'
@@ -23,18 +22,7 @@ def set_saved_parafile_path(path):
         # sys.exit(1)
     global saved_parafile_path
     saved_parafile_path = path
-# def set_output_basename(basename):
-#     global output_basename
-#     output_basename = basename
-# def set_refchipW(_refchipW):
-#     global refchipW
-#     refchipW = _refchipW
-# def set_refchipH(_refchipH):
-#     global refchipH
-#     refchipH = _refchipH
-# def set_averageOffetperyear(_averageOffetperyear):
-#     global averageOffetperyear
-#     averageOffetperyear = _averageOffetperyear
+
 
 def read_Parameters_file(parafile,parameter):
     try:
@@ -53,9 +41,7 @@ def read_Parameters_file(parafile,parameter):
             value = lineStrs[1].strip()
             break
     inputfile.close()
-    # don't do this
-    # global saved_parafile_path
-    # saved_parafile_path = parafile
+
     return value
 
 
@@ -135,7 +121,6 @@ def get_file_path_parameters(parafile,name):
         raise ValueError('%s not set in %s'%(name,parafile))
     return os.path.expanduser(value)
 
-
 def get_bool_parameters_None_if_absence(parafile,name):
     if parafile =='':
         parafile = saved_parafile_path
@@ -152,7 +137,6 @@ def get_bool_parameters(parafile,name):
     if value is None:
         raise ValueError(' %s not set in %s' % (name, parafile))
     return value
-
 
 def get_digit_parameters_None_if_absence(parafile,name,datatype):
     if parafile =='':
@@ -206,6 +190,14 @@ def get_string_list_parameters(parafile,name):
     if str_value is None or len(str_value) < 1:
         raise ValueError('No inference area is set in %s' % parafile)
     return str_value
+
+def get_area_name_remark_time(area_ini):
+    area_name = get_string_parameters(area_ini, 'area_name')
+    area_remark = get_string_parameters(area_ini, 'area_remark')
+    area_time = get_string_parameters(area_ini, 'area_time')
+    area_name_remark_time = area_name + '_' + area_remark + '_' + area_time
+    return area_name_remark_time
+
 
 #region input and output setting
 def get_input_image_path(parafile=''):
