@@ -16,6 +16,9 @@ import h3
 import geopandas as gpd
 from collections import Counter
 
+import shapely
+from shapely.geometry import Polygon
+
 import basic_src.io_function as io_function
 
 def short_h3(h3id):
@@ -23,6 +26,13 @@ def short_h3(h3id):
 
 def unshort_h3(short_id):
     return short_id.ljust(15, 'f')
+
+# Convert Shapely polygon to H3 LatLngPoly
+def xy_to_latlng(coords):
+    return [(y, x) for x, y in coords]  # shapely: (x=lng, y=lat) -> H3: (lat, lng)
+
+def latlng_to_xy(coords):
+    return [(y, x) for x, y in coords]  # H3: (lat, lng) ->  shapely: (x=lng, y=lat)
 
 def get_folder_file_save_path(root, latitude, longitude, res=14, extension='.tif'):
     """
@@ -222,6 +232,43 @@ def test_get_grid_distance_between_cells():
     cell2 = get_h3_cell_id(lat2,lon2,9)
 
     get_grid_distance_between_cells(cell1, cell2)
+
+
+def get_polygon_of_h3_cell(h3_id_list, map_prj='EPSG:4326'):
+    """
+    Get the polygon geometry of an H3 cell as a GeoDataFrame.
+
+    Args:
+        h3_id (str): The list of H3 cell ID.
+        map_prj (str): The desired coordinate reference system (CRS) for the output GeoDataFrame.
+    """
+    poly_list = []
+    for cid in h3_id_list:
+        boundary = h3.cell_to_boundary(cid)  # [(lat, lng), ...]
+        if not boundary or len(boundary) < 3:
+            continue
+
+        boundary = latlng_to_xy(boundary)
+
+        # Ensure closed ring for Shapely
+        if boundary[0] != boundary[-1]:
+            boundary = boundary + [boundary[0]]
+
+
+        poly = Polygon(boundary)
+        if poly.is_valid and not poly.is_empty:
+            poly_list.append(poly)
+        else:
+            print(f'Warning: The cell polygon is empty or invalid ({poly}), with id: {cid}')
+
+    # conver to GeoDataFrame
+    poly_list = gpd.GeoDataFrame(geometry=poly_list, crs='EPSG:4326')
+    if map_prj != 'EPSG:4326':
+        poly_list = poly_list.to_crs(map_prj)
+
+    return poly_list
+
+
 
 
 def main():
