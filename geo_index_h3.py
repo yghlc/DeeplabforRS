@@ -20,6 +20,8 @@ import shapely
 from shapely.geometry import Polygon, MultiPolygon, LineString, GeometryCollection
 from shapely.ops import split
 
+import antimeridian
+
 import basic_src.io_function as io_function
 
 def short_h3(h3id):
@@ -310,85 +312,101 @@ def h3_cell_to_valid_geom(cell_id):
         coords_wrapped = wrap_coords_180(list(poly.exterior.coords))
         return Polygon(close_ring(coords_wrapped)).buffer(0)
 
+# def get_polygon_of_h3_cell(h3_id_list, map_prj='EPSG:4326', h3_id_col_name='h3_id'):
+#     """
+#     Get the polygon geometry of H3 cells as a GeoDataFrame.
+#     Handles antimeridian-crossing cells robustly.
+#
+#     Args:
+#         h3_id_list: Iterable of H3 cell IDs.
+#         map_prj: Desired CRS for output GeoDataFrame (default EPSG:4326).
+#     """
+#     geoms = []
+#     save_h3_ids = []
+#     for cid in h3_id_list:
+#         try:
+#             geom = h3_cell_to_valid_geom(cid)
+#         except Exception as e:
+#             print(f'Warning: Failed to build polygon for id {cid}: {e}')
+#             geom = None
+#
+#         if geom and geom.is_valid and not geom.is_empty:
+#             geoms.append(geom)
+#             save_h3_ids.append(cid)
+#         else:
+#             if geom:
+#                 fixed = geom.buffer(0)
+#                 if fixed.is_valid and not fixed.is_empty:
+#                     geoms.append(fixed)
+#                     save_h3_ids.append(cid)
+#                     continue
+#             print(f'Warning: The cell polygon is empty or invalid, with id: {cid}')
+#
+#
+#     gdf = gpd.GeoDataFrame(geometry=geoms, data={h3_id_col_name:save_h3_ids}, crs='EPSG:4326')
+#     if map_prj and map_prj != 'EPSG:4326' and not gdf.empty:
+#         gdf = gdf.to_crs(map_prj)
+#     return gdf
+
+
 def get_polygon_of_h3_cell(h3_id_list, map_prj='EPSG:4326', h3_id_col_name='h3_id'):
     """
-    Get the polygon geometry of H3 cells as a GeoDataFrame.
-    Handles antimeridian-crossing cells robustly.
+    Get the polygon geometry of an H3 cell as a GeoDataFrame.
 
     Args:
-        h3_id_list: Iterable of H3 cell IDs.
-        map_prj: Desired CRS for output GeoDataFrame (default EPSG:4326).
+        h3_id (str): The list of H3 cell ID.
+        map_prj (str): The desired coordinate reference system (CRS) for the output GeoDataFrame.
     """
-    geoms = []
+    poly_list = []
     save_h3_ids = []
     for cid in h3_id_list:
-        try:
-            geom = h3_cell_to_valid_geom(cid)
-        except Exception as e:
-            print(f'Warning: Failed to build polygon for id {cid}: {e}')
-            geom = None
+        boundary = h3.cell_to_boundary(cid)  # [(lat, lng), ...]
+        if not boundary or len(boundary) < 3:
+            continue
 
-        if geom and geom.is_valid and not geom.is_empty:
-            geoms.append(geom)
+        boundary = latlng_to_xy(boundary)
+
+        # Ensure closed ring for Shapely
+        if boundary[0] != boundary[-1]:
+            boundary = boundary + [boundary[0]]
+
+        poly = Polygon(boundary)
+
+        if poly.is_empty:
+            print(f'Warning: The cell polygon is empty: ({poly}), with id: {cid}')
+            continue
+
+        if not poly.is_valid:
+            print(f'Warning: The cell polygon is invalid: ({poly}), with id: {cid}, try to fix it using antimeridian')
+            poly = antimeridian.fix_polygon(poly)
+
+        if poly.is_valid:
+            poly_list.append(poly)
             save_h3_ids.append(cid)
         else:
-            if geom:
-                fixed = geom.buffer(0)
-                if fixed.is_valid and not fixed.is_empty:
-                    geoms.append(fixed)
-                    save_h3_ids.append(cid)
-                    continue
-            print(f'Warning: The cell polygon is empty or invalid, with id: {cid}')
+            print(f'Warning: The cell polygon is empty or invalid ({poly}), with id: {cid}')
+
+    # conver to GeoDataFrame
+    poly_list = gpd.GeoDataFrame(geometry=poly_list, data={h3_id_col_name:save_h3_ids}, crs='EPSG:4326')
+    if map_prj != 'EPSG:4326':
+        poly_list = poly_list.to_crs(map_prj)
+
+    return poly_list
 
 
-    gdf = gpd.GeoDataFrame(geometry=geoms, data={h3_id_col_name:save_h3_ids}, crs='EPSG:4326')
-    if map_prj and map_prj != 'EPSG:4326' and not gdf.empty:
-        gdf = gdf.to_crs(map_prj)
-    return gdf
 
-
-# def get_polygon_of_h3_cell(h3_id_list, map_prj='EPSG:4326'):
-#     """
-#     Get the polygon geometry of an H3 cell as a GeoDataFrame.
-
-#     Args:
-#         h3_id (str): The list of H3 cell ID.
-#         map_prj (str): The desired coordinate reference system (CRS) for the output GeoDataFrame.
-#     """
-#     poly_list = []
-#     for cid in h3_id_list:
-#         boundary = h3.cell_to_boundary(cid)  # [(lat, lng), ...]
-#         if not boundary or len(boundary) < 3:
-#             continue
-
-#         boundary = latlng_to_xy(boundary)
-
-#         # Ensure closed ring for Shapely
-#         if boundary[0] != boundary[-1]:
-#             boundary = boundary + [boundary[0]]
-
-
-#         poly = Polygon(boundary)
-#         if poly.is_valid and not poly.is_empty:
-#             poly_list.append(poly)
-#         else:
-#             print(f'Warning: The cell polygon is empty or invalid ({poly}), with id: {cid}')
-
-#     # conver to GeoDataFrame
-#     poly_list = gpd.GeoDataFrame(geometry=poly_list, crs='EPSG:4326')
-#     if map_prj != 'EPSG:4326':
-#         poly_list = poly_list.to_crs(map_prj)
-
-#     return poly_list
-
-
+def test_get_polygon_of_h3_cell():
+    h3_id = '830d86fffffffff'
+    h3_grid_gpd = get_polygon_of_h3_cell([h3_id], map_prj='EPSG:4326', h3_id_col_name='h3_id')
+    h3_grid_gpd.to_file('test_get_polygon_of_h3_cell.gpkg')
 
 
 def main():
     # test_get_h3_cell_id()
     # test_test_get_h3_cell_id()
     # test_get_grid_distance_between_cells()
-    test_select_isolated_files_h3_at_res()
+    # test_select_isolated_files_h3_at_res()
+    test_get_polygon_of_h3_cell()
     pass
 
 
