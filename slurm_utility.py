@@ -53,6 +53,12 @@ def get_submited_job_names(user_name):
     status, output = basic.exec_command_string("squeue --user="+user_name)
     #first line at CU Boulder, JOBID PARTITION  NAME USER ST TIME NODES NODELIST(REASON)
     #first line: Canada compute: JOBID     USER      ACCOUNT           NAME  ST  TIME_LEFT NODES CPUS TRES_PER_N MIN_MEM NODELIST (REASON)
+    
+    if status != 0:
+        print('Error in getting submitted job names for user:', user_name)
+        print('exec_command_string output:', output)
+        return []
+    
     all_lines = output.split('\n')
     first_line = all_lines[0]
     name_idx = first_line.split().index('NAME')
