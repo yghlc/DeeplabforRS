@@ -61,6 +61,11 @@ def str2date(date_str,format = '%Y%m%d'):
     date_obj = datetime.strptime(date_str, format)
     return date_obj
 
+def isoformat_str_2_datetime(iso_str):
+    # input is a format like:  "2021-06-14T05:47:46.000000000"
+    dt_obj = datetime.fromisoformat(iso_str)
+    return dt_obj
+
 def date2str(date, format='%Y%m%d'):
     return date.strftime(format)
 
