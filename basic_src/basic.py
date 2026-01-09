@@ -271,5 +271,11 @@ def get_all_processes_openfiles(proc_name_contain_str=None):
         # # print('process: id, name, started, open %d files'%len(open_file_path), proc[0], proc[1], proc[2])
     return all_open_files
 
+def get_available_cpu_mem_per():
+    # get the percentage of available CPU Memory, not including swp files
+    ram_memory = psutil.virtual_memory()
+    avail_per = 100 - ram_memory.percent  #  ram_memory.percent is the use percent
+    return avail_per
+
 if __name__=='__main__':
     pass
