@@ -15,7 +15,14 @@ from shapely.geometry import Polygon
 from shapely.geometry import MultiPolygon
 from shapely.geometry import Point
 from shapely.geometry import LineString
-from shapely.ops import cascaded_union
+# from shapely.ops import cascaded_union
+try:
+    # Shapely 2.x: only unary_union is available
+    from shapely.ops import unary_union
+    cascaded_union = unary_union  # Alias for compatibility
+except ImportError:
+    # Shapely 1.x: both exist, so import as needed
+    from shapely.ops import cascaded_union, unary_union
 
 import basic_src.basic as basic
 import basic_src.io_function as io_function
