@@ -9,7 +9,8 @@ add time: 04 May, 2016
 """
 
 import os,shutil
-import basic_src.basic as basic
+# import basic_src.basic as basic
+import basic
 import subprocess
 
 from datetime import datetime
@@ -759,5 +760,12 @@ def create_soft_link(src, dst):
         raise IOError(f'The soft link {dst} exists, but the dst not existing')
     os.symlink(abs_src, dst)
 
+
+def test_wait_until_enough_disk_space():
+    workdir = '/Users/huanglingcao'
+    wait_until_enough_disk_space(workdir, min_disk_GB=500)
+
 if __name__=='__main__':
+    test_wait_until_enough_disk_space()
+
     pass
