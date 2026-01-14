@@ -259,6 +259,16 @@ def get_file_list_by_pattern(folder,pattern):
 
     return file_list
 
+def get_drive_or_first_directory(dir):
+    # input: /hdd10Tc/hlc/ArcticDEM_tmp_dir
+    # output: /hdd10Tc
+    rel = os.path.realpath(dir)
+    parts = rel.split(os.sep)
+    if len(parts) > 1:
+        return os.sep + parts[1]
+    else:
+        return os.sep
+
 def get_free_disk_space_GB(dir):
     total, used, free = shutil.disk_usage(dir)  # output in bytes
     return free/(1000*1000*1000)    # convert to GB
@@ -266,8 +276,9 @@ def get_free_disk_space_GB(dir):
 def wait_until_enough_disk_space(work_dir, min_disk_GB=50, max_wait_second=60*60*24):
     free_GB = get_free_disk_space_GB(work_dir)
     total_wait_time = 0
+    disk_name = get_drive_or_first_directory(work_dir)
     while free_GB < min_disk_GB and total_wait_time < max_wait_second:
-        basic.outputlogMessage(f'The free disk space: ({free_GB}) GB is less than {min_disk_GB} GB, wait 60 seconds')
+        basic.outputlogMessage(f'The free disk ({disk_name}) space: ({free_GB}) GB is less than {min_disk_GB} GB, wait 60 seconds')
         time.sleep(60)
         total_wait_time += 60
         free_GB = get_free_disk_space_GB(work_dir)
