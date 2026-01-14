@@ -13,6 +13,7 @@ import basic_src.basic as basic
 import subprocess
 
 from datetime import datetime
+import time
 
 import re
 
@@ -261,6 +262,15 @@ def get_file_list_by_pattern(folder,pattern):
 def get_free_disk_space_GB(dir):
     total, used, free = shutil.disk_usage(dir)  # output in bytes
     return free/(1000*1000*1000)    # convert to GB
+
+def wait_until_enough_disk_space(work_dir, min_disk_GB=50, max_wait_second=60*60*24):
+    free_GB = get_free_disk_space_GB(work_dir)
+    total_wait_time = 0
+    while free_GB < min_disk_GB and total_wait_time < max_wait_second:
+        basic.outputlogMessage(f'The free disk space: ({free_GB}) GB is less than {min_disk_GB} GB, wait 60 seconds')
+        time.sleep(60)
+        total_wait_time += 60
+        free_GB = get_free_disk_space_GB(work_dir)
 
 def get_absolute_path(path):
     return os.path.abspath(path)
