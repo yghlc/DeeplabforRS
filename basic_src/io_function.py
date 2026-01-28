@@ -23,7 +23,7 @@ import re
 import json
 import urllib
 
-def mkdir(path):
+def mkdir(path,b_verbose=True):
     """
     create a folder
     Args:
@@ -38,13 +38,16 @@ def mkdir(path):
     if not isexists:
         try:
             os.makedirs(path)
-            basic.outputlogMessage(path + ' Create Success')
+            if b_verbose:
+                basic.outputlogMessage(path + ' Create Success')
             return True
         except IOError:
-            basic.outputlogMessage('creating %s failed'%path)
+            if b_verbose:
+                basic.outputlogMessage('creating %s failed'%path)
             assert False
     else:
-        print(path + '  already exist')
+        if b_verbose:
+            print(path + '  already exist')
         return False
 
 
