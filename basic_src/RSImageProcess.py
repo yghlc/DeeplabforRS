@@ -237,6 +237,36 @@ def mosaics_images(raster_files,outputfile,nodata=None,compress=None,tiled=None,
 
     return basic.exec_command_string_one_file(CommandString,outputfile)
 
+def mosaics_images_vrt(raster_files,outputfile,nodata=None, resampling_method='average'):
+    """
+    mosaic a set of images using gdalbuildvrt. All the images must be in the same coordinate system and have a matching number of bands,
+    Args:
+        raster_files:a set of images with same coordinate system and have a matching number of bands, list type
+        outputfile: the mosaic result file
+
+    Returns: the result path if successful, False otherwise
+
+    """
+    if isinstance(raster_files,list) is False:
+        raise ValueError('the type of raster_files must be list')
+    if len(raster_files)<2:
+        raise ValueError(f'file count less than 2: {raster_files}')
+
+    cmd_str = f"gdalbuildvrt -resolution average -r {resampling_method} "
+    # add nodata
+    if nodata is not None:
+        cmd_str += f' -srcnodata {nodata} '
+        cmd_str += f' -vrtnodata {nodata} '
+
+    path_no_ext = os.path.splitext(outputfile)[0]
+    img_list_txt = f'{path_no_ext}_infile_list.txt'
+    io_function.save_list_to_txt(img_list_txt, raster_files)
+
+    cmd_str += f" -input_file_list {img_list_txt} {outputfile}"
+
+    return basic.exec_command_string_one_file(cmd_str,outputfile)
+
+
 def subset_image_baseimage(output_file,input_file,baseimage,same_res=False,resample_m='bilinear'):
     """
     subset a image base on the extent of another image
