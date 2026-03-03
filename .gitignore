@@ -10,6 +10,7 @@ __pycache__/
 
 .idea
 processLog.txt
+.vscode
 
 # Distribution / packaging
 .Python
