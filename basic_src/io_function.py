@@ -50,6 +50,19 @@ def mkdir(path,b_verbose=True):
             print(path + '  already exist')
         return False
 
+def delete_file_or_dir_pattern(folder, pattern):
+    """
+    remove files or folders by pattern
+    Args:
+        folder: the folder to search for files or folders to delete
+        pattern: the pattern of file or folder name to delete, such as 'tmp*'
+
+    Returns: True if successful, False otherwise
+    Notes: if IOError occurs or path not exist, it will exit the program
+    """
+    file_foder_list = get_file_list_by_pattern(folder, pattern)
+    for file_or_dir in file_foder_list:
+        delete_file_or_dir(file_or_dir)
 
 def delete_file_or_dir(path):
     """
