@@ -22,6 +22,9 @@ from shapely.ops import split
 
 import antimeridian
 
+import re
+from pathlib import Path
+
 import basic_src.io_function as io_function
 
 def short_h3(h3id):
@@ -98,6 +101,27 @@ def get_folder_file_save_path(root, latitude, longitude, res=14, extension='.tif
     return file_path
 
 
+def get_h3_parent(in_h3_id, out_res):
+    if not h3.is_valid_cell(in_h3_id):
+        raise ValueError(f"H3 cell is invalid: {in_h3_id}")
+
+    curr_res = h3.get_resolution(in_h3_id)
+
+    if curr_res <= out_res:
+        raise ValueError(f"Current resolution ({curr_res}) must be greater than target resolution ({out_res}).")
+
+    return h3.cell_to_parent(in_h3_id, out_res)
+
+def get_h3_id_from_filename(file_path):
+    name = Path(file_path).name
+    # most regular h3 id is start with 8, edge or invalid are start with 4 or b (need to ignore or handle)
+    matches = re.findall(r'(8[0-9a-f]{14})', name, re.IGNORECASE)
+
+    if len(matches) == 0:
+        raise ValueError(f"No H3 ID found in filename: {file_path}")
+    if len(matches) > 1:
+        raise ValueError(f"Multiple H3 IDs found in filename: {file_path}")
+    return matches[0]
 
 
 def get_h3_cell_id(latitude, longitude, resolution):
